@@ -8,6 +8,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import BlogPostForm from "./admin/BlogPostForm";
 import SongForm from "./admin/SongForm";
 import AlbumForm from "./admin/AlbumForm";
+import { PencilIcon, TrashIcon, MusicalNoteIcon, BookOpenIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState(0);
@@ -156,7 +157,20 @@ export default function AdminPanel() {
     }
   }
 
-  const tabItems = ["Blog Posts", "Albums", "Songs Management"];
+  const tabItems = [
+    { 
+      name: "Blog Posts", 
+      icon: <BookOpenIcon className="w-5 h-5" /> 
+    },
+    { 
+      name: "Albums", 
+      icon: <PlusIcon className="w-5 h-5" /> 
+    },
+    { 
+      name: "Songs", 
+      icon: <MusicalNoteIcon className="w-5 h-5" /> 
+    }
+  ];
 
   // Add new function to handle album deletion
   async function handleDeleteAlbum(albumId) {
@@ -172,125 +186,272 @@ export default function AdminPanel() {
     }
   }
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-base-200">
+      <LoadingSpinner />
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-base-200">
-      <Toaster position="top-right" />
+    <div className="min-h-screen bg-base-200 pb-20">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+          },
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-r from-primary/20 to-secondary/20 py-8 mb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-bold text-base-content">Admin Dashboard</h1>
+          <p className="text-base-content/70">Manage your content, albums, and songs</p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="card bg-base-100 shadow-xl">
           <Tab.Group>
-            <Tab.List className="tabs tabs-boxed bg-base-200 p-2">
+            <Tab.List className="tabs tabs-lifted px-4 pt-2 bg-base-200/50">
               {tabItems.map((tab) => (
-                <Tab key={tab} className={({ selected }) => `tab tab-lg flex-1 ${selected ? "tab-active" : ""}`}>
-                  {tab}
+                <Tab key={tab.name} className={({ selected }) => 
+                  `tab tab-lg gap-2 transition-all ${
+                    selected ? "tab-active font-medium" : "hover:text-primary"
+                  }`
+                }>
+                  {tab.icon}
+                  {tab.name}
                 </Tab>
               ))}
             </Tab.List>
 
-            <Tab.Panels className="p-6">
+            <Tab.Panels>
               {/* Blog Posts Panel */}
-              <Tab.Panel>
+              <Tab.Panel className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Blog Post Form */}
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-medium text-gray-900">{isEditing ? "Edit Post" : "Create New Post"}</h3>
-                    <BlogPostForm post={currentPost} isEditing={isEditing} onSubmit={handleSubmit} onChange={setCurrentPost} />
+                  <div>
+                    <BlogPostForm 
+                      post={currentPost} 
+                      isEditing={isEditing} 
+                      onSubmit={handleSubmit} 
+                      onChange={setCurrentPost} 
+                    />
                   </div>
 
-                  {/* Posts List */}
                   <div className="space-y-6">
-                    <h3 className="text-lg font-medium text-gray-900">Published Posts</h3>
-                    <AnimatePresence>
-                      {posts.map((post, index) => (
-                        <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ delay: index * 0.1 }} className="p-4 rounded-lg border border-gray-100 hover:border-gray-200 transition-all">
-                          <h4 className="font-medium text-gray-900">{post.title}</h4>
-                          <p className="mt-1 text-sm text-gray-500 line-clamp-2">{post.content}</p>
-                          <div className="mt-4 flex space-x-3">
-                            <button
-                              onClick={() => {
-                                setCurrentPost(post);
-                                setIsEditing(true);
-                              }}
-                              className="text-sm text-amber-600 hover:text-amber-700"
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-bold">Published Posts</h3>
+                      <div className="badge badge-primary">{posts.length} posts</div>
+                    </div>
+                    
+                    <div className="divider my-2"></div>
+                    
+                    <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2">
+                      <AnimatePresence>
+                        {posts.length > 0 ? (
+                          posts.map((post, index) => (
+                            <motion.div 
+                              key={post.id} 
+                              initial={{ opacity: 0, y: 20 }} 
+                              animate={{ opacity: 1, y: 0 }} 
+                              exit={{ opacity: 0, y: -20 }} 
+                              transition={{ delay: index * 0.05 }}
+                              className="card bg-base-100 shadow-sm hover:shadow-md transition-all border border-base-200"
                             >
-                              Edit
-                            </button>
-                            <button onClick={() => handleDelete(post.id)} className="text-sm text-red-600 hover:text-red-700">
-                              Delete
-                            </button>
+                              <div className="card-body p-4">
+                                <h4 className="card-title text-lg">{post.title}</h4>
+                                <p className="text-sm text-base-content/70 line-clamp-2">{post.content}</p>
+                                <p className="text-xs text-base-content/50">
+                                  {new Date(post.created_at).toLocaleDateString()} • 
+                                  {post.content.length > 200 ? 'Long post' : 'Short post'}
+                                </p>
+                                <div className="card-actions justify-end mt-2">
+                                  <button
+                                    onClick={() => {
+                                      setCurrentPost(post);
+                                      setIsEditing(true);
+                                    }}
+                                    className="btn btn-sm btn-ghost btn-square tooltip tooltip-left"
+                                    data-tip="Edit post"
+                                  >
+                                    <PencilIcon className="w-4 h-4" />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDelete(post.id)} 
+                                    className="btn btn-sm btn-ghost btn-square text-error tooltip tooltip-left"
+                                    data-tip="Delete post"
+                                  >
+                                    <TrashIcon className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))
+                        ) : (
+                          <div className="text-center py-10">
+                            <p className="text-base-content/50">No posts yet</p>
+                            <p className="text-sm">Create your first post</p>
                           </div>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
               </Tab.Panel>
 
               {/* Albums Panel */}
-              <Tab.Panel>
+              <Tab.Panel className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div>
                     <AlbumForm onAlbumAdded={fetchAlbums} />
                   </div>
 
                   <div className="space-y-6">
-                    <h3 className="text-lg font-medium">Manage Albums</h3>
-                    <div className="grid gap-4">
-                      {albums.map((album) => (
-                        <motion.div key={album.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card bg-base-100 shadow-lg">
-                          <div className="card-body">
-                            <div className="flex items-center gap-4">
-                              <img src={album.cover_image_url} alt={album.title} className="w-20 h-20 rounded-lg object-cover" />
-                              <div className="flex-1">
-                                <h4 className="card-title">{album.title}</h4>
-                                <p className="text-sm opacity-70">{new Date(album.release_date).toLocaleDateString()}</p>
-                                <p className="text-sm opacity-70">{album.songs?.length || 0} songs</p>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-bold">Album Collection</h3>
+                      <div className="badge badge-primary">{albums.length} albums</div>
+                    </div>
+                    
+                    <div className="divider my-2"></div>
+                    
+                    <div className="grid gap-4 max-h-[700px] overflow-y-auto pr-2">
+                      <AnimatePresence>
+                        {albums.length > 0 ? (
+                          albums.map((album) => (
+                            <motion.div
+                              key={album.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="card card-side bg-base-100 shadow-sm hover:shadow-md transition-all border border-base-200"
+                            >
+                              <figure className="w-24 h-24">
+                                <img
+                                  src={album.cover_image_url}
+                                  alt={album.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </figure>
+                              <div className="card-body p-4">
+                                <h4 className="card-title text-base">{album.title}</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  <div className="badge badge-outline">
+                                    {new Date(album.release_date).getFullYear()}
+                                  </div>
+                                  <div className="badge badge-outline">
+                                    {album.songs?.length || 0} songs
+                                  </div>
+                                </div>
+                                <div className="card-actions justify-end">
+                                  <button
+                                    onClick={() => handleDeleteAlbum(album.id)}
+                                    className="btn btn-sm btn-error btn-outline"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
                               </div>
-                              <button onClick={() => handleDeleteAlbum(album.id)} className="btn btn-error btn-sm">
-                                Delete
-                              </button>
-                            </div>
+                            </motion.div>
+                          ))
+                        ) : (
+                          <div className="text-center py-10">
+                            <p className="text-base-content/50">No albums yet</p>
+                            <p className="text-sm">Add your first album</p>
                           </div>
-                        </motion.div>
-                      ))}
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
                 </div>
               </Tab.Panel>
 
               {/* Songs Management Panel */}
-              <Tab.Panel>
+              <Tab.Panel className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Song Management Form */}
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-medium text-gray-900">Add New Song</h3>
-                    <SongForm albums={albums} selectedAlbum={selectedAlbum} song={newSong} onSubmit={handleAddSong} onChange={setNewSong} onAlbumChange={setSelectedAlbum} />
+                  <div>
+                    <SongForm 
+                      albums={albums} 
+                      selectedAlbum={selectedAlbum} 
+                      song={newSong} 
+                      onSubmit={handleAddSong} 
+                      onChange={setNewSong} 
+                      onAlbumChange={setSelectedAlbum} 
+                    />
                   </div>
 
-                  {/* Songs List */}
                   <div className="space-y-6">
-                    <h3 className="text-lg font-medium text-gray-900">Manage Songs</h3>
-                    <AnimatePresence>
-                      {albums.map((album) => (
-                        <motion.div key={album.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-2 mb-6">
-                          <h4 className="font-medium text-gray-900">{album.title}</h4>
-                          <div className="space-y-2">
-                            {album.songs?.map((song) => (
-                              <motion.div key={song.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-all" layout>
-                                <span className="text-sm text-gray-700">
-                                  {song.track_number}. {song.title}
-                                </span>
-                                <button onClick={() => handleDeleteSong(song.id)} className="text-sm text-red-600 hover:text-red-700">
-                                  Delete
-                                </button>
-                              </motion.div>
-                            ))}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-bold">Song Catalog</h3>
+                      <div className="badge badge-primary">
+                        {albums.reduce((acc, album) => acc + (album.songs?.length || 0), 0)} songs
+                      </div>
+                    </div>
+                    
+                    <div className="divider my-2"></div>
+                    
+                    <div className="max-h-[700px] overflow-y-auto pr-2 space-y-6">
+                      <AnimatePresence>
+                        {albums.length > 0 ? (
+                          albums.map((album) => (
+                            <motion.div
+                              key={album.id}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              className="space-y-2"
+                            >
+                              <div className="flex items-center gap-3">
+                                <img 
+                                  src={album.cover_image_url} 
+                                  alt={album.title} 
+                                  className="w-10 h-10 rounded-md object-cover" 
+                                />
+                                <h4 className="font-medium">{album.title}</h4>
+                              </div>
+                              
+                              <div className="pl-2 border-l-2 border-primary/20">
+                                {album.songs?.length > 0 ? (
+                                  album.songs.map((song) => (
+                                    <motion.div 
+                                      key={song.id} 
+                                      layout
+                                      className="flex items-center justify-between p-3 bg-base-100 rounded-lg shadow-sm mb-2 hover:shadow-md transition-shadow"
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <div className="bg-base-200 w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                                          {song.track_number}
+                                        </div>
+                                        <div>
+                                          <p className="font-medium">{song.title}</p>
+                                          <p className="text-xs text-base-content/50">
+                                            {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, "0")}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <button 
+                                        onClick={() => handleDeleteSong(song.id)} 
+                                        className="btn btn-ghost btn-xs text-error btn-square"
+                                      >
+                                        <TrashIcon className="w-4 h-4" />
+                                      </button>
+                                    </motion.div>
+                                  ))
+                                ) : (
+                                  <p className="text-sm text-base-content/50 py-2">No songs in this album</p>
+                                )}
+                              </div>
+                            </motion.div>
+                          ))
+                        ) : (
+                          <div className="text-center py-10">
+                            <p className="text-base-content/50">No albums or songs yet</p>
+                            <p className="text-sm">Add an album first, then add songs</p>
                           </div>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
               </Tab.Panel>
