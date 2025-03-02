@@ -73,12 +73,12 @@ export default function AlbumPage() {
             {albums.map((album, index) => (
               <motion.div key={album.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="flex flex-col items-center">
                 {/* Fixed Size Album Card */}
-                <div className="relative w-[280px] h-[280px] rounded-lg bg-gray-900 overflow-hidden">
+                <div className="relative w-[280px] h-[280px] rounded-lg bg-gray-900 overflow-hidden group">
                   <img src={album.cover_image_url} alt={album.title} className="w-[280px] h-[280px] object-cover transform-gpu transition-transform duration-500 group-hover:scale-110" loading="lazy" />
 
                   {/* Overlay with fixed dimensions */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <div className="absolute bottom-0 p-5 w-full">
+                    <div className="absolute bottom-0 p-5 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                       <h2 className="text-lg font-light text-white mb-1 truncate max-w-[240px]">{album.title}</h2>
                       <p className="text-sm text-gray-300 mb-3">
                         {new Date(album.release_date).getFullYear()} • {album.songs?.length} tracks
@@ -102,18 +102,24 @@ export default function AlbumPage() {
         {selectedAlbum && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedAlbum(null)} />
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-              <div className="flex p-6 space-x-6">
-                <img src={selectedAlbum.cover_image_url} alt={selectedAlbum.title} className="w-[160px] h-[160px] rounded-lg object-cover flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-2xl font-light mb-2">{selectedAlbum.title}</h3>
-                  <p className="text-gray-600 mb-4">{new Date(selectedAlbum.release_date).getFullYear()}</p>
-                  <div className="space-y-2 max-h-[40vh] overflow-y-auto">
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="modal-content">
+              <button onClick={() => setSelectedAlbum(null)} className="modal-close-button">
+                <svg xmlns="http://www.w3.org/2000/svg" className="close-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <div className="modal-body">
+                <img src={selectedAlbum.cover_image_url} alt={selectedAlbum.title} className="album-cover" />
+                <div className="album-info">
+                  <h3 className="album-title">{selectedAlbum.title}</h3>
+                  <p className="album-date">Released in {new Date(selectedAlbum.release_date).getFullYear()}</p>
+                  <div className="song-list">
                     {selectedAlbum.songs?.map((song) => (
-                      <div key={song.id} onClick={() => navigate(`/lyrics/${song.id}`)} className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer group">
-                        <span className="text-gray-400 w-6">{song.track_number}</span>
-                        <span className="flex-1 group-hover:text-purple-600 transition-colors">{song.title}</span>
-                        <span className="text-sm text-gray-400">
+                      <div key={song.id} onClick={() => navigate(`/lyrics/${song.id}`)} className="song-item">
+                        <span className="track-number">{song.track_number}</span>
+                        <span className="song-title">{song.title}</span>
+                        <span className="song-duration">
                           {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, "0")}
                         </span>
                       </div>

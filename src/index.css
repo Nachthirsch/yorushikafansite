@@ -1,3 +1,4 @@
+@import "tailwindcss";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -68,34 +69,136 @@
   }
 
   * {
-    @apply border-border;
+    border-color: #e5e7eb;
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-@layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+/* Modal Styles */
+.modal-content {
+  position: relative;
+  background: linear-gradient(to bottom right, #ffffff, #f9fafb);
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 42rem;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+}
 
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+.modal-close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+}
 
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
+.modal-close-button:hover {
+  background-color: #f3f4f6;
+}
 
-  .scrollbar-thin::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
+.close-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #6b7280;
+}
 
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
-  }
+.modal-body {
+  display: flex;
+  padding: 1.5rem;
+  gap: 1.5rem;
+}
+
+.album-cover {
+  width: 160px;
+  height: 160px;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.album-info {
+  flex: 1;
+}
+
+.album-title {
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin-bottom: 0.5rem;
+}
+
+.album-date {
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+.song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 40vh;
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.song-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.song-item:hover {
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.track-number {
+  color: #9ca3af;
+  width: 1.5rem;
+  font-weight: 500;
+}
+
+.song-title {
+  flex: 1;
+  font-weight: 300;
+  transition: color 0.2s;
+}
+
+.song-item:hover .song-title {
+  color: #9333ea;
+}
+
+.song-duration {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-family: monospace;
+}
+
+/* Scrollbar Styles */
+.song-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.song-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.song-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.song-list::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
 }

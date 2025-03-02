@@ -11,8 +11,13 @@ import SongForm from "./admin/SongForm";
 import AlbumForm from "./admin/AlbumForm";
 import { Dialog, Transition } from "@headlessui/react";
 import { PencilIcon, TrashIcon, MusicalNoteIcon, BookOpenIcon, PlusIcon, DocumentTextIcon, ArchiveBoxIcon, ArrowPathIcon, ExclamationTriangleIcon, ChartBarIcon, AdjustmentsHorizontalIcon, ArrowsUpDownIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminPanel() {
+  const navigate = useNavigate();
+
+  // Group all useState hooks together at the top
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [albums, setAlbums] = useState([]);
   const [selectedAlbum, setSelectedAlbum] = useState(null);
@@ -25,37 +30,39 @@ export default function AdminPanel() {
     duration: "",
     lyrics: "",
   });
-
-  // Stats for dashboard
+  const [songs, setSongs] = useState([]);
   const [stats, setStats] = useState({
     totalPosts: 0,
     totalAlbums: 0,
     totalSongs: 0,
   });
-
-  // Sorting states
   const [postSort, setPostSort] = useState("newest");
   const [albumSort, setAlbumSort] = useState("newest");
-
-  // Filter states
   const [postFilter, setPostFilter] = useState("");
   const [albumFilter, setAlbumFilter] = useState("");
-
-  // Confirmation dialog state
   const [deleteConfirmation, setDeleteConfirmation] = useState({
     show: false,
-    type: null, // 'post', 'album', or 'song'
+    type: null,
     id: null,
     title: "",
   });
 
+  // Auth effect
+  useEffect(() => {
+    checkAuth();
+    return () => {};
+  }, []);
+
+  // Data fetching effect
   useEffect(() => {
     let isMounted = true;
 
     async function fetchData() {
+      if (!session) return;
+
       setLoading(true);
       try {
-        await Promise.all([fetchAlbums(), fetchPosts()]);
+        await Promise.all([fetchAlbums(), fetchPosts(), fetchSongs()]);
         if (isMounted) {
           updateStats();
         }
@@ -74,7 +81,68 @@ export default function AdminPanel() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [session]);
+
+  const checkAuth = async () => {
+    try {
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession();
+      setSession(currentSession);
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+      });
+
+      return () => subscription?.unsubscribe();
+    } catch (error) {
+      console.error("Auth error:", error);
+    }
+  };
+
+  const handleGitHubLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          redirectTo: `${window.location.origin}/admin`,
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error logging in:", error);
+      toast.error("Failed to login with GitHub");
+    }
+  };
+
+  // Show login screen if not authenticated
+  if (!session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full mx-4">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Admin Access Required</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">Please log in with GitHub to access the admin panel</p>
+          <button onClick={handleGitHubLogin} className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+            </svg>
+            <span>Login with GitHub</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <LoadingSpinner size="lg" />
+        <p className="ml-3 text-base-content/70 animate-pulse">Loading admin dashboard...</p>
+      </div>
+    );
+  }
 
   function updateStats() {
     setStats({
@@ -224,29 +292,60 @@ export default function AdminPanel() {
     const toastId = toast.loading("Adding new song...");
 
     try {
-      if (!selectedAlbum) {
+      if (!newSong.album_id) {
         toast.error("Please select an album", { id: toastId });
         return;
       }
 
       const { error } = await supabase.from("songs").insert([
         {
-          album_id: selectedAlbum.id,
-          ...newSong,
+          album_id: newSong.album_id,
+          title: newSong.title,
           track_number: parseInt(newSong.track_number) || 1,
           duration: parseInt(newSong.duration) || 0,
+          lyrics: newSong.lyrics,
+          lyrics_translation: newSong.lyrics_translation,
         },
       ]);
 
       if (error) throw error;
 
       await fetchAlbums();
-      setNewSong({ title: "", track_number: "", duration: "", lyrics: "" });
+      setNewSong({
+        title: "",
+        track_number: "",
+        duration: "",
+        lyrics: "",
+        lyrics_translation: "",
+        album_id: "",
+      });
       toast.success("Song added successfully!", { id: toastId });
       updateStats();
     } catch (error) {
       console.error("Error adding song:", error);
       toast.error(error.message || "Failed to add song", { id: toastId });
+    }
+  }
+
+  async function fetchSongs() {
+    try {
+      const { data, error } = await supabase
+        .from("songs")
+        .select(
+          `
+          *,
+          albums (
+            title
+          )
+        `
+        )
+        .order("track_number");
+
+      if (error) throw error;
+      setSongs(data);
+    } catch (error) {
+      console.error("Error fetching songs:", error);
+      toast.error("Failed to load songs");
     }
   }
 
@@ -311,13 +410,92 @@ export default function AdminPanel() {
     },
   ];
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-base-200">
-        <LoadingSpinner size="lg" />
-        <p className="ml-3 text-base-content/70 animate-pulse">Loading admin dashboard...</p>
+  // Update the Songs Management Panel
+  const SongsManagementPanel = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <MusicalNoteIcon className="w-6 h-6 text-blue-500" />
+          Song Management
+        </h2>
+        <div className="flex items-center gap-2">
+          <input type="text" placeholder="Search songs..." className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800" />
+          <button onClick={fetchSongs} className="p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+            <ArrowPathIcon className="w-5 h-5" />
+          </button>
+        </div>
       </div>
-    );
+
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-900/50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Song Details
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Album
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Duration
+                </th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {songs.map((song) => (
+                <tr key={song.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900/20">
+                        <span className="text-indigo-600 dark:text-indigo-400 font-medium">{song.track_number}</span>
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{song.title}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{song.lyrics ? `${song.lyrics.slice(0, 30)}...` : "No lyrics"}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm text-gray-900 dark:text-white">{song.albums?.title}</span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, "0")}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex items-center justify-end gap-2">
+                      <button onClick={() => navigate(`/admin/songs/edit/${song.id}`)} className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                        <PencilIcon className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => navigate(`/lyrics/${song.id}`)} className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20">
+                        <DocumentTextIcon className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          setDeleteConfirmation({
+                            show: true,
+                            type: "song",
+                            id: song.id,
+                            title: song.title,
+                          })
+                        }
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50/80 to-gray-100/80 dark:from-gray-900 dark:to-gray-800/80">
@@ -592,19 +770,7 @@ export default function AdminPanel() {
                           <MusicalNoteIcon className="w-5 h-5 text-blue-500" />
                           Add New Song
                         </h3>
-                        <div className="mb-6">
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Album</label>
-                          <select value={selectedAlbum?.id || ""} onChange={(e) => setSelectedAlbum(albums.find((a) => a.id === e.target.value))} className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent">
-                            <option value="">Choose an album</option>
-                            {albums.map((album) => (
-                              <option key={album.id} value={album.id}>
-                                {album.title} ({new Date(album.release_date).getFullYear()})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <SongForm song={newSong} onChange={setNewSong} onSubmit={handleAddSong} />
+                        <SongForm song={newSong} onChange={setNewSong} onSubmit={handleAddSong} albums={albums} />
                       </div>
                     </div>
                   </div>
@@ -648,19 +814,26 @@ export default function AdminPanel() {
                                         </p>
                                       </div>
                                     </div>
-                                    <button
-                                      onClick={() =>
-                                        setDeleteConfirmation({
-                                          show: true,
-                                          type: "song",
-                                          id: song.id,
-                                          title: song.title,
-                                        })
-                                      }
-                                      className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                      <TrashIcon className="w-5 h-5" />
-                                    </button>
+                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      {/* Edit Button */}
+                                      <button onClick={() => navigate(`/admin/songs/edit/${song.id}`)} className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                        <PencilIcon className="w-5 h-5" />
+                                      </button>
+                                      {/* Delete Button */}
+                                      <button
+                                        onClick={() =>
+                                          setDeleteConfirmation({
+                                            show: true,
+                                            type: "song",
+                                            id: song.id,
+                                            title: song.title,
+                                          })
+                                        }
+                                        className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                                      >
+                                        <TrashIcon className="w-5 h-5" />
+                                      </button>
+                                    </div>
                                   </div>
                                   {song.lyrics && (
                                     <div className="mt-2 pl-12">
@@ -681,6 +854,11 @@ export default function AdminPanel() {
                     </div>
                   </div>
                 </div>
+              </TabPanel>
+
+              {/* Songs Management Section */}
+              <TabPanel className="p-8 lg:p-10">
+                <SongsManagementPanel />
               </TabPanel>
 
               {/* Other panels remain functionally the same but with updated styling... */}
