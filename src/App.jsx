@@ -10,10 +10,9 @@ import AdminPanel from "./components/AdminPanel"; // Updated import
 function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
+      <div>
         <Navbar />
-        <main className="flex-grow pt-24">
-          {" "}
+        <main>
           {/* Increased padding-top */}
           <Routes>
             <Route path="/" element={<AlbumPage />} />
