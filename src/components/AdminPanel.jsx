@@ -39,6 +39,7 @@ export default function AdminPanel() {
 
   // Filter states
   const [postFilter, setPostFilter] = useState("");
+  const [albumFilter, setAlbumFilter] = useState("");
 
   // Confirmation dialog state
   const [deleteConfirmation, setDeleteConfirmation] = useState({
@@ -93,13 +94,15 @@ export default function AdminPanel() {
     })
     .filter((post) => (postFilter ? post.title.toLowerCase().includes(postFilter.toLowerCase()) : true));
 
-  const sortedAlbums = [...albums].sort((a, b) => {
-    if (albumSort === "newest") return new Date(b.release_date) - new Date(a.release_date);
-    if (albumSort === "oldest") return new Date(a.release_date) - new Date(b.release_date);
-    if (albumSort === "alphabetical") return a.title.localeCompare(b.title);
-    if (albumSort === "songs") return (b.songs?.length || 0) - (a.songs?.length || 0);
-    return 0;
-  });
+  const sortedAlbums = [...albums]
+    .sort((a, b) => {
+      if (albumSort === "newest") return new Date(b.release_date) - new Date(a.release_date);
+      if (albumSort === "oldest") return new Date(a.release_date) - new Date(b.release_date);
+      if (albumSort === "alphabetical") return a.title.localeCompare(b.title);
+      if (albumSort === "songs") return (b.songs?.length || 0) - (a.songs?.length || 0);
+      return 0;
+    })
+    .filter((album) => (albumFilter ? album.title.toLowerCase().includes(albumFilter.toLowerCase()) : true));
 
   async function fetchPosts() {
     const toastId = toast.loading("Loading posts...");
@@ -614,6 +617,11 @@ export default function AdminPanel() {
                         </button>
                         <div className="badge badge-secondary badge-lg">{albums.length}</div>
                       </div>
+                    </div>
+
+                    <div className="relative">
+                      <input type="text" placeholder="Search albums..." className="input input-sm input-bordered w-full pr-10" value={albumFilter} onChange={(e) => setAlbumFilter(e.target.value)} />
+                      <AdjustmentsHorizontalIcon className="w-5 h-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-base-content/50" />
                     </div>
 
                     <div className="divider my-3"></div>

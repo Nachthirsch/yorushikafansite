@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabase";
-import toast from "react-hot-toast";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { MusicalNoteIcon, PhotoIcon, CalendarIcon, ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { supabase } from "../../lib/supabase";
+import { PhotoIcon, XMarkIcon, ExclamationCircleIcon, CloudArrowUpIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
 
 export default function AlbumForm({ onAlbumAdded }) {
   const [album, setAlbum] = useState({
@@ -11,155 +11,145 @@ export default function AlbumForm({ onAlbumAdded }) {
     release_date: "",
     cover_image_url: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [imageError, setImageError] = useState(false);
-  const [formTouched, setFormTouched] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    if (album.cover_image_url && album.cover_image_url.trim() !== "") {
-      setImagePreview(album.cover_image_url);
-      setImageError(false);
-    } else {
-      setImagePreview(null);
-    }
-  }, [album.cover_image_url]);
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.currentTarget.classList.add("border-primary");
+  };
 
-  // Mark form as touched when any field changes
-  useEffect(() => {
-    if (album.title || album.release_date || album.cover_image_url) {
-      setFormTouched(true);
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove("border-primary");
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove("border-primary");
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const handleFileSelect = async (file) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
     }
-  }, [album.title, album.release_date, album.cover_image_url]);
+
+    setIsUploading(true);
+    const toastId = toast.loading("Uploading cover image...");
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `album-covers/${fileName}`;
+
+      // Create URL for preview
+      setPreviewUrl(URL.createObjectURL(file));
+
+      const { error: uploadError } = await supabase.storage.from("yorushika").upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("yorushika").getPublicUrl(filePath);
+
+      setAlbum((prev) => ({ ...prev, cover_image_url: publicUrl }));
+      toast.success("Cover image uploaded", { id: toastId });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Failed to upload image", { id: toastId });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    const toastId = toast.loading("Creating album...");
 
     try {
-      const { data, error } = await supabase.from("albums").insert([album]);
+      const { error } = await supabase.from("albums").insert([album]);
+
       if (error) throw error;
 
       setAlbum({ title: "", release_date: "", cover_image_url: "" });
-      setImagePreview(null);
-      setFormTouched(false);
-      if (onAlbumAdded) onAlbumAdded();
-
-      toast.success("Album added successfully!");
+      setPreviewUrl("");
+      onAlbumAdded();
+      toast.success("Album created successfully!", { id: toastId });
     } catch (error) {
-      console.error("Error adding album:", error);
-      toast.error("Failed to add album");
-    } finally {
-      setLoading(false);
+      console.error("Error creating album:", error);
+      toast.error("Failed to create album", { id: toastId });
     }
   };
 
-  const handleReset = () => {
-    setAlbum({ title: "", release_date: "", cover_image_url: "" });
-    setImagePreview(null);
-    setImageError(false);
-    setFormTouched(false);
-  };
-
-  const handleImageError = () => {
-    setImageError(true);
-    setImagePreview(null);
-  };
-
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="h-full">
-      <form onSubmit={handleSubmit} className="card bg-base-100 shadow-xl overflow-hidden border border-base-200 h-full">
-        <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-5 border-b border-base-200">
-          <h3 className="text-xl font-bold text-primary flex items-center gap-2">
-            <MusicalNoteIcon className="w-5 h-5" />
-            Add New Album
-          </h3>
-          <p className="text-sm text-base-content/70 mt-1">Create a new album in the discography</p>
-        </div>
-
-        <div className="card-body gap-6 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <div className="form-control">
-                <label htmlFor="album-title" className="label">
-                  <span className="label-text font-medium">Album Title</span>
-                </label>
-                <div className="relative">
-                  <input id="album-title" type="text" value={album.title} onChange={(e) => setAlbum({ ...album, title: e.target.value })} className="input input-bordered focus:input-primary transition-all w-full pl-10 border-base-300 bg-base-100/50" placeholder="Enter album name" required aria-label="Album title" />
-                  <MusicalNoteIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary/60" />
-                </div>
-              </div>
-
-              <div className="form-control">
-                <label htmlFor="release-date" className="label">
-                  <span className="label-text font-medium">Release Date</span>
-                </label>
-                <div className="relative">
-                  <input id="release-date" type="date" value={album.release_date} onChange={(e) => setAlbum({ ...album, release_date: e.target.value })} className="input input-bordered focus:input-primary transition-all w-full pl-10 border-base-300 bg-base-100/50" required aria-label="Release date" />
-                  <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary/60" />
-                </div>
-              </div>
-
-              <div className="form-control">
-                <label htmlFor="cover-image" className="label">
-                  <span className="label-text font-medium">Cover Image URL</span>
-                </label>
-                <div className="relative">
-                  <input id="cover-image" type="url" value={album.cover_image_url} onChange={(e) => setAlbum({ ...album, cover_image_url: e.target.value })} className="input input-bordered focus:input-primary transition-all w-full pl-10 border-base-300 bg-base-100/50" placeholder="https://example.com/image.jpg" required aria-label="Cover image URL" />
-                  <PhotoIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary/60" />
-                </div>
-                {imageError && (
-                  <div className="flex items-center gap-2 mt-2 text-error text-sm">
-                    <XMarkIcon className="w-4 h-4" />
-                    <p>Invalid image URL. Please provide a valid image link.</p>
-                  </div>
-                )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Cover Image Upload */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Album Cover</label>
+        <div className={`relative flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-xl transition-all ${isUploading ? "bg-gray-100 dark:bg-gray-800" : "bg-white dark:bg-gray-900"} hover:bg-gray-50 dark:hover:bg-gray-800`} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+          {previewUrl ? (
+            <div className="relative w-full h-full">
+              <img src={previewUrl} alt="Cover preview" className="w-full h-full object-contain rounded-lg" />
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewUrl("");
+                  setAlbum((prev) => ({ ...prev, cover_image_url: "" }));
+                }}
+                className="absolute top-2 right-2 px-2 py-1 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="text-center p-6">
+              <PhotoIcon className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+              <div className="mt-4 flex flex-col items-center text-sm">
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-500 rounded-lg transition-colors">
+                  <CloudArrowUpIcon className="w-4 h-4" />
+                  Select Image
+                </button>
+                <p className="mt-2 text-gray-500 dark:text-gray-400">or drag and drop</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
               </div>
             </div>
-
-            <div className="flex flex-col items-center justify-center p-4 bg-base-200/30 rounded-xl border border-base-300/50">
-              {imagePreview ? (
-                <div className="w-full flex flex-col items-center">
-                  <div className="relative group w-48 h-48">
-                    <div className="w-full h-full overflow-hidden rounded-lg border-2 border-primary/20 shadow-md transition-all group-hover:border-primary/40">
-                      <img src={imagePreview} alt="Album cover preview" className="w-full h-full object-cover" onError={handleImageError} />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-base-300/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex items-end justify-center transition-all rounded-lg p-3">
-                      <p className="text-sm font-medium text-center">Album Cover Preview</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-base-content/60 mt-3 text-center">This is how your album cover will appear</p>
-                </div>
-              ) : (
-                <div className="w-full flex flex-col items-center">
-                  <div className="w-48 h-48 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-base-300 bg-base-200/50">
-                    <ArrowUpTrayIcon className="w-12 h-12 text-base-content/30 mb-2" />
-                    <p className="text-sm text-base-content/60 text-center px-4">Enter a URL above to preview your album cover</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="divider my-2"></div>
-
-          <div className="card-actions justify-end mt-4">
-            <button type="button" onClick={handleReset} className="btn btn-ghost hover:bg-base-200" disabled={loading || !formTouched} aria-label="Reset form">
-              Reset
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={loading || imageError} aria-label="Add album">
-              {loading ? (
-                <>
-                  <span className="loading loading-spinner loading-sm mr-2"></span>
-                  Adding...
-                </>
-              ) : (
-                "Add Album"
-              )}
-            </button>
-          </div>
+          )}
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])} className="hidden" />
         </div>
-      </form>
-    </motion.div>
+      </div>
+
+      {/* Album Title */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Album Title</label>
+        <input type="text" value={album.title} onChange={(e) => setAlbum({ ...album, title: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" placeholder="Enter album title" required />
+      </div>
+
+      {/* Release Date */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Release Date</label>
+        <input type="date" value={album.release_date} onChange={(e) => setAlbum({ ...album, release_date: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500" required />
+      </div>
+
+      <div className="flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setAlbum({ title: "", release_date: "", cover_image_url: "" });
+            setPreviewUrl("");
+          }}
+          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+        >
+          Cancel
+        </button>
+        <button type="submit" disabled={isUploading} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors">
+          Create Album
+        </button>
+      </div>
+    </form>
   );
 }

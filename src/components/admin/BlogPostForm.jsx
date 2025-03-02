@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { motion } from "framer-motion";
-import { DocumentTextIcon, PencilIcon, DocumentIcon, ClockIcon, LanguageIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { DocumentTextIcon, PencilIcon, ClockIcon } from "@heroicons/react/24/outline";
 
 export default function BlogPostForm({ post, isEditing, onSubmit, onChange }) {
   const [textStats, setTextStats] = useState({ words: 0, chars: 0, readingTime: 0, paragraphs: 0 });
@@ -35,78 +35,43 @@ export default function BlogPostForm({ post, isEditing, onSubmit, onChange }) {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="h-full">
-      <form onSubmit={onSubmit} className="card bg-base-100 shadow-xl overflow-hidden border border-base-200 h-full">
-        <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-5 border-b border-base-200">
-          <h3 className="text-xl font-bold text-primary flex items-center gap-2">
-            {isEditing ? (
-              <>
-                <PencilIcon className="w-5 h-5" />
-                Edit Blog Post
-              </>
-            ) : (
-              <>
-                <DocumentTextIcon className="w-5 h-5" />
-                Create New Blog Post
-              </>
-            )}
-          </h3>
-          <p className="text-sm text-base-content/70 mt-1">{isEditing ? "Update your existing post" : "Share news, updates, or announcements"}</p>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="max-w-4xl mx-auto p-4">
+      <form onSubmit={onSubmit} className="space-y-6 bg-base-200 rounded-xl p-6">
+        {/* Header */}
+        <div className="border-b border-base-300 pb-4">
+          <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+            <DocumentTextIcon className="w-5 h-5" />
+            {isEditing ? "Edit Post" : "Create New Post"}
+          </h2>
         </div>
 
-        <div className="card-body gap-6 p-6">
-          <div className="form-control">
-            <label htmlFor="post-title" className="label">
-              <span className="label-text font-medium">Post Title</span>
-            </label>
-            <div className="relative">
-              <input id="post-title" type="text" value={post.title} onChange={(e) => onChange({ ...post, title: e.target.value })} className="input input-bordered focus:input-primary w-full pl-10 border-base-300 bg-base-100/50" placeholder="Enter post title" required aria-label="Post title" />
-              <DocumentIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary/60" />
-            </div>
-          </div>
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Title</label>
+          <input type="text" value={post.title} onChange={(e) => onChange({ ...post, title: e.target.value })} className="input input-bordered w-full bg-base-100" placeholder="Enter post title" required />
+        </div>
 
-          <div className="form-control">
-            <label htmlFor="post-content" className="label">
-              <span className="label-text font-medium">Content</span>
-              {post.content && (
-                <div className="flex flex-wrap gap-2">
-                  <div className="flex items-center gap-1 bg-base-200 px-2 py-1 rounded-full text-xs font-medium">
-                    <LanguageIcon className="w-3 h-3 text-primary/70" />
-                    <span>{textStats.words} words</span>
-                  </div>
-                  <div className="flex items-center gap-1 bg-base-200 px-2 py-1 rounded-full text-xs font-medium">
-                    <DocumentTextIcon className="w-3 h-3 text-primary/70" />
-                    <span>{textStats.paragraphs} paragraphs</span>
-                  </div>
-                  <div className="flex items-center gap-1 bg-base-200 px-2 py-1 rounded-full text-xs font-medium">
-                    <ClockIcon className="w-3 h-3 text-primary/70" />
-                    <span>~{textStats.readingTime} min read</span>
-                  </div>
-                </div>
-              )}
-            </label>
-            <div className="relative">
-              <div className="absolute left-3 top-3 opacity-70">
-                <PencilIcon className="w-5 h-5 text-primary/60" />
-              </div>
-              <TextareaAutosize id="post-content" value={post.content} onChange={(e) => onChange({ ...post, content: e.target.value })} placeholder="Write your blog post content here..." className="textarea textarea-bordered focus:textarea-primary min-h-[300px] leading-relaxed w-full pl-10 border-base-300 bg-base-100/50" required aria-label="Post content" />
+        {/* Content */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Content</label>
+          <TextareaAutosize value={post.content} onChange={(e) => onChange({ ...post, content: e.target.value })} className="textarea textarea-bordered w-full min-h-[300px] bg-base-100 font-mono text-sm" placeholder="Write your post content..." required />
+          {post.content && (
+            <div className="flex gap-4 mt-2 text-sm text-base-content/60">
+              <span>{textStats.words} words</span>
+              <span>{textStats.readingTime} min read</span>
+              <span>{textStats.paragraphs} paragraphs</span>
             </div>
-            <div className="flex items-center gap-2 mt-2 text-xs text-base-content/60">
-              <DocumentTextIcon className="w-4 h-4" />
-              <p>Format your post with clear paragraphs for better readability. Use double line breaks to separate paragraphs.</p>
-            </div>
-          </div>
+          )}
+        </div>
 
-          <div className="divider my-2"></div>
-
-          <div className="card-actions justify-end mt-4">
-            <button type="button" onClick={handleClear} className="btn btn-ghost hover:bg-base-200" disabled={!formTouched} aria-label="Clear form">
-              Clear
-            </button>
-            <button type="submit" className="btn btn-primary" aria-label={isEditing ? "Update post" : "Create post"}>
-              {isEditing ? "Update Post" : "Create Post"}
-            </button>
-          </div>
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-base-300">
+          <button type="button" onClick={handleClear} className="btn btn-ghost" disabled={!formTouched}>
+            Cancel
+          </button>
+          <button type="submit" className="btn btn-primary">
+            {isEditing ? "Update Post" : "Create Post"}
+          </button>
         </div>
       </form>
     </motion.div>
