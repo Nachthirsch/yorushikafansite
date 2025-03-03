@@ -8,32 +8,43 @@ import LyricsPage from "./pages/LyricsPage";
 import NewsPage from "./pages/NewsPage";
 import AdminPanel from "./components/AdminPanel"; // Updated import
 import EditSongPage from "./pages/admin/EditSongPage";
+import { AdminProvider } from "./contexts/AdminContext";
+import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
   return (
-    <Router>
-      <div>
-        <Navbar />
-        <main>
-          {/* Increased padding-top */}
-          <Routes>
-            <Route path="/" element={<AlbumPage />} />
-            <Route path="/lyrics/:songId" element={<LyricsPage />} />
-            <Route path="/news" element={<NewsPage />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route
-              path="/admin/songs/edit/:songId"
-              element={
-                <AuthGuard>
-                  <EditSongPage />
-                </AuthGuard>
-              }
-            />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div>
+          <Navbar />
+          <main>
+            {/* Increased padding-top */}
+            <Routes>
+              <Route path="/" element={<AlbumPage />} />
+              <Route path="/lyrics/:songId" element={<LyricsPage />} />
+              <Route path="/news" element={<NewsPage />} />
+              <Route
+                path="/admin/*"
+                element={
+                  <AdminProvider>
+                    <AdminPanel />
+                  </AdminProvider>
+                }
+              />
+              <Route
+                path="/admin/songs/edit/:songId"
+                element={
+                  <AuthGuard>
+                    <EditSongPage />
+                  </AuthGuard>
+                }
+              />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

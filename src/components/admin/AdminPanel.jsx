@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable no-undef */
+import React, { useEffect, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
+import { useAuth } from "../../contexts/AuthContext"; // Add this import
 import { Tab } from "@headlessui/react";
 import toast, { Toaster } from "react-hot-toast";
-import LoadingSpinner from "../LoadingSpinner";
-import BlogPostForm from "./admin/BlogPostForm";
-import SongForm from "./admin/SongForm";
-import AlbumForm from "./admin/AlbumForm";
-import { useNavigate } from "react-router-dom";
+import BlogPostForm from "./BlogPostForm";
+import SongForm from "./SongForm";
+import AlbumForm from "./AlbumForm";
 import { ChartBarIcon, BookOpenIcon, ArchiveBoxIcon, MusicalNoteIcon } from "@heroicons/react/24/outline";
+import { AdminProvider, useAdmin } from "../../contexts/AdminContext";
 
 // Import our new components
 import LoginScreen from "./auth/LoginScreen";
@@ -17,374 +19,294 @@ import BlogPostsPanel from "./blog/BlogPostsPanel";
 import AlbumsPanel from "./albums/AlbumsPanel";
 import SongsPanel from "./songs/SongsPanel";
 import SongsManagementPanel from "./songs/SongsManagementPanel";
+import { usePageVisibility } from "../../hooks/usePageVisibility";
 
-export default function AdminPanel() {
+// Wrap the main content in a memo to prevent unnecessary re-renders
+const AdminContent = React.memo(function AdminContent() {
+  const [state, dispatch] = useAdmin();
+  const isPageVisible = usePageVisibility();
   const navigate = useNavigate();
+  const { session } = useAuth(); // Move auth check here
 
-  // Group all useState hooks together at the top
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [albums, setAlbums] = useState([]);
-  const [selectedAlbum, setSelectedAlbum] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [currentPost, setCurrentPost] = useState({ title: "", content: "" });
-  const [isEditing, setIsEditing] = useState(false);
-  const [newSong, setNewSong] = useState({
-    title: "",
-    track_number: "",
-    duration: "",
-    lyrics: "",
-  });
-  const [songs, setSongs] = useState([]);
-  const [stats, setStats] = useState({
-    totalPosts: 0,
-    totalAlbums: 0,
-    totalSongs: 0,
-  });
-  const [postSort, setPostSort] = useState("newest");
-  const [albumSort, setAlbumSort] = useState("newest");
-  const [postFilter, setPostFilter] = useState("");
-  const [albumFilter, setAlbumFilter] = useState("");
-  const [deleteConfirmation, setDeleteConfirmation] = useState({
-    show: false,
-    type: null,
-    id: null,
-    title: "",
-  });
-
-  // Auth effect
-  useEffect(() => {
-    checkAuth();
-    return () => {};
-  }, []);
-
-  // Data fetching effect
-  useEffect(() => {
-    let isMounted = true;
-
-    async function fetchData() {
-      if (!session) return;
-
-      setLoading(true);
-      try {
-        await Promise.all([fetchAlbums(), fetchPosts(), fetchSongs()]);
-        if (isMounted) {
-          updateStats();
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("Failed to load data");
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [session]);
-
-  const checkAuth = async () => {
-    try {
-      const {
-        data: { session: currentSession },
-      } = await supabase.auth.getSession();
-      setSession(currentSession);
-
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session);
-      });
-
-      return () => subscription?.unsubscribe();
-    } catch (error) {
-      console.error("Auth error:", error);
-    }
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const handleGitHubLogin = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "github",
-        options: {
-          redirectTo: `${window.location.origin}/admin`,
-        },
-      });
-      if (error) throw error;
-    } catch (error) {
-      console.error("Error logging in:", error);
-      toast.error("Failed to login with GitHub");
-    }
-  };
-
-  // Show login screen if not authenticated
-  if (!session) {
-    return <LoginScreen />;
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-base-200">
-        <LoadingSpinner size="lg" />
-        <p className="ml-3 text-base-content/70 animate-pulse">Loading admin dashboard...</p>
-      </div>
-    );
-  }
-
-  function updateStats() {
-    setStats({
-      totalPosts: posts.length,
-      totalAlbums: albums.length,
-      totalSongs: albums.reduce((acc, album) => acc + (album.songs?.length || 0), 0),
-    });
-  }
-
-  async function fetchPosts() {
-    const toastId = toast.loading("Loading posts...");
+  // Define all hooks and callbacks first
+  const fetchPosts = useCallback(async () => {
+    if (!isPageVisible) return;
     try {
       const { data, error } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false });
-
       if (error) throw error;
-      setPosts(data || []);
-      toast.success("Posts loaded", { id: toastId });
+      return data || [];
     } catch (error) {
       console.error("Error fetching posts:", error);
-      toast.error("Failed to load posts", { id: toastId });
+      toast.error("Failed to load posts");
+      return [];
     }
-  }
+  }, [isPageVisible]);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const toastId = toast.loading(isEditing ? "Updating post..." : "Creating post...");
-
+  const fetchAlbums = useCallback(async () => {
+    if (!isPageVisible) return;
     try {
-      const { error } = isEditing
-        ? await supabase
-            .from("blog_posts")
-            .update({
-              title: currentPost.title,
-              content: currentPost.content,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", currentPost.id)
-        : await supabase.from("blog_posts").insert([
-            {
-              title: currentPost.title,
-              content: currentPost.content,
-              published: true,
-              publish_date: new Date().toISOString(),
-            },
-          ]);
-
+      const { data, error } = await supabase.from("albums").select(`*, songs(*)`).order("release_date", { ascending: false });
       if (error) throw error;
-
-      await fetchPosts();
-      setCurrentPost({ title: "", content: "" });
-      setIsEditing(false);
-      toast.success(isEditing ? "Post updated!" : "Post created!", { id: toastId });
-      updateStats();
-    } catch (error) {
-      console.error("Error saving post:", error);
-      toast.error("Failed to save post", { id: toastId });
-    }
-  }
-
-  async function handleDelete(type, id) {
-    setDeleteConfirmation({
-      show: false,
-      type: null,
-      id: null,
-      title: "",
-    });
-
-    const toastId = toast.loading(`Deleting ${type}...`);
-    try {
-      let error;
-
-      if (type === "post") {
-        const { error: err } = await supabase.from("blog_posts").delete().eq("id", id);
-        error = err;
-        if (!error) await fetchPosts();
-      } else if (type === "album") {
-        const { error: err } = await supabase.from("albums").delete().eq("id", id);
-        error = err;
-        if (!error) await fetchAlbums();
-      } else if (type === "song") {
-        const { error: err } = await supabase.from("songs").delete().eq("id", id);
-        error = err;
-        if (!error) await fetchAlbums();
-      }
-
-      if (error) throw error;
-
-      toast.success(`${type} deleted successfully!`, { id: toastId });
-      updateStats();
-    } catch (error) {
-      console.error(`Error deleting ${type}:`, error);
-      toast.error(`Failed to delete ${type}`, { id: toastId });
-    }
-  }
-
-  async function fetchAlbums() {
-    const toastId = toast.loading("Loading albums...");
-    try {
-      const { data, error } = await supabase
-        .from("albums")
-        .select(
-          `
-          *,
-          songs (
-            id,
-            title,
-            track_number,
-            duration,
-            lyrics
-          )
-        `
-        )
-        .order("release_date", { ascending: false });
-
-      if (error) throw error;
-      setAlbums(data || []);
-      toast.success("Albums loaded", { id: toastId });
+      return data || [];
     } catch (error) {
       console.error("Error fetching albums:", error);
-      toast.error("Failed to load albums", { id: toastId });
-      throw error; // Re-throw for handling in useEffect
+      toast.error("Failed to load albums");
+      return [];
     }
-  }
+  }, [isPageVisible]);
 
-  async function handleAddSong(e) {
-    e.preventDefault();
-    const toastId = toast.loading("Adding new song...");
-
+  const fetchSongs = useCallback(async () => {
+    if (!isPageVisible) return;
     try {
-      if (!newSong.album_id) {
-        toast.error("Please select an album", { id: toastId });
-        return;
-      }
-
-      const { error } = await supabase.from("songs").insert([
-        {
-          album_id: newSong.album_id,
-          title: newSong.title,
-          track_number: parseInt(newSong.track_number) || 1,
-          duration: parseInt(newSong.duration) || 0,
-          lyrics: newSong.lyrics,
-          lyrics_translation: newSong.lyrics_translation,
-        },
-      ]);
-
+      const { data, error } = await supabase.from("songs").select(`*, albums(title)`).order("track_number");
       if (error) throw error;
-
-      await fetchAlbums();
-      setNewSong({
-        title: "",
-        track_number: "",
-        duration: "",
-        lyrics: "",
-        lyrics_translation: "",
-        album_id: "",
-      });
-      toast.success("Song added successfully!", { id: toastId });
-      updateStats();
-    } catch (error) {
-      console.error("Error adding song:", error);
-      toast.error(error.message || "Failed to add song", { id: toastId });
-    }
-  }
-
-  async function fetchSongs() {
-    try {
-      const { data, error } = await supabase
-        .from("songs")
-        .select(
-          `
-          *,
-          albums (
-            title
-          )
-        `
-        )
-        .order("track_number");
-
-      if (error) throw error;
-      setSongs(data);
+      return data || [];
     } catch (error) {
       console.error("Error fetching songs:", error);
       toast.error("Failed to load songs");
+      return [];
     }
+  }, [isPageVisible]);
+
+  const fetchData = useCallback(async () => {
+    if (!isPageVisible) return;
+    dispatch({ type: "SET_LOADING", payload: true });
+    try {
+      const [albumsData, postsData, songsData] = await Promise.all([fetchAlbums(), fetchPosts(), fetchSongs()]);
+
+      dispatch({ type: "SET_ALBUMS", payload: albumsData });
+      dispatch({ type: "SET_POSTS", payload: postsData });
+      dispatch({ type: "SET_SONGS", payload: songsData });
+
+      // Update stats after data is loaded
+      const stats = {
+        totalPosts: postsData.length,
+        totalAlbums: albumsData.length,
+        totalSongs: albumsData.reduce((acc, album) => acc + (album.songs?.length || 0), 0),
+      };
+      dispatch({ type: "UPDATE_STATS", payload: stats });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to load data");
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  }, [isPageVisible, dispatch, fetchAlbums, fetchPosts, fetchSongs]);
+
+  // All other callback definitions
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      const toastId = toast.loading(state.isEditing ? "Updating post..." : "Creating post...");
+      try {
+        const { error } = state.isEditing
+          ? await supabase
+              .from("blog_posts")
+              .update({
+                title: state.currentPost.title,
+                content: state.currentPost.content,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", state.currentPost.id)
+          : await supabase.from("blog_posts").insert([
+              {
+                title: state.currentPost.title,
+                content: state.currentPost.content,
+                published: true,
+                publish_date: new Date().toISOString(),
+              },
+            ]);
+
+        if (error) throw error;
+        await fetchData();
+        dispatch({ type: "RESET_CURRENT_POST" });
+        dispatch({ type: "SET_IS_EDITING", payload: false });
+        toast.success(state.isEditing ? "Post updated!" : "Post created!", { id: toastId });
+      } catch (error) {
+        console.error("Error saving post:", error);
+        toast.error("Failed to save post", { id: toastId });
+      }
+    },
+    [state.isEditing, state.currentPost, dispatch, fetchData]
+  );
+
+  const handleDelete = useCallback(
+    async (type, id) => {
+      dispatch({ type: "HIDE_DELETE_CONFIRMATION" });
+      const toastId = toast.loading(`Deleting ${type}...`);
+      try {
+        const { error } = await supabase
+          .from(type === "post" ? "blog_posts" : type === "album" ? "albums" : "songs")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+        await fetchData();
+        toast.success(`${type} deleted successfully!`, { id: toastId });
+      } catch (error) {
+        console.error(`Error deleting ${type}:`, error);
+        toast.error(`Failed to delete ${type}`, { id: toastId });
+      }
+    },
+    [dispatch, fetchData]
+  );
+
+  const handleAddSong = useCallback(
+    async (e) => {
+      e.preventDefault();
+      const toastId = toast.loading("Adding new song...");
+
+      try {
+        if (!state.newSong.album_id) {
+          toast.error("Please select an album", { id: toastId });
+          return;
+        }
+
+        const { error } = await supabase.from("songs").insert([
+          {
+            album_id: state.newSong.album_id,
+            title: state.newSong.title,
+            track_number: parseInt(state.newSong.track_number) || 1,
+            duration: parseInt(state.newSong.duration) || 0,
+            lyrics: state.newSong.lyrics,
+            lyrics_translation: state.newSong.lyrics_translation,
+          },
+        ]);
+
+        if (error) throw error;
+
+        await fetchData();
+        dispatch({
+          type: "SET_NEW_SONG",
+          payload: {
+            title: "",
+            track_number: "",
+            duration: "",
+            lyrics: "",
+            lyrics_translation: "",
+            album_id: "",
+          },
+        });
+        toast.success("Song added successfully!", { id: toastId });
+      } catch (error) {
+        console.error("Error adding song:", error);
+        toast.error(error.message || "Failed to add song", { id: toastId });
+      }
+    },
+    [state.newSong, dispatch, fetchData]
+  );
+
+  const handleEditPost = useCallback(
+    (post) => {
+      dispatch({ type: "SET_CURRENT_POST", payload: post });
+      dispatch({ type: "SET_IS_EDITING", payload: true });
+    },
+    [dispatch]
+  );
+
+  const handleEditSong = useCallback(
+    (song) => {
+      navigate(`/admin/songs/edit/${song.id}`);
+    },
+    [navigate]
+  );
+
+  const handleViewLyrics = useCallback(
+    (song) => {
+      navigate(`/lyrics/${song.id}`);
+    },
+    [navigate]
+  );
+
+  const handleDeletePost = useCallback(
+    (post) => {
+      dispatch({
+        type: "SET_DELETE_CONFIRMATION",
+        payload: {
+          show: true,
+          type: "post",
+          id: post.id,
+          title: post.title,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleDeleteAlbum = useCallback(
+    (album) => {
+      dispatch({
+        type: "SET_DELETE_CONFIRMATION",
+        payload: {
+          show: true,
+          type: "album",
+          id: album.id,
+          title: album.title,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleDeleteSong = useCallback(
+    (song) => {
+      dispatch({
+        type: "SET_DELETE_CONFIRMATION",
+        payload: {
+          show: true,
+          type: "song",
+          id: song.id,
+          title: song.title,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  // Add onAlbumAdded callback
+  const handleAlbumAdded = useCallback(async () => {
+    await fetchData();
+  }, [fetchData]);
+
+  // Effect hook
+  useEffect(() => {
+    if (session) {
+      fetchData();
+    }
+  }, [fetchData, session]);
+
+  // Memoized values
+  const tabItems = useMemo(
+    () => [
+      {
+        name: "Dashboard",
+        icon: <ChartBarIcon className="w-5 h-5" />,
+      },
+      {
+        name: "Blog Posts",
+        icon: <BookOpenIcon className="w-5 h-5" />,
+      },
+      {
+        name: "Albums",
+        icon: <ArchiveBoxIcon className="w-5 h-5" />,
+      },
+      {
+        name: "Songs",
+        icon: <MusicalNoteIcon className="w-5 h-5" />,
+      },
+      {
+        name: "Songs Management",
+        icon: <MusicalNoteIcon className="w-5 h-5" />,
+      },
+    ],
+    []
+  );
+
+  // Early returns after all hooks are defined
+  if (!session) {
+    return <LoginScreen />;
   }
-
-  const handleEditPost = (post) => {
-    setCurrentPost(post);
-    setIsEditing(true);
-  };
-
-  const handleDeletePost = (post) => {
-    setDeleteConfirmation({
-      show: true,
-      type: "post",
-      id: post.id,
-      title: post.title,
-    });
-  };
-
-  const handleDeleteAlbum = (album) => {
-    setDeleteConfirmation({
-      show: true,
-      type: "album",
-      id: album.id,
-      title: album.title,
-    });
-  };
-
-  const handleDeleteSong = (song) => {
-    setDeleteConfirmation({
-      show: true,
-      type: "song",
-      id: song.id,
-      title: song.title,
-    });
-  };
-
-  const handleViewLyrics = (song) => {
-    navigate(`/lyrics/${song.id}`);
-  };
-
-  const handleEditSong = (song) => {
-    navigate(`/admin/songs/edit/${song.id}`);
-  };
-
-  const tabItems = [
-    {
-      name: "Dashboard",
-      icon: <ChartBarIcon className="w-5 h-5" />,
-    },
-    {
-      name: "Blog Posts",
-      icon: <BookOpenIcon className="w-5 h-5" />,
-    },
-    {
-      name: "Albums",
-      icon: <ArchiveBoxIcon className="w-5 h-5" />,
-    },
-    {
-      name: "Songs",
-      icon: <MusicalNoteIcon className="w-5 h-5" />,
-    },
-    {
-      name: "Songs Management",
-      icon: <MusicalNoteIcon className="w-5 h-5" />,
-    },
-  ];
-
+  // Rest of the component render logic
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50/80 to-gray-100/80 dark:from-gray-900 dark:to-gray-800/80">
       <Toaster
@@ -395,7 +317,8 @@ export default function AdminPanel() {
         }}
       />
 
-      <ConfirmationDialog isOpen={deleteConfirmation.show} onClose={() => setDeleteConfirmation({ ...deleteConfirmation, show: false })} onConfirm={() => handleDelete(deleteConfirmation.type, deleteConfirmation.id)} type={deleteConfirmation.type} title={deleteConfirmation.title} />
+      {/* Add null check for deleteConfirmation */}
+      <ConfirmationDialog isOpen={state.deleteConfirmation?.show || false} onClose={() => dispatch({ type: "HIDE_DELETE_CONFIRMATION" })} onConfirm={() => handleDelete(state.deleteConfirmation?.type, state.deleteConfirmation?.id)} type={state.deleteConfirmation?.type || ""} title={state.deleteConfirmation?.title || ""} />
 
       {/* Header Section */}
       <div className="bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 dark:from-blue-500/10 dark:via-purple-500/10 dark:to-pink-500/10">
@@ -427,24 +350,24 @@ export default function AdminPanel() {
             <Tab.Panels>
               {/* Dashboard Panel */}
               <Tab.Panel>
-                <DashboardPanel stats={stats} />
+                <DashboardPanel stats={state.stats} />
               </Tab.Panel>
 
               {/* Blog Posts Panel */}
               <Tab.Panel>
-                <BlogPostsPanel posts={posts} postSort={postSort} setPostSort={setPostSort} postFilter={postFilter} setPostFilter={setPostFilter} onEdit={handleEditPost} onDelete={handleDeletePost} onRefresh={fetchPosts}>
+                <BlogPostsPanel posts={state.posts} postSort={state.postSort} setPostSort={(sort) => dispatch({ type: "SET_POST_SORT", payload: sort })} postFilter={state.postFilter} setPostFilter={(filter) => dispatch({ type: "SET_POST_FILTER", payload: filter })} onEdit={handleEditPost} onDelete={handleDeletePost} onRefresh={fetchPosts}>
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white mb-6">
                     <BookOpenIcon className="w-5 h-5 text-blue-500" />
-                    {isEditing ? "Edit Post" : "Create New Post"}
+                    {state.isEditing ? "Edit Post" : "Create New Post"}
                   </h3>
                   <BlogPostForm
-                    post={currentPost}
-                    isEditing={isEditing}
+                    post={state.currentPost}
+                    isEditing={state.isEditing}
                     onSubmit={handleSubmit}
-                    onChange={setCurrentPost}
+                    onChange={(post) => dispatch({ type: "SET_CURRENT_POST", payload: post })}
                     onCancel={() => {
-                      setCurrentPost({ title: "", content: "" });
-                      setIsEditing(false);
+                      dispatch({ type: "RESET_CURRENT_POST" });
+                      dispatch({ type: "SET_IS_EDITING", payload: false });
                     }}
                   />
                 </BlogPostsPanel>
@@ -452,39 +375,43 @@ export default function AdminPanel() {
 
               {/* Albums Panel */}
               <Tab.Panel>
-                <AlbumsPanel albums={albums} albumSort={albumSort} setAlbumSort={setAlbumSort} albumFilter={albumFilter} setAlbumFilter={setAlbumFilter} onDelete={handleDeleteAlbum} onRefresh={fetchAlbums}>
+                <AlbumsPanel albums={state.albums} albumSort={state.albumSort} setAlbumSort={(sort) => dispatch({ type: "SET_ALBUM_SORT", payload: sort })} albumFilter={state.albumFilter} setAlbumFilter={(filter) => dispatch({ type: "SET_ALBUM_FILTER", payload: filter })} onDelete={handleDeleteAlbum} onRefresh={fetchAlbums}>
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white mb-6">
                     <ArchiveBoxIcon className="w-5 h-5 text-blue-500" />
                     Add New Album
                   </h3>
-                  <AlbumForm
-                    onAlbumAdded={() => {
-                      fetchAlbums();
-                      updateStats();
-                    }}
-                  />
+                  <AlbumForm onAlbumAdded={handleAlbumAdded} />
                 </AlbumsPanel>
               </Tab.Panel>
 
               {/* Songs Panel */}
               <Tab.Panel>
-                <SongsPanel songs={songs} selectedAlbum={selectedAlbum} albums={albums} onAlbumChange={setSelectedAlbum} onDelete={handleDeleteSong} onRefresh={fetchAlbums}>
+                <SongsPanel songs={state.songs} selectedAlbum={state.selectedAlbum} albums={state.albums} onAlbumChange={(album) => dispatch({ type: "SET_SELECTED_ALBUM", payload: album })} onDelete={handleDeleteSong} onRefresh={fetchAlbums}>
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white mb-6">
                     <MusicalNoteIcon className="w-5 h-5 text-blue-500" />
                     Add New Song
                   </h3>
-                  <SongForm song={newSong} onChange={setNewSong} onSubmit={handleAddSong} albums={albums} />
+                  <SongForm song={state.newSong} onChange={(song) => dispatch({ type: "SET_NEW_SONG", payload: song })} onSubmit={handleAddSong} albums={state.albums} />
                 </SongsPanel>
               </Tab.Panel>
 
               {/* Songs Management Panel */}
               <Tab.Panel>
-                <SongsManagementPanel songs={songs} onRefresh={fetchSongs} onDelete={handleDeleteSong} onEdit={handleEditSong} onViewLyrics={handleViewLyrics} />
+                <SongsManagementPanel songs={state.songs} onRefresh={fetchSongs} onDelete={handleDeleteSong} onEdit={handleEditSong} onViewLyrics={handleViewLyrics} />
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
         </div>
       </div>
     </div>
+  );
+});
+
+// Simplify the main component since auth is handled in AdminContent
+export default function AdminPanel() {
+  return (
+    <AdminProvider>
+      <AdminContent />
+    </AdminProvider>
   );
 }
