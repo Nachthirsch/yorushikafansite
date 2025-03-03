@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 
 export default function BlogPostForm({ post, isEditing, onSubmit, onChange, onCancel }) {
   const [localPost, setLocalPost] = useState(
