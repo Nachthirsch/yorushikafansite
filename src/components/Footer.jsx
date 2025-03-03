@@ -17,7 +17,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-32">
+    <footer className="relative">
       {/* Decorative Wave Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <svg className="absolute bottom-0 w-full h-48 transform translate-y-1/2 opacity-10 dark:opacity-5" viewBox="0 0 1440 320">
