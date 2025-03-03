@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { motion } from "framer-motion";
-import { MusicalNoteIcon, ClockIcon, DocumentTextIcon, ListBulletIcon, PlusIcon, XMarkIcon, PlayIcon, MicrophoneIcon, MusicalNoteIcon as MusicIcon, LanguageIcon, ArrowLeftIcon, PencilIcon, ArchiveBoxIcon } from "@heroicons/react/24/outline";
+import { MusicalNoteIcon, ClockIcon, DocumentTextIcon, ListBulletIcon, PlusIcon, XMarkIcon, PlayIcon, MicrophoneIcon, MusicalNoteIcon as MusicIcon, LanguageIcon, ArrowLeftIcon, PencilIcon, ArchiveBoxIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function SongForm({ song, onSubmit, onChange, albums = [], isEditing = false }) {
@@ -290,6 +290,25 @@ export default function SongForm({ song, onSubmit, onChange, albums = [], isEdit
 
             {activeLyricsTab === "original" ? <TextareaAutosize ref={textareaRef} value={song.lyrics || ""} onChange={(e) => onChange({ ...song, lyrics: e.target.value })} className="font-mono leading-relaxed w-full px-6 py-6 rounded-lg border-0 bg-black/30 text-white focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 min-h-[350px] shadow-inner resize-none pl-14" placeholder="Write original lyrics here..." required spellCheck="false" /> : <TextareaAutosize value={song.lyrics_translation || ""} onChange={(e) => onChange({ ...song, lyrics_translation: e.target.value })} className="font-mono leading-relaxed w-full px-6 py-6 rounded-lg border-0 bg-black/30 text-white focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 min-h-[350px] shadow-inner resize-none pl-14" placeholder="Write translation here..." spellCheck="false" />}
           </div>
+        </div>
+
+        {/* Add Footnotes Editor before the Mixing Console */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-indigo-700/60 shadow-lg overflow-hidden mt-6">
+          <div className="flex items-center justify-between p-5 border-b border-indigo-800/50">
+            <div className="flex items-center space-x-3">
+              <InformationCircleIcon className="h-5 w-5 text-indigo-300" />
+              <h3 className="text-lg font-semibold text-white">Footnotes</h3>
+            </div>
+          </div>
+
+          <TextareaAutosize
+            value={song.footnotes || ""}
+            onChange={(e) => onChange({ ...song, footnotes: e.target.value })}
+            className="w-full px-6 py-4 rounded-lg border-0 bg-black/30 text-white 
+                      focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 
+                      min-h-[100px] shadow-inner resize-none"
+            placeholder="Add notes, references, or explanations here..."
+          />
         </div>
 
         {/* Mixing Console Control Panel */}

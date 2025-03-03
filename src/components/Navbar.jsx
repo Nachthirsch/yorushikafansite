@@ -48,7 +48,7 @@ export default function Navbar() {
                   ${
                     location.pathname === to
                       ? "text-amber-600 bg-amber-50"
-                      : `${scrolled ? "text-gray-600" : "text-gray-800"} 
+                      : `${scrolled ? "text-gray-600" : "text-gray-100"} 
                        hover:bg-gray-100/80`
                   }`}
               >
@@ -61,7 +61,7 @@ export default function Navbar() {
               to="/admin"
               className={`ml-2 px-4 py-2 text-sm font-medium rounded-lg
                 border transition-all
-                ${scrolled ? "border-gray-300 text-gray-600 hover:bg-gray-100" : "border-gray-400 text-gray-700 hover:bg-gray-100"}`}
+                ${scrolled ? "border-gray-300 text-gray-600 hover:bg-gray-100" : "border-gray-400 text-gray-100 hover:bg-gray-900"}`}
             >
               Admin
             </Link>

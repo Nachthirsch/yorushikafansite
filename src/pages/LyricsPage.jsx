@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { ArrowLeftIcon, MusicalNoteIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, MusicalNoteIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export default function LyricsPage() {
   const { songId } = useParams();
@@ -105,6 +105,24 @@ export default function LyricsPage() {
             </div>
           </div>
         </div>
+
+        {/* Footnotes Section - Add this */}
+        {song.footnotes && (
+          <div className="mt-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 backdrop-blur-sm bg-opacity-90 dark:bg-opacity-80">
+              <div className="flex items-center mb-6">
+                <div className="w-1.5 h-6 bg-amber-500 rounded mr-3"></div>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
+                  <InformationCircleIcon className="w-6 h-6 mr-2" />
+                  Notes & References
+                </h2>
+              </div>
+              <div className="prose prose-indigo dark:prose-invert max-w-none">
+                <div className="whitespace-pre-line text-gray-700 dark:text-gray-300">{song.footnotes}</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

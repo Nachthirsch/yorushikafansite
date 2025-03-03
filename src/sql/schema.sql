@@ -16,6 +16,8 @@ CREATE TABLE songs (
     track_number INTEGER,
     duration INTEGER, -- duration in seconds
     lyrics TEXT,
+    lyrics_translation TEXT,
+    footnotes TEXT,  -- Add this new column
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
