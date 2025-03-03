@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Tab } from "@headlessui/react";
-import ThemeSwitcher from "../ThemeSwitcher";
-import AdminSidebar from "./AdminSidebar";
-import AdminHeader from "./AdminHeader";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHotkeys } from "react-hotkeys-hook";
 import { DocumentTextIcon, MusicalNoteIcon, ArchiveBoxIcon, ChartBarIcon, Bars3Icon, XMarkIcon, PlusIcon, CommandLineIcon, MoonIcon, SunIcon } from "@heroicons/react/24/outline";
