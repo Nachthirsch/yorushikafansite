@@ -99,24 +99,63 @@ const AdminContent = React.memo(function AdminContent() {
       e.preventDefault();
       const toastId = toast.loading(state.isEditing ? "Updating post..." : "Creating post...");
       try {
+        // Ensure content is properly formatted for database
+        let processedContent = state.currentPost.content;
+        
+        // If content is empty or invalid, provide a default
+        if (!processedContent || 
+            (Array.isArray(processedContent) && processedContent.length === 0)) {
+          processedContent = [{ type: "text", value: "" }];
+        }
+        
+        // If content is not an array, convert it to an array with a text block
+        if (!Array.isArray(processedContent)) {
+          processedContent = [{ 
+            type: "text", 
+            value: typeof processedContent === 'string' 
+              ? processedContent 
+              : JSON.stringify(processedContent) 
+          }];
+        }
+        
+        // Validate each block to ensure it has the necessary fields
+        processedContent = processedContent.map(block => {
+          if (block.type === "text") {
+            return { 
+              type: "text", 
+              value: typeof block.value === 'string' ? block.value : String(block.value || "")
+            };
+          } else if (block.type === "image") {
+            return { 
+              type: "image", 
+              url: typeof block.url === 'string' ? block.url : String(block.url || "")
+            };
+          }
+          // Handle unknown block types as text
+          return { 
+            type: "text", 
+            value: typeof block === 'object' ? JSON.stringify(block) : String(block)
+          };
+        });
+        
         const { error } = state.isEditing
           ? await supabase
               .from("blog_posts")
               .update({
-                title: state.currentPost.title,
-                content: state.currentPost.content,
+                title: state.currentPost.title || "",
+                content: processedContent,
                 updated_at: new Date().toISOString(),
               })
               .eq("id", state.currentPost.id)
           : await supabase.from("blog_posts").insert([
               {
-                title: state.currentPost.title,
-                content: state.currentPost.content,
-                published: true,
-                publish_date: new Date().toISOString(),
+                title: state.currentPost.title || "",
+                content: processedContent,
+                published: state.currentPost.published || false,
+                publish_date: state.currentPost.publish_date || new Date().toISOString(),
               },
             ]);
-
+  
         if (error) throw error;
         await fetchData();
         dispatch({ type: "RESET_CURRENT_POST" });
@@ -124,7 +163,7 @@ const AdminContent = React.memo(function AdminContent() {
         toast.success(state.isEditing ? "Post updated!" : "Post created!", { id: toastId });
       } catch (error) {
         console.error("Error saving post:", error);
-        toast.error("Failed to save post", { id: toastId });
+        toast.error(`Failed to save post: ${error.message || "Unknown error"}`, { id: toastId });
       }
     },
     [state.isEditing, state.currentPost, dispatch, fetchData]
