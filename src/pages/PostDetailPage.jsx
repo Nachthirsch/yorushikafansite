@@ -37,16 +37,12 @@ export default function PostDetailPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <LoadingSpinner className="w-10 h-10 text-amber-500" />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-white dark:bg-gray-950">
         <p className="text-lg text-gray-600 dark:text-gray-300">Post not found</p>
         <Link to="/news" className="mt-4 text-amber-500 hover:text-amber-600 font-medium">
           Return to News
@@ -74,10 +70,11 @@ export default function PostDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 px-4 py-8 md:py-12">
-      <div className="max-w-5xl mx-auto">
-        {/* Header Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 backdrop-blur-sm bg-opacity-90 dark:bg-opacity-80">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
+      {/* Minimalist Header */}
+      <header className="relative pt-32 pb-24 mb-16">
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-100 to-transparent dark:from-gray-900 dark:to-transparent z-0" />
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             to="/news"
             className="inline-flex items-center text-amber-500 hover:text-amber-600 
@@ -88,49 +85,43 @@ export default function PostDetailPage() {
             Back to News
           </Link>
 
-          <div className="flex flex-col sm:flex-row items-center gap-5 mb-2">
-            {post.cover_image ? (
-              <div className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-lg shadow-md overflow-hidden bg-gray-100 dark:bg-gray-700">
-                <img src={post.cover_image} alt={post.title} className="w-full h-full object-contain" />
-              </div>
-            ) : (
-              <div className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                <BookOpenIcon className="w-12 h-12 text-gray-400 dark:text-gray-500" />
-              </div>
-            )}
-            <div className="text-center sm:text-left">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{post.title}</h1>
-              <div className="flex flex-wrap items-center gap-4 mt-2 text-gray-600 dark:text-gray-300">
-                <div className="flex items-center space-x-1">
-                  <CalendarIcon className="w-5 h-5" />
-                  <span>{formatDate(post.publish_date)}</span>
-                </div>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-5xl md:text-6xl font-light tracking-tight text-gray-900 dark:text-white">
+            {post.title}
+          </motion.h1>
 
-                {post.category && <div className="px-3 py-1 rounded-full bg-amber-700/70 text-amber-50">{post.category}</div>}
-
-                <div className="flex items-center space-x-1">
-                  <ClockIcon className="w-5 h-5" />
-                  <span>{getReadingTime()} min read</span>
-                </div>
-              </div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="flex flex-wrap items-center gap-4 mt-6 text-lg text-gray-600 dark:text-gray-300">
+            <div className="flex items-center space-x-2">
+              <CalendarIcon className="w-5 h-5" />
+              <span>{formatDate(post.publish_date)}</span>
             </div>
-          </div>
-        </div>
 
+            {post.category && <div className="px-3 py-1 rounded-full bg-amber-700/70 text-amber-50">{post.category}</div>}
+
+            <div className="flex items-center space-x-2">
+              <ClockIcon className="w-5 h-5" />
+              <span>{getReadingTime()} min read</span>
+            </div>
+          </motion.div>
+        </div>
+      </header>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         {/* Content Area */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 backdrop-blur-sm bg-opacity-90 dark:bg-opacity-80 mb-8">
-          <div className="flex items-center mb-6">
-            <div className="w-1.5 h-6 bg-amber-500 rounded mr-3"></div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Article</h2>
-          </div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-12">
+          {post.cover_image && (
+            <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+              <img src={post.cover_image} alt={post.title} className="w-full h-auto max-h-[500px] object-contain bg-gray-100 dark:bg-gray-800" />
+            </div>
+          )}
+
           <div className="prose prose-lg dark:prose-invert mx-auto prose-headings:text-amber-900 dark:prose-headings:text-amber-400 prose-a:text-red-700 dark:prose-a:text-red-400">
             {Array.isArray(post.content) ? (
               post.content.map((block, index) => (
                 <motion.div key={index} className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }}>
-                  {block.type === "text" && <p className="leading-relaxed text-neutral-100">{block.value}</p>}
+                  {block.type === "text" && <p className="leading-relaxed text-gray-900 dark:text-gray-100">{block.value}</p>}
                   {block.type === "image" && (
                     <figure className="my-8 flex flex-col items-center">
-                      <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                      <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
                         <img
                           src={block.url}
                           alt={block.caption || ""}
@@ -146,88 +137,66 @@ export default function PostDetailPage() {
                 </motion.div>
               ))
             ) : (
-              <div className="leading-relaxed">{String(post.content)}</div>
+              <div className="leading-relaxed text-gray-900 dark:text-gray-100">{String(post.content)}</div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Author info if available */}
-        {post.author && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 backdrop-blur-sm bg-opacity-90 dark:bg-opacity-80 mb-8">
-            <div className="flex items-center mb-6">
-              <div className="w-1.5 h-6 bg-pink-500 rounded mr-3"></div>
-              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Author</h2>
+        {/* Author info section */}
+        {(post.author || post.author_name) && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-12">
+            <div className="flex items-center mb-4">
+              <div className="w-1 h-6 bg-amber-500 rounded mr-3"></div>
+              <h2 className="text-xl font-medium text-gray-900 dark:text-white">Author</h2>
             </div>
+
             <div className="flex items-center space-x-4">
-              {post.author_image && (
-                <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700">
-                  <img src={post.author_image} alt={post.author} className="w-full h-full object-contain" />
+              {post.author_image ? (
+                <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
+                  <img src={post.author_image} alt={post.author || post.author_name} className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center">
+                  <span className="text-xl text-white font-medium">{(post.author || post.author_name || "A").charAt(0).toUpperCase()}</span>
                 </div>
               )}
               <div>
-                <h3 className="font-medium text-lg text-gray-900 dark:text-white">{post.author}</h3>
-                {post.author_bio && <p className="text-gray-600 dark:text-gray-400 border-l-2 border-pink-100 dark:border-gray-700 pl-4 mt-2">{post.author_bio}</p>}
+                <h3 className="font-medium text-lg text-gray-900 dark:text-white">{post.author || post.author_name}</h3>
+                {post.author_bio && <p className="text-gray-600 dark:text-gray-400 mt-2">{post.author_bio}</p>}
+                {post.author_social_link && (
+                  <a href={post.author_social_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center space-x-2 text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 mt-2 text-sm">
+                    <span>Follow</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                      <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                    </svg>
+                  </a>
+                )}
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Author info section */}
-        {post.author_name && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 backdrop-blur-sm bg-opacity-90 dark:bg-opacity-80 mb-8">
-            <div className="flex items-center mb-6">
-              <div className="w-1.5 h-6 bg-pink-500 rounded mr-3"></div>
-              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Author</h2>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center">
-                  <span className="text-xl text-white font-medium">{post.author_name.charAt(0).toUpperCase()}</span>
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg text-gray-900 dark:text-white">{post.author_name}</h3>
-                </div>
-              </div>
-              {post.author_social_link && (
-                <a href={post.author_social_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center space-x-2 text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300">
-                  <span>Follow</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                  </svg>
-                </a>
-              )}
-            </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Related posts */}
         {relatedPosts.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 backdrop-blur-sm bg-opacity-90 dark:bg-opacity-80">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center mb-6">
-              <div className="w-1.5 h-6 bg-indigo-500 rounded mr-3"></div>
-              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Read More</h2>
+              <div className="w-1 h-6 bg-amber-500 rounded mr-3"></div>
+              <h2 className="text-xl font-medium text-gray-900 dark:text-white">Read More</h2>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {relatedPosts.map((relatedPost) => (
-                <Link key={relatedPost.id} to={`/news/${relatedPost.id}`} className="group block rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 bg-gray-50 dark:bg-gray-750">
-                  <div className="h-40 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-t-lg overflow-hidden">
-                    {relatedPost.cover_image ? (
-                      <img src={relatedPost.cover_image} alt={relatedPost.title} className="max-w-full max-h-full object-contain px-2" />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-amber-700 to-red-800 flex items-center justify-center">
-                        <BookOpenIcon className="w-12 h-12 text-white/70" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-medium text-lg group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">{relatedPost.title}</h3>
+              {relatedPosts.map((relatedPost, index) => (
+                <motion.div key={relatedPost.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 + index * 0.05 }}>
+                  <Link to={`/news/${relatedPost.id}`} className="group block rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all p-4">
+                    <div className="h-40 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden mb-4">{relatedPost.cover_image ? <img src={relatedPost.cover_image} alt={relatedPost.title} className="max-w-full max-h-full object-contain px-2" /> : <BookOpenIcon className="w-12 h-12 text-gray-400 dark:text-gray-500" />}</div>
+                    <h3 className="font-medium text-lg text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{relatedPost.title}</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{formatDate(relatedPost.publish_date)}</p>
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

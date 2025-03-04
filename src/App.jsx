@@ -12,6 +12,7 @@ import { AdminProvider } from "./contexts/AdminContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PostDetailPage from "./pages/PostDetailPage";
+import AboutPage from "./pages/AboutPage";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
                   </AuthGuard>
                 }
               />
+              <Route path="/about" element={<AboutPage />} />
             </Routes>
           </main>
           <Footer />
