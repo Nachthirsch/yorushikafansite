@@ -32,8 +32,9 @@ const AdminContent = React.memo(function AdminContent() {
   const fetchPosts = useCallback(async () => {
     if (!isPageVisible) return;
     try {
-      const { data, error } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("blog_posts").select("*, author_name, author_social_link").order("created_at", { ascending: false });
       if (error) throw error;
+      console.log("Fetched posts:", data); // Debug log
       return data || [];
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -95,68 +96,40 @@ const AdminContent = React.memo(function AdminContent() {
 
   // All other callback definitions
   const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
+    async (formData) => {
+      // Changed to accept formData directly instead of event
       const toastId = toast.loading(state.isEditing ? "Updating post..." : "Creating post...");
       try {
-        // Ensure content is properly formatted for database
-        let processedContent = state.currentPost.content;
-        
-        // If content is empty or invalid, provide a default
-        if (!processedContent || 
-            (Array.isArray(processedContent) && processedContent.length === 0)) {
+        // Process the content
+        let processedContent = formData.content;
+        if (!processedContent || (Array.isArray(processedContent) && processedContent.length === 0)) {
           processedContent = [{ type: "text", value: "" }];
         }
-        
-        // If content is not an array, convert it to an array with a text block
-        if (!Array.isArray(processedContent)) {
-          processedContent = [{ 
-            type: "text", 
-            value: typeof processedContent === 'string' 
-              ? processedContent 
-              : JSON.stringify(processedContent) 
-          }];
-        }
-        
-        // Validate each block to ensure it has the necessary fields
-        processedContent = processedContent.map(block => {
-          if (block.type === "text") {
-            return { 
-              type: "text", 
-              value: typeof block.value === 'string' ? block.value : String(block.value || "")
-            };
-          } else if (block.type === "image") {
-            return { 
-              type: "image", 
-              url: typeof block.url === 'string' ? block.url : String(block.url || "")
-            };
-          }
-          // Handle unknown block types as text
-          return { 
-            type: "text", 
-            value: typeof block === 'object' ? JSON.stringify(block) : String(block)
-          };
-        });
-        
+
+        // Prepare post data
+        const postData = {
+          title: formData.title || "",
+          content: processedContent,
+          author_name: formData.author_name || null,
+          author_social_link: formData.author_social_link || null,
+          published: formData.published || false,
+          publish_date: formData.publish_date || new Date().toISOString(),
+        };
+
+        console.log("Saving post with data:", postData); // Debug log
+
         const { error } = state.isEditing
           ? await supabase
               .from("blog_posts")
               .update({
-                title: state.currentPost.title || "",
-                content: processedContent,
+                ...postData,
                 updated_at: new Date().toISOString(),
               })
               .eq("id", state.currentPost.id)
-          : await supabase.from("blog_posts").insert([
-              {
-                title: state.currentPost.title || "",
-                content: processedContent,
-                published: state.currentPost.published || false,
-                publish_date: state.currentPost.publish_date || new Date().toISOString(),
-              },
-            ]);
-  
+          : await supabase.from("blog_posts").insert([postData]);
+
         if (error) throw error;
+
         await fetchData();
         dispatch({ type: "RESET_CURRENT_POST" });
         dispatch({ type: "SET_IS_EDITING", payload: false });
@@ -402,7 +375,7 @@ const AdminContent = React.memo(function AdminContent() {
                   <BlogPostForm
                     post={state.currentPost}
                     isEditing={state.isEditing}
-                    onSubmit={handleSubmit}
+                    onSubmit={handleSubmit} // This will now receive the formData object
                     onChange={(post) => dispatch({ type: "SET_CURRENT_POST", payload: post })}
                     onCancel={() => {
                       dispatch({ type: "RESET_CURRENT_POST" });

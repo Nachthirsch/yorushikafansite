@@ -61,7 +61,19 @@ export default function BlogPostsPanel({ posts = [], postSort = { field: "create
                 <div key={post.id} className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
                   <div className="p-4">
                     <div className="flex justify-between items-start">
-                      <h4 className="text-lg font-medium text-gray-900 dark:text-white">{post.title}</h4>
+                      <div>
+                        <h4 className="text-lg font-medium text-gray-900 dark:text-white">{post.title}</h4>
+                        {post.author_name && (
+                          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            By: {post.author_name}
+                            {post.author_social_link && (
+                              <a href={post.author_social_link} target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500 hover:text-blue-600">
+                                (Social Media)
+                              </a>
+                            )}
+                          </p>
+                        )}
+                      </div>
                       <div className="flex gap-1">
                         <button onClick={() => onEdit(post)} className="p-1.5 rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400">
                           <PencilIcon className="w-4 h-4" />

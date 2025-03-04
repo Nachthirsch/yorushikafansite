@@ -12,7 +12,14 @@ const initialState = {
     totalSongs: 0,
   },
   loading: false,
-  currentPost: { title: "", content: "" },
+  currentPost: {
+    title: "",
+    content: [],
+    published: false,
+    publish_date: "",
+    author_name: "",
+    author_social_link: "",
+  },
   isEditing: false,
   postSort: "newest",
   albumSort: "newest",
@@ -48,11 +55,22 @@ function adminReducer(state, action) {
     case "UPDATE_STATS":
       return { ...state, stats: action.payload };
     case "SET_CURRENT_POST":
-      return { ...state, currentPost: action.payload };
+      return {
+        ...state,
+        currentPost: {
+          ...state.currentPost,
+          ...action.payload,
+          author_name: action.payload.author_name || "",
+          author_social_link: action.payload.author_social_link || "",
+        },
+      };
     case "SET_IS_EDITING":
       return { ...state, isEditing: action.payload };
     case "RESET_CURRENT_POST":
-      return { ...state, currentPost: initialState.currentPost };
+      return {
+        ...state,
+        currentPost: initialState.currentPost,
+      };
     case "SET_DELETE_CONFIRMATION":
       return { ...state, deleteConfirmation: action.payload };
     case "HIDE_DELETE_CONFIRMATION":

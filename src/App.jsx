@@ -10,6 +10,8 @@ import AdminPanel from "./components/AdminPanel"; // Updated import
 import EditSongPage from "./pages/admin/EditSongPage";
 import { AdminProvider } from "./contexts/AdminContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import ErrorBoundary from "./components/ErrorBoundary";
+import PostDetailPage from "./pages/PostDetailPage";
 
 function App() {
   return (
@@ -22,7 +24,15 @@ function App() {
             <Routes>
               <Route path="/" element={<AlbumPage />} />
               <Route path="/lyrics/:songId" element={<LyricsPage />} />
-              <Route path="/news" element={<NewsPage />} />
+              <Route
+                path="/news"
+                element={
+                  <ErrorBoundary>
+                    <NewsPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route path="/news/:postId" element={<PostDetailPage />} />
               <Route
                 path="/admin/*"
                 element={
