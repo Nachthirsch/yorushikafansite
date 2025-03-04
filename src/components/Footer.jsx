@@ -25,29 +25,19 @@ export default function Footer() {
         </svg>
       </div>
 
-      <div className="relative bg-gradient-to-b from-white to-purple-50 dark:from-gray-900 dark:to-gray-800 pt-24 pb-12">
+      <div className="relative bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 pt-24 pb-12">
         <div className="container mx-auto px-6">
-          {/* Newsletter Section */}
-          <div className="max-w-2xl mx-auto text-center mb-20">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Stay Updated with Yorushika</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">Subscribe to our newsletter for the latest updates and news</p>
-            <form className="flex flex-col sm:flex-row gap-3 justify-center">
-              <input type="email" placeholder="Enter your email" className="px-4 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 outline-none" />
-              <button className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">Subscribe</button>
-            </form>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-12">
             {/* Brand Section */}
             <div className="space-y-6 md:col-span-2">
               <Link to="/" className="text-3xl font-bold inline-block hover:scale-105 transition-transform duration-300">
-                <span className="text-purple-600 dark:text-purple-400">よ</span>
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500 dark:from-purple-400 dark:to-pink-400">るしか</span>
+                <span className="text-blue-600 dark:text-blue-400">よ</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300">るしか</span>
               </Link>
-              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 max-w-md">Celebrating the music and artistry of Yorushika through this fan-created space. Join us in exploring the beautiful world of their music.</p>
+              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 max-w-md">Celebrating the music and artistry of Yorushika through this fan-created space. Join us in exploring the beautiful world of their music.</p>
               <div className="flex space-x-4">
                 {socialLinks.map((link) => (
-                  <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transform hover:scale-110 transition-all">
+                  <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transform hover:scale-110 transition-all">
                     <span className="text-xl">{link.icon}</span>
                   </a>
                 ))}
@@ -56,11 +46,11 @@ export default function Footer() {
 
             {/* Navigation Links */}
             <div className="space-y-6">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-gray-100">Quick Links</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">Quick Links</h3>
               <ul className="space-y-4">
                 {navigationLinks.map((link) => (
                   <li key={link.path}>
-                    <Link to={link.path} className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-all hover:translate-x-2 inline-flex items-center">
+                    <Link to={link.path} className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:translate-x-2 inline-flex items-center">
                       <span className="mr-2">→</span> {link.name}
                     </Link>
                   </li>
@@ -70,10 +60,10 @@ export default function Footer() {
 
             {/* Contact Section */}
             <div className="space-y-6">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-gray-100">Contact</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">Contact</h3>
               <ul className="space-y-4">
                 <li>
-                  <a href="mailto:contact@yorushikafan.com" className="text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-all hover:translate-x-2 inline-flex items-center">
+                  <a href="mailto:contact@yorushikafan.com" className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:translate-x-2 inline-flex items-center">
                     <span className="mr-2">✉</span> Email Us
                   </a>
                 </li>
@@ -82,7 +72,7 @@ export default function Footer() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="pt-8 mt-8 border-t border-gray-200 dark:border-gray-700/50">
+          <div className="pt-8 mt-8 border-t border-gray-200 dark:border-gray-800">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-center md:text-left">
               <p className="text-xs text-gray-600 dark:text-gray-400">&copy; {currentYear} Yorushika Fan Site. This is an unofficial fan site.</p>
               <p className="text-xs text-gray-500 dark:text-gray-500">All rights for Yorushika content belong to their respective owners.</p>

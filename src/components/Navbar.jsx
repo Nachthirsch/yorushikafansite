@@ -1,73 +1,80 @@
-import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { FaMoon, FaSun } from "react-icons/fa";
+import { Transition } from "@headlessui/react";
 
-export default function Navbar() {
+export default function Navbar({ darkMode, setDarkMode }) {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const [scrolled, setScrolled] = useState(false);
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
+
+  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 10);
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const navLinks = [
+    { name: "Home", path: "/" },
+    { name: "News", path: "/news" },
+    { name: "Albums", path: "/albums" },
+    { name: "About", path: "/about" },
+  ];
+
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
-        ${scrolled ? "bg-white/95 backdrop-blur-lg shadow-md py-2" : "bg-transparent py-4"}`}
-    >
-      <div className="container mx-auto px-6">
-        <nav className="flex items-center justify-between">
+    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? "bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm" : "bg-transparent"}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <span className="text-2xl font-bold tracking-tight">
-              <span className="text-amber-600">よ</span>
-              <span className={`${scrolled ? "text-gray-800" : "text-gray-900"}`}>るしか</span>
-            </span>
-            <span
-              className={`text-xs font-medium tracking-wider uppercase
-              ${scrolled ? "text-gray-600" : "text-gray-700"}`}
-            >
-              Fan Site
-            </span>
+          <Link to="/" className="flex items-center space-x-2 text-2xl font-bold transition-transform hover:scale-105 duration-300">
+            <span className="text-blue-600 dark:text-blue-400">よ</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300">るしか</span>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="flex items-center space-x-1">
-            {[
-              { to: "/", label: "Albums" },
-              { to: "/news", label: "News" },
-              { to: "/about", label: "About" },
-            ].map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all
-                  ${
-                    location.pathname === to
-                      ? "text-amber-600 bg-amber-50"
-                      : `${scrolled ? "text-gray-600" : "text-gray-100"} 
-                       hover:bg-gray-100/80`
-                  }`}
-              >
-                {label}
-              </Link>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <NavLink key={link.path} to={link.path} className={({ isActive }) => `text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-700 dark:text-gray-200"}`}>
+                {link.name}
+              </NavLink>
             ))}
+          </nav>
 
-            {/* Admin Button */}
-            <Link
-              to="/admin"
-              className={`ml-2 px-4 py-2 text-sm font-medium rounded-lg
-                border transition-all
-                ${scrolled ? "border-gray-300 text-gray-600 hover:bg-gray-100" : "border-gray-400 text-gray-100 hover:bg-gray-900"}`}
-            >
-              Admin
-            </Link>
+          {/* Mobile Menu Button */}
+          <div className="flex md:hidden items-center space-x-4">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none transition-colors" aria-label="Toggle menu">
+              <span className="sr-only">Open main menu</span>
+              <div className="w-6 h-6 flex flex-col justify-between items-center">
+                <span className={`bg-current transform transition-all duration-300 h-0.5 w-6 rounded-lg ${isMobileMenuOpen ? "rotate-45 translate-y-2.5" : ""}`} />
+                <span className={`bg-current transition-all duration-300 h-0.5 w-6 rounded-lg ${isMobileMenuOpen ? "opacity-0" : "opacity-100"}`} />
+                <span className={`bg-current transform transition-all duration-300 h-0.5 w-6 rounded-lg ${isMobileMenuOpen ? "-rotate-45 -translate-y-2.5" : ""}`} />
+              </div>
+            </button>
           </div>
-        </nav>
+        </div>
       </div>
+
+      {/* Mobile Menu */}
+      <Transition show={isMobileMenuOpen} enter="transition-opacity duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="transition-opacity duration-300" leaveFrom="opacity-100" leaveTo="opacity-0">
+        <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 py-3 space-y-1">
+            {navLinks.map((link) => (
+              <NavLink key={link.path} to={link.path} className={({ isActive }) => `block px-3 py-3 text-base font-medium rounded-lg transition-colors ${isActive ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"}`}>
+                {link.name}
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      </Transition>
     </header>
   );
 }

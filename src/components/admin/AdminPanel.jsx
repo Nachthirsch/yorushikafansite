@@ -5,9 +5,9 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext"; // Add this import
 import { Tab } from "@headlessui/react";
 import toast, { Toaster } from "react-hot-toast";
-import BlogPostForm from "./BlogPostForm";
-import SongForm from "./SongForm";
-import AlbumForm from "./AlbumForm";
+import BlogPostForm from "../admin/BlogPostForm/index";
+import SongForm from "../admin/SongForm/index";
+import AlbumForm from "../admin/AlbumForm/index";
 import { ChartBarIcon, BookOpenIcon, ArchiveBoxIcon, MusicalNoteIcon } from "@heroicons/react/24/outline";
 import { AdminProvider, useAdmin } from "../../contexts/AdminContext";
 

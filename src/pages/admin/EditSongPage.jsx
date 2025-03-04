@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import SongForm from "../../components/admin/SongForm";
+import SongForm from "../../components/admin/SongForm/index";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import toast from "react-hot-toast";
 
