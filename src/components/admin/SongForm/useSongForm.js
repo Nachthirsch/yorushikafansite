@@ -54,16 +54,30 @@ export default function useSongForm({ song, onSubmit, onChange }) {
     setTouched({ ...touched, [field]: true });
   };
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+  const handleFormSubmit = async (event) => {
     try {
-      await onSubmit(song);
+      // Skip validation if no title or album_id
+      if (!song.title || !song.album_id) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          title: !song.title ? "Title is required" : null,
+          album_id: !song.album_id ? "Album is required" : null,
+        }));
+        return;
+      }
+
+      // Call the provided onSubmit function with the event
+      await onSubmit(event);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
 
   const handleChange = (field, value) => {
+    // Clear validation error when field is changed
+    if (validationErrors[field]) {
+      setValidationErrors((prev) => ({ ...prev, [field]: null }));
+    }
     onChange({ ...song, [field]: value });
   };
 
@@ -74,8 +88,12 @@ export default function useSongForm({ song, onSubmit, onChange }) {
       duration: "",
       lyrics: "",
       lyrics_translation: "",
+      translator: "", // Add translator field
       albumId: "",
+      footnotes: "",
     });
+    setValidationErrors({});
+    setTouched({});
   };
 
   const hasErrors = Object.keys(validationErrors).length > 0;
@@ -95,6 +113,6 @@ export default function useSongForm({ song, onSubmit, onChange }) {
     handleFormSubmit,
     handleChange,
     handleReset,
-    formatTime
+    formatTime,
   };
-} 
+}

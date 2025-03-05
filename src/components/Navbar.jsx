@@ -27,7 +27,7 @@ export default function Navbar({ darkMode, setDarkMode }) {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Lore", path: "/news" },
-    { name: "Albums", path: "/" },
+    { name: "Albums", path: "/albums" },
     { name: "About", path: "/about" },
   ];
 

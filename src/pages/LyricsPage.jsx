@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { motion } from "framer-motion";
-import { ArrowLeftIcon, MusicalNoteIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, MusicalNoteIcon, InformationCircleIcon, LanguageIcon } from "@heroicons/react/24/outline";
 
 export default function LyricsPage() {
   const { songId } = useParams();
@@ -101,9 +101,17 @@ export default function LyricsPage() {
 
           {/* Translation */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="bg-neutral-50 dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-            <div className="flex items-center mb-6">
-              <div className="w-1 h-6 bg-neutral-500 rounded mr-3"></div>
-              <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">Translation</h2>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="w-1 h-6 bg-neutral-500 rounded mr-3"></div>
+                <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">Translation</h2>
+              </div>
+              {song.translator && (
+                <div className="text-sm text-neutral-500 dark:text-neutral-400 flex items-center">
+                  <LanguageIcon className="w-4 h-4 mr-1" />
+                  Translated by: {song.translator}
+                </div>
+              )}
             </div>
             <div
               className="whitespace-pre-line leading-relaxed text-neutral-900 dark:text-neutral-100

@@ -164,48 +164,37 @@ const AdminContent = React.memo(function AdminContent() {
   );
 
   const handleAddSong = useCallback(
-    async (e) => {
-      e.preventDefault();
+    async (songData) => {
       const toastId = toast.loading("Adding new song...");
 
       try {
-        if (!state.newSong.album_id) {
+        if (!songData.album_id) {
           toast.error("Please select an album", { id: toastId });
           return;
         }
 
         const { error } = await supabase.from("songs").insert([
           {
-            album_id: state.newSong.album_id,
-            title: state.newSong.title,
-            track_number: parseInt(state.newSong.track_number) || 1,
-            duration: parseInt(state.newSong.duration) || 0,
-            lyrics: state.newSong.lyrics,
-            lyrics_translation: state.newSong.lyrics_translation,
+            album_id: songData.album_id,
+            title: songData.title,
+            track_number: parseInt(songData.track_number) || 1,
+            duration: parseInt(songData.duration) || 0,
+            lyrics: songData.lyrics,
+            lyrics_translation: songData.lyrics_translation,
+            translator: songData.translator,
           },
         ]);
 
         if (error) throw error;
 
         await fetchData();
-        dispatch({
-          type: "SET_NEW_SONG",
-          payload: {
-            title: "",
-            track_number: "",
-            duration: "",
-            lyrics: "",
-            lyrics_translation: "",
-            album_id: "",
-          },
-        });
         toast.success("Song added successfully!", { id: toastId });
       } catch (error) {
         console.error("Error adding song:", error);
         toast.error(error.message || "Failed to add song", { id: toastId });
       }
     },
-    [state.newSong, dispatch, fetchData]
+    [fetchData]
   );
 
   const handleEditPost = useCallback(

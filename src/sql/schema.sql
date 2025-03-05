@@ -17,7 +17,8 @@ CREATE TABLE songs (
     duration INTEGER, -- duration in seconds
     lyrics TEXT,
     lyrics_translation TEXT,
-    footnotes TEXT,  -- Add this new column
+    translator VARCHAR, -- Add this new column
+    footnotes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
