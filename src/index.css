@@ -82,6 +82,13 @@
   }
 }
 
+/* Global scrolling behavior */
+html,
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* Modal Styles */
 .modal-content {
   position: relative;
@@ -204,4 +211,29 @@
 
 .song-list::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Scrollbar Hide Utility */
+@layer utilities {
+  /* Enhanced scrollbar-hide utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* Custom scrollable area that maintains scroll but hides bar */
+  .scrollable-content {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
+
+  .scrollable-content::-webkit-scrollbar {
+    display: none !important;
+  }
 }

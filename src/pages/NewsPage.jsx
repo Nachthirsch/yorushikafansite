@@ -174,10 +174,10 @@ export default function NewsPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-neutral-100 to-transparent dark:from-neutral-900 dark:to-transparent z-0" />
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-5xl md:text-6xl font-light tracking-tight text-neutral-900 dark:text-neutral-100">
-            News & Updates
+            Lore
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="mt-6 text-lg text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
-            Stay updated with the latest news and announcements from Yorushika
+            Stay updated with the latest lore from Yorushika
           </motion.p>
         </div>
       </header>
@@ -233,14 +233,10 @@ export default function NewsPage() {
             <motion.div layout className={`grid ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8" : "grid-cols-1 gap-8"}`}>
               <AnimatePresence mode="popLayout">
                 {filteredPosts.map((post, index) => (
-                  <motion.article key={post.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }} onHoverStart={() => setHoveredPost(post.id)} onHoverEnd={() => setHoveredPost(null)} className={`${viewMode === "grid" ? "flex flex-col" : "flex gap-6 items-start"} group`}>
-                    <Link to={`/news/${post.id}`} className={viewMode === "grid" ? "w-full" : "w-1/3"}>
-                      <div className="relative aspect-video overflow-hidden rounded-md">{post.cover_image ? <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" /> : <div className="w-full h-full bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-800 dark:to-neutral-700" />}</div>
-                    </Link>
-
-                    <div className={viewMode === "grid" ? "mt-4" : "flex-1"}>
+                  <motion.article key={post.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }} onHoverStart={() => setHoveredPost(post.id)} onHoverEnd={() => setHoveredPost(null)} className="group p-4 border-b border-neutral-200 dark:border-neutral-800">
+                    <div>
                       <div className="flex items-center gap-2 mb-2 text-xs text-neutral-500 dark:text-neutral-400">
-                        <span className="px-2 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-full">{post.category || "News"}</span>
+                        <span className="px-2 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-full">{post.category || "Lore"}</span>
                         <span>•</span>
                         <time>{formatDate(post.publish_date)}</time>
                       </div>
@@ -249,11 +245,7 @@ export default function NewsPage() {
                         <h2 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors mb-2">{post.title}</h2>
                       </Link>
 
-                      <div className="mt-2 mb-4">
-                        <BlogPostContent content={Array.isArray(post.content) ? post.content.slice(0, 1) : [{ type: "text", value: post.content }]} />
-                      </div>
-
-                      <Link to={`/news/${post.id}`} className="inline-flex items-center text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors group">
+                      <Link to={`/news/${post.id}`} className="inline-flex items-center text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors group mt-2">
                         <span>Read article</span>
                         <ChevronRightIcon className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
                       </Link>
