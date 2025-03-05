@@ -38,8 +38,7 @@ export default function EditSongPage() {
     }
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     const toastId = toast.loading("Updating song...");
 
     try {
@@ -49,9 +48,11 @@ export default function EditSongPage() {
           title: song.title,
           lyrics: song.lyrics,
           lyrics_translation: song.lyrics_translation,
+          translator: song.translator || null,
           track_number: parseInt(song.track_number),
           duration: parseInt(song.duration),
           album_id: song.album_id,
+          footnotes: song.footnotes || "",
         })
         .eq("id", songId);
 

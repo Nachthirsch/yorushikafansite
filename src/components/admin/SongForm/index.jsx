@@ -7,15 +7,15 @@ export default function SongForm({ song = {}, isEditing = false, onSubmit, onCha
       ...song,
       translator: song.translator || "",
     },
-    onSubmit: async (formEvent) => {
+    onSubmit: async (event) => {
       try {
-        // Handle the form event here instead of in useSongForm
-        if (formEvent?.preventDefault) {
-          formEvent.preventDefault();
+        // Handle the form event here
+        if (event && event.preventDefault) {
+          event.preventDefault();
         }
 
-        // Call parent's onSubmit with just the song data
-        await onSubmit(song);
+        // Call parent's onSubmit without passing event
+        await onSubmit();
       } catch (error) {
         console.error("Form submission error:", error);
         throw error;

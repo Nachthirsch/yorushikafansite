@@ -59,10 +59,7 @@ export default function SongFormView({ song, albums, isEditing, navigate, touche
         </div>
       )}
 
-      <form
-        onSubmit={handleFormSubmit} // Simplified - remove the extra wrapper
-        className="relative"
-      >
+      <form onSubmit={handleFormSubmit} className="relative">
         <div className="flex items-center justify-between space-x-4 p-6 bg-black/30 backdrop-blur-sm border-b border-indigo-700/50">
           <div className="flex items-center space-x-4">
             <div className="h-14 w-14 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 bg-opacity-70 flex items-center justify-center shadow-lg shadow-indigo-900/50">

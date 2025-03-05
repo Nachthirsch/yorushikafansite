@@ -56,6 +56,11 @@ export default function useSongForm({ song, onSubmit, onChange }) {
 
   const handleFormSubmit = async (event) => {
     try {
+      // Make sure to call preventDefault on the event
+      if (event && event.preventDefault) {
+        event.preventDefault();
+      }
+
       // Skip validation if no title or album_id
       if (!song.title || !song.album_id) {
         setValidationErrors((prev) => ({
@@ -66,7 +71,7 @@ export default function useSongForm({ song, onSubmit, onChange }) {
         return;
       }
 
-      // Call the provided onSubmit function with the event
+      // Call the provided onSubmit function
       await onSubmit(event);
     } catch (error) {
       console.error("Error submitting form:", error);
