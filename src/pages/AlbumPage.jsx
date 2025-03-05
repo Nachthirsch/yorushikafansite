@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { PlayIcon } from "@heroicons/react/24/solid";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon, MusicalNoteIcon } from "@heroicons/react/24/outline";
 import AlbumDetail from "../components/AlbumDetail";
 
 export default function AlbumPage() {
@@ -66,14 +66,67 @@ export default function AlbumPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-indigo-100/20 to-transparent dark:from-indigo-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-amber-100/20 to-transparent dark:from-amber-900/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
+
+      {/* Floating Musical Notes - For Decoration */}
+      <div className="hidden md:block absolute top-40 right-12 opacity-20 dark:opacity-10">
+        <motion.div
+          animate={{
+            y: [0, -10, 0],
+            rotate: [0, 5, 0],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          <MusicalNoteIcon className="h-16 w-16 text-neutral-400 dark:text-neutral-600" />
+        </motion.div>
+      </div>
+
+      <div className="hidden md:block absolute bottom-40 left-12 opacity-20 dark:opacity-10">
+        <motion.div
+          animate={{
+            y: [0, 10, 0],
+            rotate: [0, -5, 0],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          <MusicalNoteIcon className="h-10 w-10 text-neutral-400 dark:text-neutral-600" />
+        </motion.div>
+      </div>
+
       {/* Minimalist Header Section */}
       <header className="relative pt-32 pb-24 mb-16">
         <div className="absolute inset-0 bg-gradient-to-b from-neutral-100 to-transparent dark:from-neutral-900 dark:to-transparent z-0" />
+
+        {/* Decorative Lines */}
+        <div className="absolute left-0 right-0 top-44 flex justify-center z-0 opacity-20 dark:opacity-10 overflow-hidden">
+          <div className="w-3/4 h-px bg-gradient-to-r from-transparent via-neutral-400 dark:via-neutral-600 to-transparent"></div>
+        </div>
+
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-5xl md:text-6xl font-light tracking-tight text-neutral-900 dark:text-neutral-100">
-            Discography
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="inline-block mb-4 mx-4">
+            <div className="h-16 w-16 mx-auto flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-neutral-600 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
+            </div>
+          </motion.div>
+
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-5xl md:text-6xl font-light tracking-tight text-neutral-900 dark:text-neutral-100 relative inline-block">
+            <span className="relative z-10">Discography</span>
+            <span className="absolute -bottom-3 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-neutral-400 dark:via-neutral-600 to-transparent opacity-40"></span>
           </motion.h1>
+
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="mt-6 text-lg text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
             Explore Yorushika's musical journey through their albums and songs
           </motion.p>
@@ -82,7 +135,7 @@ export default function AlbumPage() {
 
       {/* Minimalist Controls */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-8 items-start md:items-center">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-8 items-start md:items-center relative bg-neutral-100/50 dark:bg-neutral-900/50 rounded-xl p-4 backdrop-blur-sm border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm">
           <div className="relative w-full md:w-96">
             <input type="text" placeholder="Search albums..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full py-2 pl-4 pr-10 border-b border-neutral-300 dark:border-neutral-700 bg-transparent text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-100 transition-colors" />
             <svg className="absolute right-3 top-3 w-5 h-5 text-neutral-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -123,7 +176,7 @@ export default function AlbumPage() {
               <ChevronDownIcon className="absolute right-2 top-2.5 w-4 h-4 pointer-events-none text-neutral-400" />
             </div>
 
-            <button onClick={() => setIsGridView(!isGridView)} className="p-2 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus:outline-none transition-colors" aria-label={isGridView ? "Switch to list view" : "Switch to grid view"}>
+            <button onClick={() => setIsGridView(!isGridView)} className="p-2 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus:outline-none transition-colors hover:bg-neutral-200/30 dark:hover:bg-neutral-800/30" aria-label={isGridView ? "Switch to list view" : "Switch to grid view"}>
               {isGridView ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
@@ -141,34 +194,66 @@ export default function AlbumPage() {
       {/* Albums Grid/List */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         {filteredAlbums.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24 bg-neutral-100/50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-neutral-400 dark:text-neutral-600 mb-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <p className="text-lg text-neutral-500 dark:text-neutral-400 italic">No albums found matching your criteria.</p>
+            <p className="text-sm mt-2 text-neutral-400 dark:text-neutral-500">Try adjusting your search or filters</p>
           </motion.div>
         ) : (
           <motion.div layout className={`grid ${isGridView ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8" : "grid-cols-1 gap-6"}`}>
             <AnimatePresence mode="popLayout">
               {filteredAlbums.map((album, index) => (
-                <motion.div key={album.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }} onHoverStart={() => setHoveredAlbum(album.id)} onHoverEnd={() => setHoveredAlbum(null)}>
-                  <div className={`group cursor-pointer ${isGridView ? "block" : "flex items-center gap-6 bg-neutral-100 dark:bg-neutral-900/50 p-4 rounded-lg"}`} onClick={() => setSelectedAlbum(album)}>
-                    <div className={`relative ${isGridView ? "aspect-square" : "flex-shrink-0 w-24 h-24 md:w-32 md:h-32"} overflow-hidden rounded-md`}>
+                <motion.div key={album.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }} onHoverStart={() => setHoveredAlbum(album.id)} onHoverEnd={() => setHoveredAlbum(null)} className={`${isGridView ? "" : ""}`}>
+                  <div className={`group cursor-pointer transition-all duration-300 hover:shadow-lg ${isGridView ? "block bg-white dark:bg-neutral-900 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:-translate-y-1" : "flex items-center gap-6 bg-white dark:bg-neutral-900 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:-translate-y-0.5"}`} onClick={() => setSelectedAlbum(album)}>
+                    <div className={`relative ${isGridView ? "aspect-square" : "flex-shrink-0 w-24 h-24 md:w-32 md:h-32"} overflow-hidden rounded-md ${isGridView ? "rounded-b-none" : ""}`}>
                       <motion.img src={album.cover_image_url} alt={album.title} className="w-full h-full object-cover" loading="lazy" whileHover={{ scale: 1.05 }} transition={{ duration: 0.4 }} />
-                      <div className={`absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 ${hoveredAlbum === album.id ? "opacity-100" : ""}`}>
-                        <PlayIcon className="w-10 h-10 text-white" />
+                      <div className={`absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 ${hoveredAlbum === album.id ? "opacity-100" : ""}`}>
+                        <div className="bg-white/90 dark:bg-black/70 p-3 rounded-full backdrop-blur-sm">
+                          <PlayIcon className="w-8 h-8 text-neutral-800 dark:text-white" />
+                        </div>
                       </div>
+
+                      {isGridView && <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>}
                     </div>
-                    <div className={`${isGridView ? "mt-3" : "ml-4 flex-1"}`}>
+                    <div className={`${isGridView ? "p-4" : "ml-4 flex-1"}`}>
                       <h2 className="text-base font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">{album.title}</h2>
                       <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1 space-x-2">
                         <span>{new Date(album.release_date).getFullYear()}</span>
                         <span>•</span>
                         <span>{album.songs?.length || 0} tracks</span>
                       </p>
+
+                      {isGridView && (
+                        <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800 flex justify-between items-center">
+                          <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            View Album
+                          </span>
+                          <div className="h-5 w-5 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-neutral-500 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
           </motion.div>
+        )}
+
+        {/* Decorative Footer Element */}
+        {filteredAlbums.length > 0 && (
+          <div className="mt-16 flex justify-center">
+            <div className="h-px w-32 bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+          </div>
         )}
       </div>
 
