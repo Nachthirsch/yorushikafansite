@@ -5,7 +5,7 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     post || {
       title: "",
       content: [],
-      published: false,
+      published: true, // Changed from false to true
       publish_date: "",
       author_name: "",
       author_social_link: "",
@@ -44,10 +44,7 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
   const handleAddImage = () => {
     if (!currentImageUrl.trim()) return;
 
-    const contentBlocks = [
-      ...(Array.isArray(localPost.content) ? localPost.content : []),
-      { type: "image", url: currentImageUrl },
-    ];
+    const contentBlocks = [...(Array.isArray(localPost.content) ? localPost.content : []), { type: "image", url: currentImageUrl }];
 
     const updatedPost = { ...localPost, content: contentBlocks };
     setLocalPost(updatedPost);
@@ -83,10 +80,7 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
   };
 
   const handleAddTextBlock = () => {
-    const contentBlocks = [
-      ...(Array.isArray(localPost.content) ? localPost.content : []),
-      { type: "text", value: "" },
-    ];
+    const contentBlocks = [...(Array.isArray(localPost.content) ? localPost.content : []), { type: "text", value: "" }];
 
     const updatedPost = { ...localPost, content: contentBlocks };
     setLocalPost(updatedPost);
@@ -99,8 +93,9 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     try {
       const formData = {
         ...localPost,
-        author_name: localPost.author_name?.trim() || '',
-        author_social_link: localPost.author_social_link?.trim() || ''
+        published: true, // Memastikan published selalu true
+        author_name: localPost.author_name?.trim() || "",
+        author_social_link: localPost.author_social_link?.trim() || "",
       };
 
       await onSubmit(formData);
@@ -125,6 +120,6 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     handleUpdateBlock,
     handleAddTextBlock,
     handleFormSubmit,
-    toggleImageInput
+    toggleImageInput,
   };
-} 
+}

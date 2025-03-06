@@ -114,22 +114,21 @@ export default function SongFormView({ song, albums, isEditing, navigate, touche
 
                 <div className="relative">
                   <label className="block text-sm font-medium text-indigo-300 mb-2">Duration</label>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <ClockIcon className="h-5 w-5 text-indigo-400" />
-                      <span className="bg-black/40 px-3 py-1 rounded font-mono text-lg text-indigo-100">{formatTime(song.duration)}</span>
-                    </div>
-
-                    <div className="relative pt-1">
-                      <input type="range" min="1" max="900" value={song.duration || 0} onChange={(e) => handleChange("duration", e.target.value)} onBlur={() => handleTouch("duration")} className="appearance-none w-full h-3 bg-indigo-900 rounded-lg outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-indigo-300 [&::-webkit-slider-thumb]:shadow-lg" />
-                    </div>
-
-                    <div className="flex justify-between text-xs text-indigo-400 px-1">
-                      <span>0:00</span>
-                      <span>5:00</span>
-                      <span>10:00</span>
-                      <span>15:00</span>
-                    </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={song.duration ? formatTime(song.duration) : ""}
+                      onChange={(e) => {
+                        const [mins, secs] = e.target.value.split(":").map(Number);
+                        const totalSeconds = (mins || 0) * 60 + (secs || 0);
+                        handleChange("duration", totalSeconds);
+                      }}
+                      onBlur={() => handleTouch("duration")}
+                      className="w-full py-3 px-4 bg-black/30 backdrop-blur-sm border border-indigo-600/70 rounded-lg text-white focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 transition-all pl-10"
+                      placeholder="MM:SS"
+                      pattern="[0-9]{1,2}:[0-9]{2}"
+                    />
+                    <ClockIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-indigo-400" />
                   </div>
                   {validationErrors.duration && <p className="mt-1 text-sm text-red-400">{validationErrors.duration}</p>}
                 </div>

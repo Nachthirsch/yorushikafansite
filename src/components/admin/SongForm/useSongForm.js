@@ -36,7 +36,12 @@ export default function useSongForm({ song, onSubmit, onChange }) {
     if (touched.duration && song.duration) {
       const duration = parseInt(song.duration);
       if (isNaN(duration) || duration < 1) {
-        errors.duration = "Duration must be a positive number";
+        errors.duration = "Invalid duration format. Use MM:SS";
+      }
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+      if (minutes > 59 || seconds > 59) {
+        errors.duration = "Invalid time format. Maximum 59:59";
       }
     }
 
@@ -44,7 +49,7 @@ export default function useSongForm({ song, onSubmit, onChange }) {
   }, [song.track_number, song.duration, touched]);
 
   const formatTime = (seconds) => {
-    if (!seconds) return "0:00";
+    if (!seconds) return "";
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
@@ -56,25 +61,36 @@ export default function useSongForm({ song, onSubmit, onChange }) {
 
   const handleFormSubmit = async (event) => {
     try {
-      // Make sure to call preventDefault on the event
       if (event && event.preventDefault) {
         event.preventDefault();
       }
 
-      // Skip validation if no title or album_id
+      // Validasi data sebelum submit
       if (!song.title || !song.album_id) {
-        setValidationErrors((prev) => ({
-          ...prev,
-          title: !song.title ? "Title is required" : null,
-          album_id: !song.album_id ? "Album is required" : null,
-        }));
+        const errors = {};
+        if (!song.title) errors.title = "Title is required";
+        if (!song.album_id) errors.album_id = "Album is required";
+        setValidationErrors(errors);
         return;
       }
 
-      // Call the provided onSubmit function
-      await onSubmit(event);
+      // Pastikan data yang dikirim sesuai dengan schema database
+      const songData = {
+        title: song.title,
+        album_id: song.album_id,
+        track_number: parseInt(song.track_number) || null,
+        duration: parseInt(song.duration) || null,
+        lyrics: song.lyrics || null,
+        lyrics_translation: song.lyrics_translation || null,
+        translator: song.translator || null,
+        footnotes: song.footnotes || null,
+      };
+
+      // Panggil onSubmit dengan data yang sudah diformat
+      await onSubmit(songData);
     } catch (error) {
       console.error("Error submitting form:", error);
+      throw error; // Re-throw error untuk ditangkap di level component
     }
   };
 
@@ -87,16 +103,17 @@ export default function useSongForm({ song, onSubmit, onChange }) {
   };
 
   const handleReset = () => {
-    onChange({
+    const emptyData = {
       title: "",
+      album_id: "",
       track_number: "",
       duration: "",
       lyrics: "",
       lyrics_translation: "",
-      translator: "", // Add translator field
-      albumId: "",
+      translator: "",
       footnotes: "",
-    });
+    };
+    onChange(emptyData);
     setValidationErrors({});
     setTouched({});
   };

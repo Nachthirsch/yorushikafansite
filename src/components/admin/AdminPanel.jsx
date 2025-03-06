@@ -168,7 +168,8 @@ const AdminContent = React.memo(function AdminContent() {
       const toastId = toast.loading("Adding new song...");
 
       try {
-        if (!songData.album_id) {
+        // Validasi album_id sebelum submit
+        if (!songData?.album_id) {
           toast.error("Please select an album", { id: toastId });
           return;
         }
@@ -176,12 +177,13 @@ const AdminContent = React.memo(function AdminContent() {
         const { error } = await supabase.from("songs").insert([
           {
             album_id: songData.album_id,
-            title: songData.title,
-            track_number: parseInt(songData.track_number) || 1,
-            duration: parseInt(songData.duration) || 0,
-            lyrics: songData.lyrics,
-            lyrics_translation: songData.lyrics_translation,
-            translator: songData.translator,
+            title: songData.title || "",
+            track_number: parseInt(songData.track_number) || null,
+            duration: parseInt(songData.duration) || null,
+            lyrics: songData.lyrics || null,
+            lyrics_translation: songData.lyrics_translation || null,
+            translator: songData.translator || null,
+            footnotes: songData.footnotes || null,
           },
         ]);
 
@@ -189,12 +191,15 @@ const AdminContent = React.memo(function AdminContent() {
 
         await fetchData();
         toast.success("Song added successfully!", { id: toastId });
+
+        // Reset form setelah berhasil
+        dispatch({ type: "SET_NEW_SONG", payload: null });
       } catch (error) {
         console.error("Error adding song:", error);
         toast.error(error.message || "Failed to add song", { id: toastId });
       }
     },
-    [fetchData]
+    [fetchData, dispatch]
   );
 
   const handleEditPost = useCallback(

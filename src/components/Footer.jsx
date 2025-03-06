@@ -9,7 +9,8 @@ const socialLinks = [
 ];
 
 const navigationLinks = [
-  { name: "Albums", path: "/" },
+  { name: "Home", path: "/" },
+  { name: "Albums", path: "/albums" },
   { name: "Lore", path: "/news" },
   { name: "About", path: "/about" },
 ];

@@ -13,6 +13,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PostDetailPage from "./pages/PostDetailPage";
 import AboutPage from "./pages/AboutPage";
+import HomePage from "./pages/HomePage"; // Import HomePage
 
 function App() {
   return (
@@ -23,7 +24,8 @@ function App() {
           <main>
             {/* Increased padding-top */}
             <Routes>
-              <Route path="/" element={<AlbumPage />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/albums" element={<AlbumPage />} />
               <Route path="/lyrics/:songId" element={<LyricsPage />} />
               <Route
                 path="/news"

@@ -63,9 +63,8 @@ export default function NewsPage() {
     setLoading(true);
     setError(null);
     try {
-      // Simplified query to debug
-      console.log("Fetching posts...");
-      const { data, error } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false }); // Changed from publish_date to created_at
+      // Use custom query based on auth status
+      const { data, error } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false });
 
       if (error) {
         console.error("Supabase error:", error);
@@ -77,8 +76,15 @@ export default function NewsPage() {
         return;
       }
 
+      // Filter posts based on publication status
+      const filteredData = data.filter((post) => {
+        const isPublished = post.published && new Date(post.publish_date) <= new Date();
+        const user = supabase.auth.getUser();
+        return isPublished || user;
+      });
+
       // Process the posts data with better error handling
-      const processedPosts = data.map((post) => {
+      const processedPosts = filteredData.map((post) => {
         try {
           return {
             ...post,
@@ -94,7 +100,7 @@ export default function NewsPage() {
       });
 
       setPosts(processedPosts);
-      setHasMore(false); // Temporarily disable pagination until basic fetch works
+      setHasMore(false);
     } catch (err) {
       console.error("Error fetching posts:", err);
       setError("Failed to load posts. Please try again later.");

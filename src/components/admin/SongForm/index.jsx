@@ -1,21 +1,23 @@
 import useSongForm from "./useSongForm";
 import SongFormView from "./SongFormView";
 
-export default function SongForm({ song = {}, isEditing = false, onSubmit, onChange, albums = [] }) {
-  const formLogic = useSongForm({
-    song: {
-      ...song,
-      translator: song.translator || "",
-    },
-    onSubmit: async (event) => {
-      try {
-        // Handle the form event here
-        if (event && event.preventDefault) {
-          event.preventDefault();
-        }
+const defaultSong = {
+  title: "",
+  album_id: "",
+  track_number: "",
+  duration: "",
+  lyrics: "",
+  lyrics_translation: "",
+  translator: "",
+  footnotes: "",
+};
 
-        // Call parent's onSubmit without passing event
-        await onSubmit();
+export default function SongForm({ song, isEditing = false, onSubmit, onChange, albums = [] }) {
+  const formLogic = useSongForm({
+    song: { ...defaultSong, ...song },
+    onSubmit: async (songData) => {
+      try {
+        await onSubmit(songData);
       } catch (error) {
         console.error("Form submission error:", error);
         throw error;
@@ -24,5 +26,5 @@ export default function SongForm({ song = {}, isEditing = false, onSubmit, onCha
     onChange,
   });
 
-  return <SongFormView {...formLogic} song={song} albums={albums} isEditing={isEditing} />;
+  return <SongFormView {...formLogic} song={{ ...defaultSong, ...song }} albums={albums} isEditing={isEditing} />;
 }

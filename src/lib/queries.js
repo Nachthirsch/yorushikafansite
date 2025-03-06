@@ -1,6 +1,18 @@
 import { supabase } from "../lib/supabaseClient";
 
 export const fetchPosts = async () => {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("published", true) // Only fetch published posts
+    .lte("publish_date", new Date().toISOString()) // Only fetch posts with publish_date <= now
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+};
+
+export const fetchAllPosts = async () => {
   const { data, error } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
 
   if (error) throw error;

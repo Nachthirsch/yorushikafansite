@@ -66,23 +66,25 @@ const AlbumDetail = ({ album, onClose }) => {
           </h3>
 
           <div className="space-y-1">
-            {album.songs?.map((song) => (
-              <div key={song.id} onClick={() => navigate(`/lyrics/${song.id}`)} className="flex items-center p-3 hover:bg-neutral-700 rounded-lg cursor-pointer group transition-colors">
-                <div className="w-8 text-center text-neutral-400 group-hover:text-neutral-100">{song.track_number}</div>
+            {[...(album.songs || [])]
+              .sort((a, b) => (a.track_number || 0) - (b.track_number || 0))
+              .map((song) => (
+                <div key={song.id} onClick={() => navigate(`/lyrics/${song.id}`)} className="flex items-center p-3 hover:bg-neutral-700 rounded-lg cursor-pointer group transition-colors">
+                  <div className="w-8 text-center text-neutral-400 group-hover:text-neutral-100">{song.track_number}</div>
 
-                <div className="flex-1 px-3">
-                  <p className="text-neutral-100 group-hover:text-neutral-300 transition-colors">{song.title}</p>
-                </div>
+                  <div className="flex-1 px-3">
+                    <p className="text-neutral-100 group-hover:text-neutral-300 transition-colors">{song.title}</p>
+                  </div>
 
-                <div className="text-neutral-400 text-sm">
-                  {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, "0")}
-                </div>
+                  <div className="text-neutral-400 text-sm">
+                    {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, "0")}
+                  </div>
 
-                <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <PlayIcon className="w-4 h-4 text-neutral-300" />
+                  <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <PlayIcon className="w-4 h-4 text-neutral-300" />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
 
           {!album.songs?.length && <div className="py-8 text-center text-neutral-400">No tracks available for this album</div>}
