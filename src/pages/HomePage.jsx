@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { MusicalNoteIcon } from "@heroicons/react/24/outline";
+import yorushikaLogo from "../assets/yorushika.png";
+import yorushikaGIF from "../assets/YORUSHIKAA.gif";
 
 const HomePage = () => {
   return (
@@ -27,7 +29,7 @@ const HomePage = () => {
       </div>
 
       {/* Welcome Section */}
-      <section className="relative pt-32 pb-24">
+      <section className="relative pt-44">
         <div className="absolute inset-0 bg-gradient-to-b from-neutral-100 to-transparent dark:from-neutral-900 dark:to-transparent z-0" />
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
@@ -39,7 +41,7 @@ const HomePage = () => {
 
               <div className="flex items-center my-3 md:my-0 mx-6 relative">
                 <span className="absolute -inset-2 border-t border-b border-neutral-200 dark:border-neutral-800 opacity-60"></span>
-                <img src="/src/assets/yorushika.png" alt="Yorushika" className="h-12 md:h-16 inline-block" />
+                <img src={yorushikaLogo} alt="Yorushika" className="h-16 md:h-20 w-auto" />
               </div>
 
               <span className="relative italic">
@@ -71,6 +73,37 @@ const HomePage = () => {
       {/* Band Information Section */}
       <section className="py-24 relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Band Info */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} viewport={{ once: true }} className="mt-24">
+            <div className="max-w-2xl mx-auto pb-24 px-6">
+              <div className="mb-10 text-center">
+                <h2 className="text-2xl font-extralight tracking-wide text-neutral-900 dark:text-neutral-100">
+                  About{" "}
+                  <span className="font-normal">
+                    <img src={yorushikaLogo} alt="Yorushika" className="h-6 md:h-8 inline-block" />
+                  </span>
+                </h2>
+                <div className="mt-1 h-px w-8 mx-auto bg-neutral-300 dark:bg-neutral-700"></div>
+              </div>
+
+              <div className="space-y-5 text-neutral-700 dark:text-neutral-300 text-sm md:text-base font-light">
+                <p className="leading-relaxed">
+                  <span className="font-normal text-neutral-800 dark:text-neutral-200">Yorushika (ヨルシカ)</span> is a Japanese rock duo founded in 2017 represented by Universal Music Japan. The group is composed of <span className="italic">n-buna</span>, a former vocaloid music producer, and <span className="italic">suis</span>, a female vocalist.
+                </p>
+
+                <p className="leading-relaxed">They are known for their juxtaposition of "passionate" and "upbeat" production and instrumentation fused with heavier lyrical content, which often explore ideas such as love and human emotion.</p>
+
+                <p className="leading-relaxed">
+                  The name "Yorushika" is taken from a lyric in their song "Kumo to Yūrei" (雲と幽霊): <span className="italic">"Yoru shika mō nemurezu ni"</span> (夜しかもう眠れずに), meaning "I can only sleep at night".
+                </p>
+                <p>The eye-designed logo mark is a motif of two moons facing each other and also serves as a clock hand, portraying the time "from 6:00 to night"</p>
+              </div>
+
+              <div className="mt-10 text-center">
+                <div className="h-px w-6 mx-auto bg-neutral-200 dark:bg-neutral-800"></div>
+              </div>
+            </div>
+          </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }} className="grid md:grid-cols-2 gap-12 items-center">
             {/* n-buna */}
             <div className="space-y-6">
@@ -103,34 +136,42 @@ const HomePage = () => {
             </div>
           </motion.div>
 
-          {/* Band Info */}
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} viewport={{ once: true }} className="mt-24">
-            <div className="max-w-2xl mx-auto px-6">
-              <div className="mb-10 text-center">
-                <h2 className="text-2xl font-extralight tracking-wide text-neutral-900 dark:text-neutral-100">
-                  About{" "}
-                  <span className="font-normal">
-                    <img src="/src/assets/yorushika.png" alt="Yorushika" className="h-6 md:h-8 inline-block" />
-                  </span>
-                </h2>
-                <div className="mt-1 h-px w-8 mx-auto bg-neutral-300 dark:bg-neutral-700"></div>
-              </div>
-
-              <div className="space-y-5 text-neutral-700 dark:text-neutral-300 text-sm md:text-base font-light">
-                <p className="leading-relaxed">
-                  <span className="font-normal text-neutral-800 dark:text-neutral-200">Yorushika (ヨルシカ)</span> is a Japanese rock duo founded in 2017 represented by Universal Music Japan. The group is composed of <span className="italic">n-buna</span>, a former vocaloid music producer, and <span className="italic">suis</span>, a female vocalist.
-                </p>
-
-                <p className="leading-relaxed">They are known for their juxtaposition of "passionate" and "upbeat" production and instrumentation fused with heavier lyrical content, which often explore ideas such as love and human emotion.</p>
-
-                <p className="leading-relaxed">
-                  The name "Yorushika" is taken from a lyric in their song "Kumo to Yūrei" (雲と幽霊): <span className="italic">"Yoru shika mō nemurezu ni"</span> (夜しかもう眠れずに), meaning "I can only sleep at night".
-                </p>
-              </div>
-
-              <div className="mt-10 text-center">
-                <div className="h-px w-6 mx-auto bg-neutral-200 dark:bg-neutral-800"></div>
-              </div>
+          {/* Supporting Members */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} viewport={{ once: true }} className="mt-16">
+            <h3 className="text-2xl font-light text-center text-neutral-900 dark:text-neutral-100 mb-8">Supporting Members</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                {
+                  name: "Shimozuru Mitsuyasu",
+                  role: "Guitar",
+                  image: "https://i.kfs.io/album/global/242317934,0v1/fit/500x500.jpg",
+                },
+                {
+                  name: "Tatsuya Kitani",
+                  role: "Bass",
+                  image: "https://i.scdn.co/image/ab6761610000e5eb8f3b2ac021a12b2bd5f19edd",
+                },
+                {
+                  name: "Masack",
+                  role: "Drums",
+                  image: "https://media.vgm.io/artists/61/39816/39816-1614202935.jpg",
+                },
+                {
+                  name: "Tetsuya Hirahata",
+                  role: "Piano",
+                  image: "https://images.genius.com/9919e31807c90305e09f901afd71d3fd.630x630x1.jpg",
+                },
+              ].map((member, index) => (
+                <div key={index} className="text-center space-y-4">
+                  <div className="aspect-square overflow-hidden rounded-lg">
+                    <img src={member.image} alt={member.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-neutral-900 dark:text-neutral-100">{member.name}</h4>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">{member.role}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>
