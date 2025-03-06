@@ -127,8 +127,18 @@ const AboutPage = () => {
     },
     {
       name: "wobb",
-      contribution: "Translations, references to new and old songs, general insights, and song banners for NatsuKusa, Makeinu, etc.",
+      contribution: "Translations, references to new and old songs, general insights, and song banners for NatsuKusa, Makeinu, DaBoYame(DakaBoku), Tousaku Live 2021 Stories Sourcer, Moonlight Revival/Replay Live 2022 Poetry Sourcer, Zense Live 2023 Reading Sourcer, TsukiNeko Live 2023 Plays Sourcer, Music Box Renditions, Gentou Full Album Sourcer",
       contact: "https://twitter.com/Wobbuu",
+    },
+    {
+      name: "Yorushika Fan Zone Discord (YoruCord)",
+      contribution: "Translations, One of the Collaboration and Communication Channels",
+      contact: "https://discord.gg/wdam3HB",
+    },
+    {
+      name: "zednet",
+      contribution: "Translations, Tousaku Novel Translation/Source, Location List",
+      contact: "https://twitter.com/hindzeit",
     },
   ];
 
