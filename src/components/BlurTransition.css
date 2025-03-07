@@ -1,0 +1,7 @@
+/* 
+ * This file is intentionally left empty since we're now using simpler
+ * inline Headless UI Transition components directly in the Navbar.jsx file
+ * for better performance.
+ *
+ * The complex blur animations were causing performance issues.
+ */
