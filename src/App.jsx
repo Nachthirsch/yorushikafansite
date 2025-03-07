@@ -14,13 +14,17 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import PostDetailPage from "./pages/PostDetailPage";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage"; // Import HomePage
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
   return (
     <AuthProvider>
       <Router>
-        <div>
-          <Navbar />
+        <ScrollToTop /> {/* Add this component right after Router */}
+        <div className={darkMode ? "dark" : ""}>
+          <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
           <main>
             {/* Increased padding-top */}
             <Routes>

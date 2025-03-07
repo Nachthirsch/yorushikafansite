@@ -6,79 +6,8 @@ import yorushikaLogo from "../assets/yorushika.png";
 
 const AboutPage = () => {
   const [activeTab, setActiveTab] = useState("about");
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 },
-  };
-
-  // Band members data
-  const bandMembers = [
-    {
-      name: "n-buna",
-      role: "Composer, Songwriter",
-      image: "https://i.imgur.com/2Z7TzY1.jpg",
-      description: "Known for his intricate melodies and thoughtful lyrics, n-buna (Kazuki Nagasawa) began his career creating music on NicoNico Douga. His compositions blend elements of folk, rock, and classical music, creating Yorushika's distinctive sound.",
-      socialLink: "https://twitter.com/nbuna_staff",
-    },
-    {
-      name: "suis",
-      role: "Vocalist",
-      image: "https://i.imgur.com/9GjyJmm.jpg",
-      description: "suis (Mizuki Suidobashi) brings Yorushika's music to life with her clear, expressive vocals. Her voice perfectly complements n-buna's compositions, conveying the complex emotions and narratives present in Yorushika's work.",
-      socialLink: "https://twitter.com/suis_from_yorsh",
-    },
-  ];
-
-  // Major albums
-  const albums = [
-    {
-      title: "Plagiarism",
-      year: 2020,
-      cover: "https://i.imgur.com/3gkKVhb.jpg",
-      description: "A concept album exploring themes of art, creation, and originality.",
-      link: "/",
-    },
-    {
-      title: "Elma",
-      year: 2019,
-      cover: "https://i.imgur.com/gtzJQFg.jpg",
-      description: "A narrative-driven album featuring interconnected stories about youth and self-discovery.",
-      link: "/",
-    },
-    {
-      title: "Dakara Boku wa Ongaku wo Yameta",
-      year: 2019,
-      cover: "https://i.imgur.com/JS4lyzx.jpg",
-      description: "Translating to 'That's Why I Gave Up on Music', this album explores themes of disillusionment and artistic struggle.",
-      link: "/",
-    },
-    {
-      title: "Makeinu ni Encore wa Iranai",
-      year: 2018,
-      cover: "https://i.imgur.com/weQlcry.jpg",
-      description: "The debut mini-album introducing Yorushika's unique sound and storytelling approach.",
-      link: "/",
-    },
-  ];
-
-  // Add site author data
-  const author = {
-    name: "yuunagi",
-    social: "https://twitter.com/your_handle", // Replace with actual social media
-  };
+  const [currentPage, setCurrentPage] = useState(1);
+  const contributorsPerPage = 8;
 
   // Add contributors data
   const contributors = [
@@ -142,6 +71,17 @@ const AboutPage = () => {
     },
   ];
 
+  // Calculate pagination
+  const indexOfLastContributor = currentPage * contributorsPerPage;
+  const indexOfFirstContributor = indexOfLastContributor - contributorsPerPage;
+  const currentContributors = contributors.slice(indexOfFirstContributor, indexOfLastContributor);
+  const totalPages = Math.ceil(contributors.length / contributorsPerPage);
+
+  // Handle page navigation
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const nextPage = () => setCurrentPage((prev) => (prev < totalPages ? prev + 1 : prev));
+  const prevPage = () => setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev));
+
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 relative overflow-hidden">
       {/* Decorative Elements */}
@@ -149,7 +89,7 @@ const AboutPage = () => {
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-amber-100/20 to-transparent dark:from-amber-900/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
 
       {/* Hero Section */}
-      <section className="relative pt-44">
+      <section className="relative pt-48 pb-32">
         <div className="absolute inset-0 bg-gradient-to-b from-neutral-100 to-transparent dark:from-neutral-900 dark:to-transparent z-0" />
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
@@ -168,64 +108,90 @@ const AboutPage = () => {
       <section className="py-24 relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="prose prose-neutral dark:prose-invert max-w-none">
-            <div className="max-w-2xl mx-auto mb-16">
+            <div className="max-w-2xl mx-auto mb-32">
               <h2 className="text-2xl font-extralight tracking-wide text-neutral-900 dark:text-neutral-100 text-center mb-8">About this site</h2>
 
-              <div className="space-y-6 text-neutral-700 dark:text-neutral-300 text-sm md:text-base font-light">
+              <div className="space-y-6 text-neutral-700 dark:text-neutral-300 text-sm md:text-lg font-light">
                 <p className="leading-relaxed">
                   This website is a simple tribute to the Yorushika fandom, made with care and attention. I, as the developer{" "}
-                  <a href="https://handraputratama.xyz" className="font-extrabold">
+                  <a href="https://handraputratama.xyz" className="font-extrabold text-slate-500 hover:text-slate-600 hover:underline dark:text-slate-400 dark:hover:text-slate-300 italic">
                     yuunagi
                   </a>
-                  , and I built this site to celebrate our shared interest in Yorushika and their music. The goal here is to create a friendly space where fans can enjoy Yorushika's art without any commercial motives. I value the genuine community and honest expression that this site represents. Every part of this website is designed to keep the vibe relaxed and true to Yorushika's style.
+                  , I created this website to celebrate my passion for Yorushika and their works. <span className="underline font-bold">This is a purely fan-made project with no intention of profit—just a heartfelt tribute to Yorushika.</span> I deeply appreciate the genuine community and honest expression this site represents. Every element is thoughtfully designed to capture the essence of Yorushika’s style and maintain a relaxed, immersive atmosphere.
                 </p>
                 <p className="leading-relaxed">
                   All content here comes directly from the{" "}
-                  <a href="https://docs.google.com/document/d/1RV0pVn1bMPBrA6Bm-IfU7y-ZcksnsHjus7nnJ0gJ06g/edit?tab=t.0#heading=h.965hlximbplr" className="font-extrabold">
+                  <a href="https://docs.google.com/document/d/1RV0pVn1bMPBrA6Bm-IfU7y-ZcksnsHjus7nnJ0gJ06g/edit?tab=t.0#heading=h.965hlximbplr" className="font-extrabold italic text-slate-500 hover:text-slate-600 hover:underline dark:text-slate-400 dark:hover:text-slate-300">
                     {" "}
                     Yorushika Master Document{" "}
                   </a>{" "}
                   by{" "}
-                  <a href="https://lit.link/en/relapse" className="font-extrabold">
+                  <a href="https://lit.link/en/relapse" className="font-extrabold text-slate-500 hover:text-slate-600 hover:underline dark:text-slate-400 dark:hover:text-slate-300 italic">
                     Relapse
                   </a>
-                  . I made sure every translation, explanation, and analysis stays true to the original work. Full credits are given to acknowledge the contributions that make this project possible. Each section is intended to offer useful info, a bit of inspiration, and a chance to connect with other fans. I’m happy to share this space with fellow Yorushika enthusiasts and hope you enjoy exploring it.
+                  . I made sure every translation, explanation, and analysis stays true to the original document. Full credits are given to acknowledge the contributions that make this project possible. Each section is intended to offer useful info, a bit of inspiration, and a chance to connect with other fans. I’m happy to share this space with fellow Yorushika enthusiasts and hope you enjoy exploring it.
                 </p>
               </div>
             </div>
 
-            {/* Contributors Table */}
-            <div className="overflow-x-auto bg-white dark:bg-neutral-900 rounded-xl shadow-lg">
-              <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
-                <thead>
-                  <tr className="bg-neutral-50 dark:bg-neutral-800">
-                    <th className="px-6 py-4 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Contributor</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Contribution</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Contact Handle/Info</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-                  {contributors.map((contributor, idx) => (
-                    <tr key={idx} className="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900 dark:text-neutral-100">{contributor.name}</td>
-                      <td className="px-6 py-4 text-sm text-neutral-600 dark:text-neutral-400">{contributor.contribution}</td>
-                      <td className="px-6 py-4 text-sm text-neutral-600 dark:text-neutral-400">
-                        {contributor.contact.split("\n").map((line, i) =>
-                          line.startsWith("http") ? (
-                            <a key={i} href={line} target="_blank" rel="noopener noreferrer" className="block text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
-                              {line}
-                            </a>
-                          ) : (
-                            <span key={i} className="block">
-                              {line}
-                            </span>
-                          )
-                        )}
-                      </td>
+            {/* Contributors Cards */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-extralight tracking-wide text-neutral-900 dark:text-neutral-100 text-center mb-8">Contributors</h2>
+              <div className="overflow-x-auto bg-white dark:bg-neutral-900 rounded-xl shadow-lg">
+                <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+                  <thead>
+                    <tr className="bg-neutral-50 dark:bg-neutral-800">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Contributor</th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Contribution</th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Contact Handle/Info</th>
                     </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+                    {currentContributors.map((contributor, idx) => (
+                      <tr key={idx} className="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900 dark:text-neutral-100">{contributor.name}</td>
+                        <td className="px-6 py-4 text-sm text-neutral-600 dark:text-neutral-400">{contributor.contribution}</td>
+                        <td className="px-6 py-4 text-sm text-neutral-600 dark:text-neutral-400">
+                          {contributor.contact.split("\n").map((line, i) =>
+                            line.startsWith("http") ? (
+                              <a key={i} href={line} target="_blank" rel="noopener noreferrer" className="block text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
+                                {line}
+                              </a>
+                            ) : (
+                              <span key={i} className="block">
+                                {line}
+                              </span>
+                            )
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex justify-center items-center mt-8 space-x-2">
+                <button onClick={prevPage} disabled={currentPage === 1} className="px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                  Previous
+                </button>
+
+                <div className="flex space-x-1">
+                  {Array.from({ length: totalPages }).map((_, idx) => (
+                    <button key={idx} onClick={() => paginate(idx + 1)} className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-medium ${currentPage === idx + 1 ? "bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-900" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"}`}>
+                      {idx + 1}
+                    </button>
                   ))}
-                </tbody>
-              </table>
+                </div>
+
+                <button onClick={nextPage} disabled={currentPage === totalPages} className="px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-md text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                  Next
+                </button>
+              </div>
+
+              <div className="text-center mt-4 text-sm text-neutral-500 dark:text-neutral-400">
+                Page {currentPage} of {totalPages} • Showing {indexOfFirstContributor + 1}-{Math.min(indexOfLastContributor, contributors.length)} of {contributors.length} contributors
+              </div>
             </div>
           </motion.div>
         </div>

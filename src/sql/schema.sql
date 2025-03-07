@@ -13,6 +13,7 @@ CREATE TABLE songs (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     album_id UUID REFERENCES albums(id) ON DELETE CASCADE,
     title VARCHAR NOT NULL,
+    description TEXT, -- Add this new column
     track_number INTEGER,
     duration INTEGER, -- duration in seconds
     lyrics TEXT,

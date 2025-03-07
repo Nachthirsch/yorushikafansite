@@ -2,15 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 import { toast } from "react-hot-toast";
 
-export const classificationOptions = [
-  "Studio Album",
-  "Mini Album",
-  "EP",
-  "Single",
-  "Compilation",
-  "Soundtrack",
-  "Other"
-];
+export const classificationOptions = ["Full Album", "Mini Album", "EP", "Single", "Compilation", "Soundtrack", "Other"];
 
 export default function useAlbumForm({ album, onSave }) {
   const [formData, setFormData] = useState({
@@ -20,9 +12,9 @@ export default function useAlbumForm({ album, onSave }) {
     coverImageUrl: "",
     youtubeUrl: "",
     spotifyUrl: "",
-    classification: ""
+    classification: "",
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -34,15 +26,15 @@ export default function useAlbumForm({ album, onSave }) {
         coverImageUrl: album.cover_image_url || "",
         youtubeUrl: album.youtube_url || "",
         spotifyUrl: album.spotify_url || "",
-        classification: album.classification || ""
+        classification: album.classification || "",
       });
     }
   }, [album]);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -62,17 +54,12 @@ export default function useAlbumForm({ album, onSave }) {
       };
 
       if (album?.id) {
-        const { error } = await supabase
-          .from("albums")
-          .update(albumData)
-          .eq("id", album.id);
+        const { error } = await supabase.from("albums").update(albumData).eq("id", album.id);
 
         if (error) throw error;
         toast.success("Album updated successfully");
       } else {
-        const { error } = await supabase
-          .from("albums")
-          .insert([albumData]);
+        const { error } = await supabase.from("albums").insert([albumData]);
 
         if (error) throw error;
         toast.success("Album created successfully");
@@ -97,6 +84,6 @@ export default function useAlbumForm({ album, onSave }) {
     handleChange,
     handleSubmit,
     isValidImageUrl,
-    classificationOptions
+    classificationOptions,
   };
-} 
+}

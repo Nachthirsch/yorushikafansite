@@ -38,28 +38,31 @@ export default function EditSongPage() {
     }
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (songData) => {
     const toastId = toast.loading("Updating song...");
 
     try {
-      const { error } = await supabase
-        .from("songs")
-        .update({
-          title: song.title,
-          lyrics: song.lyrics,
-          lyrics_translation: song.lyrics_translation,
-          translator: song.translator || null,
-          track_number: parseInt(song.track_number),
-          duration: parseInt(song.duration),
-          album_id: song.album_id,
-          footnotes: song.footnotes || "",
-        })
-        .eq("id", songId);
+      // Clean dan format data sebelum update
+      const cleanedData = {
+        title: songData.title || null,
+        album_id: songData.album_id || null,
+        track_number: songData.track_number ? parseInt(songData.track_number) : null,
+        duration: songData.duration ? parseInt(songData.duration) : null,
+        description: songData.description || null,
+        lyrics: songData.lyrics || null,
+        lyrics_translation: songData.lyrics_translation || null,
+        translator: songData.translator || null,
+        footnotes: songData.footnotes || null,
+        extras: songData.extras || null, // Pastikan field extras diproses
+      };
+
+      const { error } = await supabase.from("songs").update(cleanedData).eq("id", songId);
 
       if (error) throw error;
 
       toast.success("Song updated successfully!", { id: toastId });
-      navigate(`/lyrics/${songId}`);
+      // Change navigation to admin page
+      navigate("/admin", { replace: true });
     } catch (error) {
       console.error("Error updating song:", error);
       toast.error("Failed to update song", { id: toastId });

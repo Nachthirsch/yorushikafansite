@@ -6,10 +6,12 @@ const defaultSong = {
   album_id: "",
   track_number: "",
   duration: "",
+  description: "",
   lyrics: "",
   lyrics_translation: "",
   translator: "",
   footnotes: "",
+  extras: "", // Tambahkan ini ke defaultSong
 };
 
 export default function SongForm({ song, isEditing = false, onSubmit, onChange, albums = [] }) {

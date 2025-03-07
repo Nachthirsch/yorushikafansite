@@ -91,6 +91,15 @@ export default function SongFormView({ song, albums, isEditing, navigate, touche
                 </div>
               </div>
 
+              {/* Add description field */}
+              <div className="relative">
+                <label className="block text-sm font-medium text-indigo-300 mb-2">Description</label>
+                <div className="relative">
+                  <TextareaAutosize value={song.description || ""} onChange={(e) => handleChange("description", e.target.value)} className="w-full py-3 px-4 bg-black/30 backdrop-blur-sm border border-indigo-600/70 rounded-lg text-white focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 transition-all pl-10 resize-none" placeholder="Enter song description (optional)" minRows={3} />
+                  <DocumentTextIcon className="absolute left-3 top-3 h-5 w-5 text-indigo-400" />
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-5">
                 <div className="relative">
                   <label className="block text-sm font-medium text-indigo-300 mb-2">Track #</label>
@@ -221,6 +230,15 @@ export default function SongFormView({ song, albums, isEditing, navigate, touche
 
           <TextareaAutosize value={song.footnotes || ""} onChange={(e) => handleChange("footnotes", e.target.value)} className="w-full px-6 py-4 rounded-lg border-0 bg-black/30 text-white focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 min-h-[100px] shadow-inner resize-none" placeholder="Add notes, references, or explanations here..." />
         </div>
+
+        {/* Add Extras field before the form end */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-neutral-50 dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
+          <div className="flex items-center mb-6">
+            <div className="w-1 h-6 bg-neutral-500 rounded mr-3"></div>
+            <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">Extras (Optional)</h2>
+          </div>
+          <TextareaAutosize value={song.extras || ""} onChange={(e) => handleChange("extras", e.target.value)} className="w-full py-3 px-4 bg-black/30 backdrop-blur-sm border border-indigo-600/70 rounded-lg text-white focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 transition-all resize-none" placeholder="Add any additional information, trivia, or extra content here..." minRows={3} />
+        </motion.div>
 
         <div className="flex justify-between items-center gap-4 pt-6 mt-8 px-6 py-4 bg-black/30 backdrop-blur-sm border-t border-indigo-700/50">
           <div className="h-8 flex items-end gap-0.5">{renderVisualizer()}</div>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { MusicalNoteIcon } from "@heroicons/react/24/outline";
 import yorushikaLogo from "../assets/yorushika.png";
 import yorushikaGIF from "../assets/YORUSHIKAA.gif";
+import yorushikaSVG from "../assets/yorushika.svg";
 
 const HomePage = () => {
   return (
@@ -75,18 +76,148 @@ const HomePage = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Band Info */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} viewport={{ once: true }} className="mt-24">
-            <div className="max-w-2xl mx-auto pb-24 px-6">
-              <div className="mb-10 text-center">
-                <h2 className="text-2xl font-extralight tracking-wide text-neutral-900 dark:text-neutral-100">
-                  About{" "}
-                  <span className="font-normal">
-                    <img src={yorushikaLogo} alt="Yorushika" className="h-6 md:h-8 inline-block" />
-                  </span>
-                </h2>
-                <div className="mt-1 h-px w-8 mx-auto bg-neutral-300 dark:bg-neutral-700"></div>
+            <div className="max-w-2xl mx-auto pb-24 px-6 relative">
+              {/* Corner accents - enhanced with delicate dotted patterns */}
+              <div className="absolute -left-2 -top-2 w-6 h-6 border-l-2 border-t-2 border-neutral-200/40 dark:border-neutral-800/40 rounded-tl-sm"></div>
+              <div className="absolute -right-2 -top-2 w-6 h-6 border-r-2 border-t-2 border-neutral-200/40 dark:border-neutral-800/40 rounded-tr-sm"></div>
+              <div className="absolute -left-2 -bottom-2 w-6 h-6 border-l-2 border-b-2 border-neutral-200/40 dark:border-neutral-800/40 rounded-bl-sm"></div>
+              <div className="absolute -right-2 -bottom-2 w-6 h-6 border-r-2 border-b-2 border-neutral-200/40 dark:border-neutral-800/40 rounded-br-sm"></div>
+
+              {/* Corner dots - new minimalist embellishments */}
+              <div className="absolute -left-3 -top-3 w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-60"></div>
+              <div className="absolute -right-3 -top-3 w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-60"></div>
+              <div className="absolute -left-3 -bottom-3 w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-60"></div>
+              <div className="absolute -right-3 -bottom-3 w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-60"></div>
+
+              {/* New outer corner micro-dots - extra subtle depth */}
+              <div className="absolute -left-4 -top-4 w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+              <div className="absolute -right-4 -top-4 w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+              <div className="absolute -left-4 -bottom-4 w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+              <div className="absolute -right-4 -bottom-4 w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+
+              {/* Decorative elements - minimalist lines and new accent patterns */}
+              <div className="absolute left-0 top-12 w-4 h-px bg-neutral-300 dark:bg-neutral-700"></div>
+              <div className="absolute right-0 top-12 w-4 h-px bg-neutral-300 dark:bg-neutral-700"></div>
+              <div className="absolute left-4 bottom-24 w-px h-16 bg-neutral-200 dark:bg-neutral-800 opacity-70"></div>
+              <div className="absolute right-4 bottom-24 w-px h-16 bg-neutral-200 dark:bg-neutral-800 opacity-70"></div>
+              <div className="absolute left-0 top-0 w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-50"></div>
+              <div className="absolute right-0 bottom-0 w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-50"></div>
+
+              {/* New middle accent lines */}
+              <div className="absolute left-8 top-0 h-px w-12 bg-neutral-200 dark:bg-neutral-800 opacity-30"></div>
+              <div className="absolute right-8 bottom-0 h-px w-12 bg-neutral-200 dark:bg-neutral-800 opacity-30"></div>
+
+              {/* New mid-side decorative elements */}
+              <div className="absolute -left-1 top-1/3 flex flex-col space-y-1">
+                <div className="w-0.5 h-3 bg-neutral-200 dark:bg-neutral-800 opacity-30"></div>
+                <div className="w-1.5 h-px bg-neutral-200 dark:bg-neutral-800 opacity-20"></div>
+              </div>
+              <div className="absolute -right-1 bottom-1/3 flex flex-col items-end space-y-1">
+                <div className="w-0.5 h-3 bg-neutral-200 dark:bg-neutral-800 opacity-30"></div>
+                <div className="w-1.5 h-px bg-neutral-200 dark:bg-neutral-800 opacity-20"></div>
               </div>
 
-              <div className="space-y-5 text-neutral-700 dark:text-neutral-300 text-sm md:text-base font-light">
+              {/* Diagonal accent lines - refined with proper spacing */}
+              <div className="absolute left-0 top-1/4 w-3 h-px bg-neutral-200 dark:bg-neutral-800 opacity-40 rotate-45"></div>
+              <div className="absolute right-0 top-1/4 w-3 h-px bg-neutral-200 dark:bg-neutral-800 opacity-40 -rotate-45"></div>
+              <div className="absolute left-0 bottom-1/4 w-3 h-px bg-neutral-200 dark:bg-neutral-800 opacity-40 -rotate-45"></div>
+              <div className="absolute right-0 bottom-1/4 w-3 h-px bg-neutral-200 dark:bg-neutral-800 opacity-40 rotate-45"></div>
+
+              {/* New diagonal pairs - subtle reinforcement */}
+              <div className="absolute left-0 top-1/3 w-2 h-px bg-neutral-200 dark:bg-neutral-800 opacity-30 rotate-45"></div>
+              <div className="absolute left-0 top-1/3 translate-y-1 w-1 h-px bg-neutral-200 dark:bg-neutral-800 opacity-20 rotate-45"></div>
+              <div className="absolute right-0 bottom-1/3 w-2 h-px bg-neutral-200 dark:bg-neutral-800 opacity-30 -rotate-45"></div>
+              <div className="absolute right-0 bottom-1/3 translate-y-1 w-1 h-px bg-neutral-200 dark:bg-neutral-800 opacity-20 -rotate-45"></div>
+
+              {/* New subtle micropatterns */}
+              <div className="absolute left-1/4 top-0 flex space-x-1">
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-20"></div>
+              </div>
+              <div className="absolute right-1/4 bottom-0 flex space-x-1">
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-20"></div>
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+              </div>
+
+              {/* New micro-pattern groups on sides */}
+              <div className="absolute left-1/2 -translate-x-20 top-0 flex space-x-0.5">
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-30"></div>
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-10"></div>
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-20"></div>
+              </div>
+              <div className="absolute right-1/2 translate-x-20 bottom-0 flex space-x-0.5">
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-20"></div>
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-10"></div>
+                <div className="w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-30"></div>
+              </div>
+
+              <div className="mb-10 text-center relative">
+                {/* Decorative circles with refined positioning */}
+                <div className="absolute -left-1 -top-6 w-2 h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 opacity-60"></div>
+                <div className="absolute -right-1 -top-6 w-2 h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 opacity-60"></div>
+
+                {/* New decorative micro-elements */}
+                <div className="absolute left-1/3 -top-3 w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-50"></div>
+                <div className="absolute right-1/3 -top-3 w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 opacity-50"></div>
+
+                {/* New decorative corners above title */}
+                <div className="absolute left-1/4 -top-5 w-3 h-3">
+                  <div className="absolute top-0 left-0 w-2 h-px bg-neutral-200 dark:bg-neutral-800 opacity-30"></div>
+                  <div className="absolute top-0 left-0 h-2 w-px bg-neutral-200 dark:bg-neutral-800 opacity-30"></div>
+                </div>
+                <div className="absolute right-1/4 -top-5 w-3 h-3">
+                  <div className="absolute top-0 right-0 w-2 h-px bg-neutral-200 dark:bg-neutral-800 opacity-30"></div>
+                  <div className="absolute top-0 right-0 h-2 w-px bg-neutral-200 dark:bg-neutral-800 opacity-30"></div>
+                </div>
+
+                {/* Thin horizontal lines flanking the title - with enhanced lengths */}
+                <div className="absolute left-0 top-1/2 w-10 h-px bg-neutral-200 dark:bg-neutral-800 opacity-40"></div>
+                <div className="absolute right-0 top-1/2 w-10 h-px bg-neutral-200 dark:bg-neutral-800 opacity-40"></div>
+
+                <h2 className="text-2xl font-extralight tracking-wide text-neutral-900 dark:text-neutral-100">
+                  About{" "}
+                  <span className="font-normal relative">
+                    <img src={yorushikaLogo} alt="Yorushika" className="h-6 md:h-8 inline-block" />
+                    <span className="absolute -bottom-1 left-0 right-0 h-px bg-neutral-200 dark:bg-neutral-800 opacity-70"></span>
+                  </span>
+                </h2>
+
+                {/* Enhanced title underline with subtle animation */}
+                <div className="mt-1 h-px w-16 mx-auto bg-neutral-300 dark:bg-neutral-700 relative overflow-hidden">
+                  <div
+                    className="absolute inset-0 bg-neutral-400 dark:bg-neutral-600 w-5 opacity-50"
+                    style={{
+                      animation: "moveLight 4s ease-in-out infinite",
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Enhanced subtle gradient background with refined border frame */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-neutral-100/30 dark:via-neutral-900/30 to-transparent opacity-20 rounded-xl pointer-events-none"></div>
+              <div className="absolute inset-0 border border-neutral-200/30 dark:border-neutral-800/30 rounded-xl pointer-events-none"></div>
+              <div className="absolute inset-x-4 top-2 bottom-2 border-t border-b border-neutral-200/20 dark:border-neutral-800/20 rounded pointer-events-none"></div>
+
+              {/* New inner border accent */}
+              <div className="absolute inset-x-8 top-4 bottom-4 border-t border-b border-neutral-200/10 dark:border-neutral-800/10 rounded pointer-events-none"></div>
+
+              {/* New subtle corner highlights */}
+              <div className="absolute top-1 left-1 w-8 h-8 bg-gradient-to-br from-white/5 to-transparent rounded-tl-xl pointer-events-none"></div>
+              <div className="absolute bottom-1 right-1 w-8 h-8 bg-gradient-to-tl from-white/5 to-transparent rounded-br-xl pointer-events-none"></div>
+
+              {/* New opposite corner highlights - even more subtle */}
+              <div className="absolute top-1 right-1 w-6 h-6 bg-gradient-to-bl from-white/3 to-transparent rounded-tr-xl pointer-events-none"></div>
+              <div className="absolute bottom-1 left-1 w-6 h-6 bg-gradient-to-tr from-white/3 to-transparent rounded-bl-xl pointer-events-none"></div>
+
+              <div className="space-y-5 text-neutral-700 dark:text-neutral-300 text-sm md:text-lg font-light relative">
+                {/* Decorative quote marks - refined with better positioning */}
+                <div className="absolute -left-4 top-0 text-3xl opacity-10 dark:opacity-5 font-serif text-neutral-400 dark:text-neutral-600">❝</div>
+                <div className="absolute -right-4 bottom-12 text-3xl opacity-10 dark:opacity-5 font-serif text-neutral-400 dark:text-neutral-600">❞</div>
+
+                {/* New mid-content decorative elements */}
+                <div className="absolute left-2 top-1/2 -translate-y-4 w-1 h-1 rounded-full border border-neutral-300/20 dark:border-neutral-700/20"></div>
+                <div className="absolute right-2 bottom-1/3 w-1 h-1 rounded-full border border-neutral-300/20 dark:border-neutral-700/20"></div>
+
                 <p className="leading-relaxed">
                   <span className="font-normal text-neutral-800 dark:text-neutral-200">Yorushika (ヨルシカ)</span> is a Japanese rock duo founded in 2017 represented by Universal Music Japan. The group is composed of <span className="italic">n-buna</span>, a former vocaloid music producer, and <span className="italic">suis</span>, a female vocalist.
                 </p>
@@ -96,11 +227,24 @@ const HomePage = () => {
                 <p className="leading-relaxed">
                   The name "Yorushika" is taken from a lyric in their song "Kumo to Yūrei" (雲と幽霊): <span className="italic">"Yoru shika mō nemurezu ni"</span> (夜しかもう眠れずに), meaning "I can only sleep at night".
                 </p>
-                <p>The eye-designed logo mark is a motif of two moons facing each other and also serves as a clock hand, portraying the time "from 6:00 to night"</p>
-              </div>
 
-              <div className="mt-10 text-center">
-                <div className="h-px w-6 mx-auto bg-neutral-200 dark:bg-neutral-800"></div>
+                {/* Fixed structure: replaced p with div to avoid invalid nesting */}
+                <div className="leading-relaxed flex items-center">
+                  <span>The eye-designed logo mark</span>
+                  <div className="inline-block mx-4 relative group">
+                    <img src={yorushikaSVG} alt="Yorushika logo" className="h-16 w-16 invert group-hover:opacity-80 transition-opacity duration-300" />
+                    <div className="absolute inset-0 border-t border-b border-transparent hover:border-neutral-200/30 dark:hover:border-neutral-800/30 transition-colors duration-300"></div>
+                    {/* New logo highlight effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-radial-gradient from-white via-transparent to-transparent transition-opacity duration-500 pointer-events-none"></div>
+                  </div>
+                  <span>
+                    is a motif of two moons facing each other and also serves as a clock hand, portraying the time "from 6:00 to night"
+                    <span className="h-px w-3 bg-neutral-300 dark:bg-neutral-700 opacity-50 inline-block ml-2"></span>
+                  </span>
+                </div>
+
+                {/* New text content divider */}
+                <div className="w-full h-px bg-gradient-to-r from-transparent via-neutral-200/20 dark:via-neutral-800/20 to-transparent my-6"></div>
               </div>
             </div>
           </motion.div>

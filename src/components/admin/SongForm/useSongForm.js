@@ -80,10 +80,12 @@ export default function useSongForm({ song, onSubmit, onChange }) {
         album_id: song.album_id,
         track_number: parseInt(song.track_number) || null,
         duration: parseInt(song.duration) || null,
+        description: song.description || null, // Add this line
         lyrics: song.lyrics || null,
         lyrics_translation: song.lyrics_translation || null,
         translator: song.translator || null,
         footnotes: song.footnotes || null,
+        extras: song.extras || null, // Tambahkan ini ke dalam songData
       };
 
       // Panggil onSubmit dengan data yang sudah diformat
