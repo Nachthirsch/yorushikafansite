@@ -6,11 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeftIcon, MusicalNoteIcon, InformationCircleIcon, LanguageIcon, PlusCircleIcon, ChevronDoubleUpIcon, HeartIcon, ClockIcon, ShareIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import FocusTrap from "focus-trap-react";
+import { useSong } from "../hooks/useSong";
 
 export default function LyricsPage() {
   const { songId } = useParams();
-  const [song, setSong] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [showExtrasModal, setShowExtrasModal] = useState(false);
   const [favorite, setFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState("sideBySide");
@@ -18,9 +17,10 @@ export default function LyricsPage() {
   const extrasModalRef = useRef(null);
   const pageRef = useRef(null);
 
-  useEffect(() => {
-    fetchSong();
+  // Replace fetchSong with useSong hook
+  const { data: song, isLoading: loading } = useSong(songId);
 
+  useEffect(() => {
     // Check if the song is in favorites
     const checkFavorite = () => {
       const favorites = JSON.parse(localStorage.getItem("favoriteSongs") || "[]");
@@ -43,31 +43,6 @@ export default function LyricsPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showExtrasModal]);
-
-  async function fetchSong() {
-    try {
-      const { data, error } = await supabase
-        .from("songs")
-        .select(
-          `
-          *,
-          albums (
-            title, 
-            cover_image_url
-          )
-        `
-        )
-        .eq("id", songId)
-        .single();
-
-      if (error) throw error;
-      setSong(data);
-    } catch (error) {
-      console.error("Error fetching song:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const toggleFavorite = () => {
     const favorites = JSON.parse(localStorage.getItem("favoriteSongs") || "[]");

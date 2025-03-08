@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
+import { handleError } from "./queries";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -8,6 +9,14 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false, // Prevent refetch on window focus
       refetchOnMount: false,
       refetchOnReconnect: false,
+      retry: (failureCount, error) => {
+        if (error.message.includes("Invalid query parameters")) return false;
+        return failureCount < 3;
+      },
+      onError: (error) => {
+        const message = handleError(error);
+        console.error(message);
+      },
     },
   },
 });

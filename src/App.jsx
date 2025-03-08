@@ -15,54 +15,61 @@ import PostDetailPage from "./pages/PostDetailPage";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage"; // Import HomePage
 import ScrollToTop from "./components/ScrollToTop";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient();
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <AuthProvider>
-      <Router>
-        <ScrollToTop /> {/* Add this component right after Router */}
-        <div className={darkMode ? "dark" : {}}>
-          <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
-          <main>
-            {/* Increased padding-top */}
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/albums" element={<AlbumPage />} />
-              <Route path="/lyrics/:songId" element={<LyricsPage />} />
-              <Route
-                path="/news"
-                element={
-                  <ErrorBoundary>
-                    <NewsPage />
-                  </ErrorBoundary>
-                }
-              />
-              <Route path="/news/:postId" element={<PostDetailPage />} />
-              <Route
-                path="/admin/*"
-                element={
-                  <AdminProvider>
-                    <AdminPanel />
-                  </AdminProvider>
-                }
-              />
-              <Route
-                path="/admin/songs/edit/:songId"
-                element={
-                  <AuthGuard>
-                    <EditSongPage />
-                  </AuthGuard>
-                }
-              />
-              <Route path="/about" element={<AboutPage />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <ScrollToTop /> {/* Add this component right after Router */}
+          <div className={darkMode ? "dark" : {}}>
+            <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+            <main>
+              {/* Increased padding-top */}
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/albums" element={<AlbumPage />} />
+                <Route path="/lyrics/:songId" element={<LyricsPage />} />
+                <Route
+                  path="/news"
+                  element={
+                    <ErrorBoundary>
+                      <NewsPage />
+                    </ErrorBoundary>
+                  }
+                />
+                <Route path="/news/:postId" element={<PostDetailPage />} />
+                <Route
+                  path="/admin/*"
+                  element={
+                    <AdminProvider>
+                      <AdminPanel />
+                    </AdminProvider>
+                  }
+                />
+                <Route
+                  path="/admin/songs/edit/:songId"
+                  element={
+                    <AuthGuard>
+                      <EditSongPage />
+                    </AuthGuard>
+                  }
+                />
+                <Route path="/about" element={<AboutPage />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </AuthProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 

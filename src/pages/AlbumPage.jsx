@@ -6,10 +6,10 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { PlayIcon } from "@heroicons/react/24/solid";
 import { ChevronDownIcon, MusicalNoteIcon } from "@heroicons/react/24/outline";
 import AlbumDetail from "../components/AlbumDetail";
+import { useAlbums } from "../hooks/useAlbums";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AlbumPage() {
-  const [albums, setAlbums] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest");
@@ -17,53 +17,60 @@ export default function AlbumPage() {
   const [yearFilter, setYearFilter] = useState("all");
   const [hoveredAlbum, setHoveredAlbum] = useState(null);
 
-  useEffect(() => {
-    fetchAlbums();
-  }, []);
+  const queryClient = useQueryClient();
 
-  async function fetchAlbums() {
-    try {
-      const { data, error } = await supabase
-        .from("albums")
-        .select(
-          `
-          *,
-          songs (
-            id,
-            title,
-            track_number,
-            duration
-          )
-        `
-        )
-        .order("release_date", { ascending: false });
+  const {
+    data: albums = [],
+    isLoading,
+    isError,
+    error,
+  } = useAlbums({
+    search: searchTerm,
+    year: yearFilter,
+    sortBy,
+  });
 
-      if (error) throw error;
-      setAlbums(data || []);
-    } catch (error) {
-      console.error("Error fetching albums:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const years = [...new Set(albums.map((album) => new Date(album.release_date).getFullYear()))].sort((a, b) => b - a);
-
-  const filteredAlbums = albums
-    .filter((album) => {
-      const matchesSearch = album.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesYear = yearFilter === "all" || new Date(album.release_date).getFullYear().toString() === yearFilter;
-      return matchesSearch && matchesYear;
-    })
-    .sort((a, b) => {
-      if (sortBy === "newest") return new Date(b.release_date) - new Date(a.release_date);
-      if (sortBy === "oldest") return new Date(a.release_date) - new Date(b.release_date);
-      if (sortBy === "tracks") return b.songs.length - a.songs.length;
-      if (sortBy === "title") return a.title.localeCompare(b.title);
-      return 0;
+  // Pre-fetch album details on hover
+  const handleAlbumHover = (albumId) => {
+    setHoveredAlbum(albumId);
+    queryClient.prefetchQuery({
+      queryKey: ["album", albumId],
+      queryFn: () => fetchAlbum(albumId),
     });
+  };
 
-  if (loading) return <LoadingSpinner />;
+  // Get unique years from albums array
+  const years = Array.isArray(albums) ? [...new Set(albums.map((album) => new Date(album.release_date).getFullYear()))].sort((a, b) => b - a) : [];
+
+  // Filter and sort albums
+  const filteredAlbums = Array.isArray(albums)
+    ? albums
+        .filter((album) => {
+          const matchesSearch = album.title.toLowerCase().includes(searchTerm.toLowerCase());
+          const matchesYear = yearFilter === "all" || new Date(album.release_date).getFullYear().toString() === yearFilter;
+          return matchesSearch && matchesYear;
+        })
+        .sort((a, b) => {
+          if (sortBy === "newest") return new Date(b.release_date) - new Date(a.release_date);
+          if (sortBy === "oldest") return new Date(a.release_date) - new Date(b.release_date);
+          if (sortBy === "tracks") return (b.songs?.length || 0) - (a.songs?.length || 0);
+          if (sortBy === "title") return a.title.localeCompare(b.title);
+          return 0;
+        })
+    : [];
+
+  if (isLoading) return <LoadingSpinner />;
+
+  if (isError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
+        <div className="text-center p-8 bg-white dark:bg-neutral-900 rounded-xl shadow-lg">
+          <h2 className="text-xl font-medium text-red-600 dark:text-red-400 mb-4">Error loading albums</h2>
+          <p className="text-neutral-600 dark:text-neutral-400">{error?.message || "An unexpected error occurred"}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 relative overflow-hidden">
@@ -205,7 +212,7 @@ export default function AlbumPage() {
           <motion.div layout className={`grid ${isGridView ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8" : "grid-cols-1 gap-6"}`}>
             <AnimatePresence mode="popLayout">
               {filteredAlbums.map((album, index) => (
-                <motion.div key={album.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }} onHoverStart={() => setHoveredAlbum(album.id)} onHoverEnd={() => setHoveredAlbum(null)} className={`${isGridView ? "" : ""}`}>
+                <motion.div key={album.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }} onHoverStart={() => handleAlbumHover(album.id)} onHoverEnd={() => setHoveredAlbum(null)} className={`${isGridView ? "" : ""}`}>
                   <div className={`group cursor-pointer transition-all duration-300 hover:shadow-lg ${isGridView ? "block bg-white dark:bg-neutral-900 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:-translate-y-1" : "flex items-center gap-6 bg-white dark:bg-neutral-900 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:-translate-y-0.5"}`} onClick={() => setSelectedAlbum(album)}>
                     <div className={`relative ${isGridView ? "aspect-square" : "flex-shrink-0 w-24 h-24 md:w-32 md:h-32"} overflow-hidden rounded-md ${isGridView ? "rounded-b-none" : ""}`}>
                       <motion.img src={album.cover_image_url} alt={album.title} className="w-full h-full object-cover" loading="lazy" whileHover={{ scale: 1.05 }} transition={{ duration: 0.4 }} />
