@@ -2,7 +2,22 @@ import { useRef } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { MusicalNoteIcon, ClockIcon, DocumentTextIcon, ListBulletIcon, PlusIcon, XMarkIcon, PlayIcon, MusicalNoteIcon as MusicIcon, LanguageIcon, ArrowLeftIcon, PencilIcon, ArchiveBoxIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
+import {
+  MusicalNoteIcon,
+  ClockIcon,
+  DocumentTextIcon,
+  ListBulletIcon,
+  PlusIcon,
+  XMarkIcon,
+  PlayIcon,
+  MusicalNoteIcon as MusicIcon,
+  LanguageIcon,
+  ArrowLeftIcon,
+  PencilIcon,
+  ArchiveBoxIcon,
+  InformationCircleIcon,
+  PhotoIcon, // Add this import
+} from "@heroicons/react/24/outline";
 
 export default function SongFormView({ song, albums, isEditing, navigate, touched, lyricsStats, validationErrors, isPlaying, lineHeight, activeLyricsTab, hasErrors, setIsPlaying, setActiveLyricsTab, handleTouch, handleFormSubmit, handleChange, handleReset, formatTime }) {
   const textareaRef = useRef(null);
@@ -83,6 +98,26 @@ export default function SongFormView({ song, albums, isEditing, navigate, touche
             <div className="space-y-6">
               {renderAlbumSelection()}
 
+              <div className="relative">
+                <label className="block text-sm font-medium text-indigo-300 mb-2">Thumbnail Cover URL</label>
+                <div className="relative">
+                  <input
+                    type="url"
+                    value={song.thumbnail_cover_url || ""}
+                    onChange={(e) => handleChange("thumbnail_cover_url", e.target.value)}
+                    onBlur={() => handleTouch("thumbnail_cover_url")}
+                    className={`w-full py-3 px-4 bg-black/30 backdrop-blur-sm border 
+                      ${validationErrors.thumbnail_cover_url ? "border-red-500" : "border-indigo-600/70"}
+                      rounded-lg text-white focus:ring-2 focus:ring-indigo-400 
+                      focus:border-indigo-500 transition-all pl-10`}
+                    placeholder="https://example.com/thumbnail.jpg"
+                  />
+                  <PhotoIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-indigo-400" />
+                </div>
+                {validationErrors.thumbnail_cover_url ? <p className="mt-1 text-sm text-red-400">{validationErrors.thumbnail_cover_url}</p> : <p className="mt-1 text-sm text-indigo-400">Optional: Leave empty to use album cover</p>}
+              </div>
+
+              {/* Track Title & Description fields */}
               <div className="relative">
                 <label className="block text-sm font-medium text-indigo-300 mb-2">Track Title</label>
                 <div className="relative">
@@ -232,17 +267,16 @@ export default function SongFormView({ song, albums, isEditing, navigate, touche
         </div>
 
         {/* Add Extras field before the form end */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-neutral-50 dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="mt-6 bg-black/30 backdrop-blur-sm rounded-xl border border-indigo-700/60 shadow-lg p-6">
           <div className="flex items-center mb-6">
             <div className="w-1 h-6 bg-neutral-500 rounded mr-3"></div>
-            <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">Extras (Optional)</h2>
+            <h2 className="text-xl font-medium text-white">Extras (Optional)</h2>
           </div>
           <TextareaAutosize value={song.extras || ""} onChange={(e) => handleChange("extras", e.target.value)} className="w-full py-3 px-4 bg-black/30 backdrop-blur-sm border border-indigo-600/70 rounded-lg text-white focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 transition-all resize-none" placeholder="Add any additional information, trivia, or extra content here..." minRows={3} />
         </motion.div>
 
         <div className="flex justify-between items-center gap-4 pt-6 mt-8 px-6 py-4 bg-black/30 backdrop-blur-sm border-t border-indigo-700/50">
           <div className="h-8 flex items-end gap-0.5">{renderVisualizer()}</div>
-
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="h-10 w-10 rounded-full bg-indigo-800 hover:bg-indigo-700 flex items-center justify-center">
               {isPlaying ? (
@@ -288,7 +322,6 @@ export default function SongFormView({ song, albums, isEditing, navigate, touche
                 </>
               )}
             </motion.button>
-
             <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} type="submit" disabled={hasErrors} className="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 text-sm font-medium uppercase tracking-wide">
               {isEditing ? (
                 <>

@@ -45,8 +45,16 @@ export default function useSongForm({ song, onSubmit, onChange }) {
       }
     }
 
+    if (touched.thumbnail_cover_url && song.thumbnail_cover_url) {
+      try {
+        new URL(song.thumbnail_cover_url);
+      } catch (e) {
+        errors.thumbnail_cover_url = "Please enter a valid URL";
+      }
+    }
+
     setValidationErrors(errors);
-  }, [song.track_number, song.duration, touched]);
+  }, [song.track_number, song.duration, song.thumbnail_cover_url, touched]);
 
   const formatTime = (seconds) => {
     if (!seconds) return "";
@@ -86,6 +94,7 @@ export default function useSongForm({ song, onSubmit, onChange }) {
         translator: song.translator || null,
         footnotes: song.footnotes || null,
         extras: song.extras || null, // Tambahkan ini ke dalam songData
+        thumbnail_cover_url: song.thumbnail_cover_url || null, // Add this line
       };
 
       // Panggil onSubmit dengan data yang sudah diformat

@@ -184,7 +184,8 @@ const AdminContent = React.memo(function AdminContent() {
             lyrics_translation: songData.lyrics_translation || null,
             translator: songData.translator || null,
             footnotes: songData.footnotes || null,
-            extras: songData.extras || null, // Tambahkan field extras
+            extras: songData.extras || null,
+            thumbnail_cover_url: songData.thumbnail_cover_url || null, // Add this line
           },
         ]);
 
