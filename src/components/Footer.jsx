@@ -116,7 +116,14 @@ export default function Footer() {
 
               {/* Added quote section */}
               <div className="pt-4 mt-2 border-t border-neutral-800/30">
-                <blockquote className="text-neutral-400 text-sm italic pl-3 border-l-2 border-neutral-800/30">"Music gives a soul to the universe, wings to the mind, flight to the imagination."</blockquote>
+                <blockquote className="text-neutral-400 text-sm italic pl-3 border-l-2 border-neutral-800/30">
+                  "Life is just one compromise after another, I learned that pretty fast. <span className="font-bold text-green-600">Elma</span>, it’s you, You alone are my music"
+                </blockquote>
+              </div>
+              <div className="pt-4 mt-2 border-t border-neutral-800/30">
+                <blockquote className="text-neutral-400 text-sm italic pl-3 border-l-2 border-neutral-800/30">
+                  "A hole opened up in my heart, Your words opened a hole in my heart. I understand now, “You alone are my music,” <span className="text-orange-800 font-bold"> Amy</span>"
+                </blockquote>
               </div>
             </div>
           </div>
