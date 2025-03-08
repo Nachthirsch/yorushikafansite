@@ -82,22 +82,13 @@ export default function useSongForm({ song, onSubmit, onChange }) {
         return;
       }
 
-      // Pastikan data yang dikirim sesuai dengan schema database
       const songData = {
-        title: song.title,
-        album_id: song.album_id,
+        ...song,
+        description: song.description || "written by n-buna", // Ensure default value
         track_number: parseInt(song.track_number) || null,
         duration: parseInt(song.duration) || null,
-        description: song.description || null, // Add this line
-        lyrics: song.lyrics || null,
-        lyrics_translation: song.lyrics_translation || null,
-        translator: song.translator || null,
-        footnotes: song.footnotes || null,
-        extras: song.extras || null, // Tambahkan ini ke dalam songData
-        thumbnail_cover_url: song.thumbnail_cover_url || null, // Add this line
       };
 
-      // Panggil onSubmit dengan data yang sudah diformat
       await onSubmit(songData);
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -106,10 +97,15 @@ export default function useSongForm({ song, onSubmit, onChange }) {
   };
 
   const handleChange = (field, value) => {
-    // Clear validation error when field is changed
     if (validationErrors[field]) {
       setValidationErrors((prev) => ({ ...prev, [field]: null }));
     }
+
+    // Khusus untuk field description, gunakan default value jika kosong
+    if (field === "description" && !value.trim()) {
+      value = "written by n-buna";
+    }
+
     onChange({ ...song, [field]: value });
   };
 

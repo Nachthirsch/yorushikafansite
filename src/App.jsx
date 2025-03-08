@@ -23,7 +23,7 @@ function App() {
     <AuthProvider>
       <Router>
         <ScrollToTop /> {/* Add this component right after Router */}
-        <div className={darkMode ? "dark" : ""}>
+        <div className={darkMode ? "dark" : {}}>
           <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
           <main>
             {/* Increased padding-top */}

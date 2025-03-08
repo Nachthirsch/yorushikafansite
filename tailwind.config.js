@@ -22,6 +22,9 @@ module.exports = {
       },
       animation: {
         float: "float 6s ease-in-out infinite",
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "pulse-slower": "pulse 3.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "pulse-slowest": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
       keyframes: {
         float: {

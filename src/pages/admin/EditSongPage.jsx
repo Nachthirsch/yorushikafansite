@@ -48,7 +48,7 @@ export default function EditSongPage() {
         album_id: songData.album_id || null,
         track_number: songData.track_number ? parseInt(songData.track_number) : null,
         duration: songData.duration ? parseInt(songData.duration) : null,
-        description: songData.description || null,
+        description: songData.description || "written by n-buna", // Fix default value handling
         lyrics: songData.lyrics || null,
         lyrics_translation: songData.lyrics_translation || null,
         translator: songData.translator || null,
