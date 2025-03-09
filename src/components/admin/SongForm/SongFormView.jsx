@@ -3,6 +3,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { MusicalNoteIcon, ClockIcon, DocumentTextIcon, ListBulletIcon, PlusIcon, XMarkIcon, PlayIcon, LanguageIcon, ArrowLeftIcon, PencilIcon, ArchiveBoxIcon, InformationCircleIcon, PhotoIcon } from "@heroicons/react/24/outline";
+import SongFormDebug from "./SongFormDebug"; // Add this import
 
 export default function SongFormView({ song, albums, isEditing, navigate, touched, lyricsStats, validationErrors, isPlaying, lineHeight, activeLyricsTab, hasErrors, setIsPlaying, setActiveLyricsTab, handleTouch, handleFormSubmit, handleChange, handleReset, formatTime }) {
   const textareaRef = useRef(null);
@@ -80,9 +81,23 @@ export default function SongFormView({ song, albums, isEditing, navigate, touche
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <div className="relative">
-                <TextareaAutosize value={song.description || ""} onChange={(e) => handleChange("description", e.target.value)} className="w-full py-2 px-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 pl-9 resize-none" placeholder="Song description (optional)" minRows={2} />
+                <TextareaAutosize
+                  value={song.description || ""}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                  onBlur={() => {
+                    handleTouch("description");
+                    // Force the default value if empty on blur with more robust checking
+                    if (!song.description || song.description.trim() === "") {
+                      handleChange("description", "written by n-buna");
+                    }
+                  }}
+                  className="w-full py-2 px-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 pl-9 resize-none"
+                  placeholder="Song description (default: written by n-buna)"
+                  minRows={2}
+                />
                 <DocumentTextIcon className="absolute left-3 top-3 h-4 w-4 text-gray-500 dark:text-gray-400" />
               </div>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Default: "written by n-buna" will be used if left empty</p>
             </div>
 
             {/* Track Info: Number & Duration */}
@@ -179,6 +194,9 @@ export default function SongFormView({ song, albums, isEditing, navigate, touche
             <TextareaAutosize value={song.extras || ""} onChange={(e) => handleChange("extras", e.target.value)} className="w-full py-2 px-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none" placeholder="Additional information or trivia..." minRows={2} />
           </div>
         </div>
+
+        {/* Add debug component for development */}
+        {process.env.NODE_ENV === "development" && <SongFormDebug song={song} />}
 
         {/* Form Actions */}
         <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">

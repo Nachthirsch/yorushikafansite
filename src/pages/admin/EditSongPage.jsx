@@ -42,19 +42,23 @@ export default function EditSongPage() {
     const toastId = toast.loading("Updating song...");
 
     try {
-      // Clean dan format data sebelum update
+      // Fix: More robust cleaning and formatting of data
       const cleanedData = {
         title: songData.title || null,
         album_id: songData.album_id || null,
         track_number: songData.track_number ? parseInt(songData.track_number) : null,
         duration: songData.duration ? parseInt(songData.duration) : null,
-        description: songData.description || "written by n-buna", // Fix default value handling
+        // Fix: Explicitly set description to ensure it's never null/empty
+        description: songData.description ? songData.description : "written by n-buna",
         lyrics: songData.lyrics || null,
         lyrics_translation: songData.lyrics_translation || null,
         translator: songData.translator || null,
         footnotes: songData.footnotes || null,
-        extras: songData.extras || null, // Pastikan field extras diproses
+        extras: songData.extras || null,
+        thumbnail_cover_url: songData.thumbnail_cover_url || null,
       };
+
+      console.log("Submitting song data:", cleanedData); // Add logging to verify data
 
       const { error } = await supabase.from("songs").update(cleanedData).eq("id", songId);
 

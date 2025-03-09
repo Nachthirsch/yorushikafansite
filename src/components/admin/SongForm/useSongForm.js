@@ -82,9 +82,11 @@ export default function useSongForm({ song, onSubmit, onChange }) {
         return;
       }
 
+      // Fix: Ensure description is never empty or null
       const songData = {
         ...song,
-        description: song.description || "written by n-buna", // Ensure default value
+        // Handle null, undefined, and empty string cases
+        description: !song.description || song.description.trim() === "" ? "written by n-buna" : song.description,
         track_number: parseInt(song.track_number) || null,
         duration: parseInt(song.duration) || null,
       };
@@ -101,9 +103,10 @@ export default function useSongForm({ song, onSubmit, onChange }) {
       setValidationErrors((prev) => ({ ...prev, [field]: null }));
     }
 
-    // Khusus untuk field description, gunakan default value jika kosong
-    if (field === "description" && !value.trim()) {
-      value = "written by n-buna";
+    // Fix: More robust handling for description field
+    if (field === "description") {
+      // Always ensure a valid value for description
+      value = value && value.trim() !== "" ? value : "written by n-buna";
     }
 
     onChange({ ...song, [field]: value });

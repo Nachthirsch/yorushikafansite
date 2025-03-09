@@ -18,22 +18,25 @@ const defaultSong = {
 // Add error boundary
 export default function SongForm({ song, isEditing = false, onSubmit, onChange, albums = [] }) {
   try {
+    // Fix: Explicitly handle null description from database
     const initialSong = {
       ...defaultSong,
       ...song,
-      // Pastikan description selalu memiliki nilai, gunakan default jika null/undefined/empty
-      description: song?.description || defaultSong.description,
+      // Handle all possible nullish values
+      description: song?.description !== undefined && song?.description !== null && song?.description.trim() !== "" ? song.description : defaultSong.description,
     };
 
     const formLogic = useSongForm({
       song: initialSong,
       onSubmit,
+      // Fix: Pass the original onSubmit directly
       onChange: (updatedSong) => {
-        // Pastikan description tidak hilang saat update
-        onChange({
+        // Always ensure description has a non-empty value
+        const updatedWithDescription = {
           ...updatedSong,
-          description: updatedSong.description || defaultSong.description,
-        });
+          description: !updatedSong.description || updatedSong.description.trim() === "" ? defaultSong.description : updatedSong.description,
+        };
+        onChange(updatedWithDescription);
       },
     });
 

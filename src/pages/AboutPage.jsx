@@ -6,6 +6,7 @@ import { HiOutlineExternalLink } from "react-icons/hi";
 import yorushikaLogo from "../assets/yorushika.png";
 import { IoLeafOutline } from "react-icons/io5";
 import { BsMusicNoteBeamed, BsMoonStarsFill } from "react-icons/bs";
+import yorushikaLogo2 from "../assets/yorushika.svg";
 
 const AboutPage = () => {
   const [activeTab, setActiveTab] = useState("about");
@@ -154,7 +155,7 @@ const AboutPage = () => {
 
             {/* Added decorative Japanese characters */}
             <div className="mt-4 opacity-30 text-sm tracking-widest font-thin">
-              <span className="text-neutral-500 dark:text-neutral-400">夜しか ファンサイト</span>
+              <span className="text-neutral-500 dark:text-neutral-400">夜しかもう眠れずに</span>
             </div>
           </motion.div>
         </div>
@@ -181,16 +182,10 @@ const AboutPage = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="prose prose-neutral dark:prose-invert max-w-none">
             <div className="max-w-2xl mx-auto mb-32">
-              <h2 className="text-2xl font-extralight tracking-wide text-neutral-900 dark:text-neutral-100 text-center mb-8 relative">
-                <span>About this site</span>
-                {/* Decorative underline */}
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-px bg-gradient-to-r from-transparent via-neutral-400 dark:via-neutral-600 to-transparent"></div>
-              </h2>
-
               {/* Decorative leaf icon */}
               <div className="flex justify-center mb-10">
                 <div className="text-neutral-300 dark:text-neutral-700">
-                  <IoLeafOutline />
+                  <img src={yorushikaLogo2} alt="Yorushika" className="h-16 w-auto invert" />
                 </div>
               </div>
 
