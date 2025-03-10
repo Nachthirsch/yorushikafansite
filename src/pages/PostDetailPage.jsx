@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { formatDate } from "../utils/dateFormat";
@@ -12,7 +12,20 @@ import { useQuery } from "@tanstack/react-query";
 export default function PostDetailPage() {
   const { postId } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
+  const [contentPage, setContentPage] = useState(1);
+  const sectionTitleRef = useRef(null);
   const pageSize = 3; // Number of related posts per page
+  const sectionsPerPage = 2; // Number of content sections per page
+
+  // Add scroll effect when contentPage changes
+  useEffect(() => {
+    if (sectionTitleRef.current) {
+      sectionTitleRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [contentPage]);
 
   // Fetch post details with React Query
   const {
@@ -147,20 +160,36 @@ export default function PostDetailPage() {
 
           <div className="prose prose-neutral dark:prose-invert max-w-none select-none">
             {Array.isArray(post.content) ? (
-              post.content.map((block, index) => (
-                <motion.div key={index} className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }}>
-                  {block.title && <h3 className="text-xl font-medium text-neutral-900 dark:text-neutral-100 mb-3">{block.title}</h3>}
-                  {block.type === "text" && <p className="leading-relaxed text-neutral-900 dark:text-neutral-100">{block.value}</p>}
-                  {block.type === "image" && (
-                    <figure className="my-8 flex flex-col items-center">
-                      <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg">
-                        <SecureImage src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down" />
-                      </div>
-                      {block.caption && <figcaption className="text-center text-neutral-600 dark:text-neutral-400 mt-2 text-sm italic">{block.caption}</figcaption>}
-                    </figure>
-                  )}
-                </motion.div>
-              ))
+              <>
+                {post.content.slice((contentPage - 1) * sectionsPerPage, contentPage * sectionsPerPage).map((block, index) => (
+                  <motion.div key={index} className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }} ref={index === 0 ? sectionTitleRef : null}>
+                    {block.title && <h3 className="text-xl font-medium text-neutral-900 dark:text-neutral-100 mb-3">{block.title}</h3>}
+                    {block.type === "text" && <p className="leading-relaxed text-neutral-900 dark:text-neutral-100 whitespace-pre-line">{block.value}</p>}
+                    {block.type === "image" && (
+                      <figure className="my-8 flex flex-col items-center">
+                        <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg">
+                          <SecureImage src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down" />
+                        </div>
+                        {block.caption && <figcaption className="text-center text-neutral-600 dark:text-neutral-400 mt-2 text-sm italic">{block.caption}</figcaption>}
+                      </figure>
+                    )}
+                  </motion.div>
+                ))}
+
+                {Array.isArray(post.content) && post.content.length > sectionsPerPage && (
+                  <div className="flex items-center justify-center space-x-4 mt-8">
+                    <button onClick={() => setContentPage((p) => Math.max(1, p - 1))} disabled={contentPage === 1} className={`p-2 rounded-full ${contentPage === 1 ? "text-neutral-400 cursor-not-allowed" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800"}`}>
+                      <ChevronLeftIcon className="w-5 h-5" />
+                    </button>
+                    <span className="text-neutral-600 dark:text-neutral-400">
+                      {contentPage} / {Math.ceil(post.content.length / sectionsPerPage)}
+                    </span>
+                    <button onClick={() => setContentPage((p) => Math.min(Math.ceil(post.content.length / sectionsPerPage), p + 1))} disabled={contentPage === Math.ceil(post.content.length / sectionsPerPage)} className={`p-2 rounded-full ${contentPage === Math.ceil(post.content.length / sectionsPerPage) ? "text-neutral-400 cursor-not-allowed" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800"}`}>
+                      <ChevronRightIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="leading-relaxed text-neutral-900 dark:text-neutral-100">{String(post.content)}</div>
             )}
