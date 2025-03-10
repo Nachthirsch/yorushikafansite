@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { supabase } from "../lib/supabase";
 import { formatDate } from "../utils/dateFormat";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { motion } from "framer-motion";
 import { ArrowLeftIcon, CalendarIcon, ClockIcon, BookOpenIcon } from "@heroicons/react/24/outline";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import SecureImage from "../components/SecureImage";
-import { useQuery } from "@tanstack/react-query";
+import { usePost, useRelatedPosts } from "../hooks/usePost";
 
 export default function PostDetailPage() {
   const { postId } = useParams();
@@ -27,46 +26,9 @@ export default function PostDetailPage() {
     }
   }, [contentPage]);
 
-  // Fetch post details with React Query
-  const {
-    data: post,
-    isLoading: postLoading,
-    error: postError,
-  } = useQuery({
-    queryKey: ["post", postId],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("blog_posts").select("*").eq("id", postId).single();
+  const { data: post, isLoading: postLoading, error: postError } = usePost(postId);
 
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Fetch related posts with React Query and pagination
-  const { data: relatedPostsData, isLoading: relatedLoading } = useQuery({
-    queryKey: ["relatedPosts", post?.category, currentPage],
-    queryFn: async () => {
-      if (!post?.category) return { data: [], count: 0 };
-
-      // Get total count for pagination
-      const { count } = await supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("category", post.category).neq("id", postId);
-
-      // Get paginated data
-      const { data } = await supabase
-        .from("blog_posts")
-        .select("id, title, cover_image, publish_date")
-        .eq("category", post.category)
-        .neq("id", postId)
-        .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
-
-      return {
-        data: data || [],
-        count: count || 0,
-      };
-    },
-    enabled: !!post?.category,
-    keepPreviousData: true,
-  });
+  const { data: relatedPostsData, isLoading: relatedLoading } = useRelatedPosts(post?.category, postId, currentPage, pageSize);
 
   const relatedPosts = relatedPostsData?.data || [];
   const totalPages = relatedPostsData ? Math.ceil(relatedPostsData.count / pageSize) : 0;
