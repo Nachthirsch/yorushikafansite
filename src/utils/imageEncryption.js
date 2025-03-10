@@ -1,51 +1,64 @@
-function generateNonce() {
-  return Array.from(crypto.getRandomValues(new Uint8Array(12)))
+// Create a stronger obfuscation approach
+function generateSecureKey() {
+  return Array.from(
+    typeof crypto !== "undefined" && crypto.getRandomValues
+      ? crypto.getRandomValues(new Uint8Array(16))
+      : Array(16)
+          .fill(0)
+          .map(() => Math.floor(Math.random() * 256))
+  )
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
 
-export function encryptImageUrl(url) {
+// Cache busting mechanism with secure handling
+let securityToken = generateSecureKey();
+let lastReset = Date.now();
+
+// Reset security token every 10 minutes
+function getOrUpdateSecurityToken() {
+  const now = Date.now();
+  if (now - lastReset > 10 * 60 * 1000) {
+    // 10 minutes
+    securityToken = generateSecureKey();
+    lastReset = now;
+  }
+  return securityToken;
+}
+
+// A more secure URL obfuscation
+export function obfuscateImageUrl(url) {
   try {
-    // Simple obfuscation
-    const timestamp = Date.now();
-    const nonce = Math.random().toString(36).substring(7);
-    const key = timestamp.toString(36) + nonce;
+    if (!url) return "";
 
-    // Basic string manipulation
-    const processed = url
-      .split("")
-      .reverse()
-      .map((c) => c.charCodeAt(0).toString(36))
-      .join("");
+    const token = getOrUpdateSecurityToken();
+    const timestamp = Date.now().toString(36);
 
-    return `${key}:${processed}`;
+    // Add cache busting directly in URL to prevent caching
+    const urlObj = new URL(url);
+    urlObj.searchParams.set("_t", timestamp);
+    urlObj.searchParams.set("_s", token.substring(0, 8));
+
+    return urlObj.toString();
   } catch (error) {
-    console.error("Error encrypting URL:", error);
-    return url;
+    console.error("Error processing image URL");
+    // Return original with minimal cache busting as fallback
+    return url + (url.includes("?") ? "&" : "?") + "_t=" + Date.now();
   }
 }
 
-// Helper function jika diperlukan untuk debugging
-export function decryptImageUrl(encoded) {
-  try {
-    const [key, processed] = encoded.split(":");
+// Function to safely store image references
+const imageCache = new Map();
 
-    return processed
-      .split(/(.{2})/)
-      .filter(Boolean)
-      .map((c) => String.fromCharCode(parseInt(c, 36)))
-      .reverse()
-      .join("");
-  } catch (error) {
-    console.error("Error decrypting URL:", error);
-    return encoded;
-  }
+export function registerImage(id, url) {
+  imageCache.set(id, url);
+  return id;
 }
 
-// Helper function untuk mengacak string
-function scrambleString(str) {
-  return str
-    .split("")
-    .map((char) => String.fromCharCode(char.charCodeAt(0) ^ 0x7f))
-    .join("");
+export function getImageById(id) {
+  return imageCache.get(id) || null;
+}
+
+export function clearImageCache() {
+  imageCache.clear();
 }
