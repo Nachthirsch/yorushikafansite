@@ -32,23 +32,56 @@ const HomePage = () => {
       {/* Welcome Section */}
       <section className="relative pt-44">
         <div className="absolute inset-0 bg-gradient-to-b from-neutral-100 to-transparent dark:from-neutral-900 dark:to-transparent z-0" />
+
+        {/* Added decorative floating line elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div className="absolute left-1/4 top-20 w-[1px] h-16 bg-neutral-300/30 dark:bg-neutral-700/30" animate={{ height: [16, 64, 16], opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} />
+          <motion.div className="absolute right-1/4 top-40 w-[1px] h-24 bg-neutral-300/30 dark:bg-neutral-700/30" animate={{ height: [24, 96, 24], opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }} />
+          <motion.div className="absolute left-1/3 bottom-20 w-16 h-[1px] bg-neutral-300/20 dark:bg-neutral-700/20" animate={{ width: [16, 64, 16], opacity: [0.1, 0.4, 0.1] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }} />
+          <motion.div className="absolute right-1/3 bottom-40 w-12 h-[1px] bg-neutral-300/20 dark:bg-neutral-700/20" animate={{ width: [12, 48, 12], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 3 }} />
+        </div>
+
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <h1 className="flex flex-col md:flex-row items-center justify-center text-5xl md:text-6xl font-thin tracking-wide text-neutral-900 dark:text-neutral-100 mb-8">
               <span className="relative pb-2 italic">
                 <span className="font-extralight text-neutral-700 dark:text-neutral-300">Welcome to the</span>
                 <span className="absolute bottom-0 left-1/4 right-1/4 h-px bg-neutral-200 dark:bg-neutral-800"></span>
+                {/* Added animated decorative dot */}
+                <motion.span
+                  className="absolute bottom-0 left-1/4 w-1 h-1 bg-neutral-300/40 dark:bg-neutral-700/40 rounded-full"
+                  animate={{
+                    left: ["25%", "75%", "25%"],
+                    opacity: [0.4, 0.7, 0.4],
+                  }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                />
               </span>
 
               <div className="flex items-center my-3 md:my-0 mx-6 relative">
+                {/* Added decorative rotating frame */}
+                <motion.div className="absolute -inset-4 border border-neutral-200/20 dark:border-neutral-800/20 rounded-sm" animate={{ rotate: [0, 2, 0, -2, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} />
                 <span className="absolute -inset-2 border-t border-b border-neutral-200 dark:border-neutral-800 opacity-60"></span>
                 <img src={yorushikaLogo} alt="Yorushika" className="h-16 md:h-20 w-auto" />
+
+                {/* Added corner accent lines */}
+                <motion.div className="absolute -top-2 -left-2 w-3 h-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}>
+                  <div className="absolute top-0 left-0 w-full h-[1px] bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+                  <div className="absolute top-0 left-0 w-[1px] h-full bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+                </motion.div>
+                <motion.div className="absolute -bottom-2 -right-2 w-3 h-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 1 }}>
+                  <div className="absolute bottom-0 right-0 w-full h-[1px] bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+                  <div className="absolute bottom-0 right-0 w-[1px] h-full bg-neutral-300 dark:bg-neutral-700 opacity-40"></div>
+                </motion.div>
               </div>
 
               <span className="relative italic">
                 <span className="font-extralight tracking-wider text-neutral-700 dark:text-neutral-300">Fan Zone</span>
                 <div className="absolute top-0 right-0 w-1 h-1 bg-neutral-200 dark:bg-neutral-600"></div>
                 <div className="absolute bottom-0 left-0 w-1 h-1 bg-neutral-200 dark:bg-neutral-600"></div>
+
+                {/* Added pulsing corner dot */}
+                <motion.div className="absolute -top-2 -right-2 w-1 h-1 rounded-full bg-neutral-400/30 dark:bg-neutral-600/30" animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
               </span>
             </h1>
           </motion.div>
@@ -57,15 +90,36 @@ const HomePage = () => {
             Hello Yorushika fans! Welcome to the Yorushika Fan Zone—a place to learn more about our favorite band. Here you can explore everything from the stories behind their songs to the band's journey and the secrets of their unique sound.
           </motion.p>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }} className="flex flex-col sm:flex-row justify-center gap-5 mt-8">
+          {/* Added decorative divider with animation */}
+          <motion.div className="w-32 h-px mx-auto bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent" initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 128 }} transition={{ duration: 1, delay: 0.3 }} />
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }} className="flex flex-col sm:flex-row justify-center gap-5 mt-8 relative">
+            {/* Added subtle animated background element */}
+            <motion.div
+              className="absolute inset-0 -z-10 bg-gradient-to-r from-neutral-200/5 via-transparent to-neutral-200/5 dark:from-neutral-800/5 dark:to-neutral-800/5 rounded-lg opacity-0"
+              animate={{
+                opacity: [0, 0.5, 0],
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+              style={{ backgroundSize: "200% 100%" }}
+            />
+
             <Link to="/albums" className="group relative px-7 py-3.5 overflow-hidden rounded-sm bg-transparent border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white transition-colors">
               <span className="relative z-10 font-light tracking-wider text-sm uppercase">Explore Albums</span>
               <span className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
+
+              {/* Added corner accents */}
+              <span className="absolute top-0 right-0 w-1 h-1 border-t border-r border-neutral-400/20 dark:border-neutral-600/20"></span>
+              <span className="absolute bottom-0 left-0 w-1 h-1 border-b border-l border-neutral-400/20 dark:border-neutral-600/20"></span>
             </Link>
 
             <Link to="/about" className="group relative px-7 py-3.5 overflow-hidden rounded-sm bg-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors">
               <span className="relative z-10 font-light tracking-wider text-sm uppercase">Learn More</span>
               <span className="absolute bottom-0 left-0 w-full h-px bg-neutral-400 dark:bg-neutral-600 transform origin-right scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
+
+              {/* Added subtle pulse animation on hover */}
+              <span className="absolute inset-0 bg-neutral-200/0 dark:bg-neutral-800/0 group-hover:bg-neutral-200/5 dark:group-hover:bg-neutral-800/5 transition-colors duration-300 rounded-sm"></span>
             </Link>
           </motion.div>
         </div>

@@ -91,90 +91,346 @@ const AboutPage = () => {
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 relative overflow-hidden">
       {/* Enhanced decorative elements with more subtle layers */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-indigo-100/20 to-transparent dark:from-indigo-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-amber-100/20 to-transparent dark:from-amber-900/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
-
-      {/* Added new decorative elements */}
-      <div className="absolute top-1/4 left-0 w-40 h-40 bg-gradient-to-tr from-blue-100/10 to-transparent dark:from-blue-900/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-1/3 right-0 w-56 h-56 bg-gradient-to-bl from-purple-100/10 to-transparent dark:from-purple-900/5 rounded-full blur-3xl"></div>
-
-      {/* Subtle music note decoration */}
-      <div className="absolute top-[15%] right-[10%] opacity-5 dark:opacity-10">
-        <BsMusicNoteBeamed className="text-7xl text-neutral-800 dark:text-neutral-200" />
-      </div>
-      <div className="absolute bottom-[20%] left-[8%] opacity-5 dark:opacity-10">
-        <BsMusicNoteBeamed className="text-5xl text-neutral-800 dark:text-neutral-200" />
-      </div>
-
-      {/* Subtle dot pattern decoration */}
-      <div className="absolute top-[30%] left-[5%] flex flex-col gap-10 opacity-10">
-        <div className="flex gap-2">
-          <div className="w-1 h-1 rounded-full bg-neutral-500"></div>
-          <div className="w-1 h-1 rounded-full bg-neutral-500"></div>
-          <div className="w-1 h-1 rounded-full bg-neutral-500"></div>
-        </div>
-        <div className="flex gap-2 ml-6">
-          <div className="w-1 h-1 rounded-full bg-neutral-500"></div>
-          <div className="w-1 h-1 rounded-full bg-neutral-500"></div>
-        </div>
-        <div className="flex gap-2 ml-3">
-          <div className="w-1 h-1 rounded-full bg-neutral-500"></div>
-          <div className="w-1 h-1 rounded-full bg-neutral-500"></div>
-          <div className="w-1 h-1 rounded-full bg-neutral-500"></div>
-        </div>
-      </div>
 
       {/* Hero Section with enhanced decorations */}
-      <section className="relative pt-52 pb-40">
+      <section className="relative pt-52 pb-40 overflow-hidden">
+        {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-neutral-100 to-transparent dark:from-neutral-900 dark:to-transparent z-0" />
 
-        {/* Added subtle line decoration */}
-        <div className="absolute top-24 left-0 right-0 flex justify-center opacity-20">
-          <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-neutral-400 dark:via-neutral-600 to-transparent"></div>
+        {/* Horizontal divider with enhanced reveal animation */}
+        <motion.div className="absolute top-24 left-0 right-0 flex justify-center opacity-15 dark:opacity-10" initial={{ opacity: 0 }} animate={{ opacity: 0.15 }} transition={{ duration: 1.2 }}>
+          <motion.div className="w-1/3 h-px bg-gradient-to-r from-transparent via-neutral-400 dark:via-neutral-600 to-transparent" initial={{ width: 0 }} animate={{ width: "33%" }} transition={{ duration: 1.4, ease: "easeOut" }} />
+        </motion.div>
+
+        {/* Enhanced typewriter line pattern - top left */}
+        <div className="absolute top-32 left-10 z-0 opacity-20 dark:opacity-10">
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={`line-tl-${i}`}
+              className="h-px bg-neutral-400 dark:bg-neutral-600 mb-4"
+              style={{ width: `${60 + i * 25}px` }}
+              initial={{ width: 0, opacity: 0, x: -5 }}
+              animate={{
+                width: `${60 + i * 25}px`,
+                opacity: 0.2 + i * 0.05,
+                x: 0,
+              }}
+              transition={{
+                duration: 0.8,
+                delay: 0.2 + i * 0.12,
+                ease: "easeOut",
+              }}
+            />
+          ))}
         </div>
 
+        {/* Code-like bracket lines */}
+        <motion.div className="absolute top-40 left-32 opacity-15 dark:opacity-10" initial={{ opacity: 0 }} animate={{ opacity: [0, 0.15, 0.1] }} transition={{ duration: 1.5, delay: 0.8 }}>
+          <svg width="30" height="60" viewBox="0 0 30 60" fill="none">
+            <motion.path d="M30,0 L20,0 L20,60 L30,60" stroke="currentColor" strokeWidth="0.5" className="text-neutral-500 dark:text-neutral-600" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, delay: 1, ease: "easeInOut" }} />
+          </svg>
+        </motion.div>
+
+        {/* Abstract line patterns - bottom right with enhanced animation */}
+        <div className="absolute bottom-20 right-10 z-0 opacity-20 dark:opacity-10">
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={`line-br-${i}`}
+              className="h-px bg-neutral-400 dark:bg-neutral-600 mb-5 ml-auto"
+              style={{ width: `${90 - i * 15}px` }}
+              initial={{ width: 0, opacity: 0 }}
+              animate={{
+                width: `${90 - i * 15}px`,
+                opacity: [0, 0.3, 0.2],
+              }}
+              transition={{
+                duration: 1.2,
+                delay: 0.3 + i * 0.15,
+                ease: "easeOut",
+              }}
+            />
+          ))}
+
+          {/* Code-like indentation block */}
+          <div className="flex flex-col items-end mt-4">
+            {[...Array(2)].map((_, i) => (
+              <motion.div
+                key={`indent-${i}`}
+                className="h-px bg-neutral-400 dark:bg-neutral-600 mb-2"
+                style={{ width: `${30}px`, marginRight: `${i * 8}px` }}
+                initial={{ width: 0, opacity: 0 }}
+                animate={{
+                  width: `${30}px`,
+                  opacity: 0.2,
+                }}
+                transition={{
+                  duration: 0.8,
+                  delay: 1 + i * 0.1,
+                  ease: "easeOut",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Enhanced animated circle decorations */}
+        <motion.div
+          className="absolute left-[15%] top-40 border border-neutral-300/20 dark:border-neutral-600/20 rounded-full z-0 opacity-20 dark:opacity-10"
+          initial={{ width: 0, height: 0 }}
+          animate={{
+            width: 120,
+            height: 120,
+            opacity: [0, 0.2, 0.1],
+          }}
+          transition={{
+            duration: 1.8,
+            ease: "easeOut",
+          }}
+        >
+          {/* Crosshair lines inside circle */}
+          <motion.div className="absolute inset-0 flex items-center justify-center">
+            <motion.div className="h-px w-1/2 bg-neutral-300/40 dark:bg-neutral-600/30" initial={{ width: 0 }} animate={{ width: "50%" }} transition={{ duration: 0.8, delay: 2 }} />
+          </motion.div>
+          <motion.div className="absolute inset-0 flex items-center justify-center">
+            <motion.div className="w-px h-1/2 bg-neutral-300/40 dark:bg-neutral-600/30" initial={{ height: 0 }} animate={{ height: "50%" }} transition={{ duration: 0.8, delay: 2.1 }} />
+          </motion.div>
+        </motion.div>
+
+        <motion.div
+          className="absolute right-[15%] bottom-40 border border-neutral-300/20 dark:border-neutral-600/20 rounded-full z-0 opacity-15 dark:opacity-10"
+          initial={{ width: 0, height: 0 }}
+          animate={{
+            width: 80,
+            height: 80,
+            opacity: [0, 0.15, 0.1],
+          }}
+          transition={{
+            duration: 1.8,
+            delay: 0.3,
+            ease: "easeOut",
+          }}
+        />
+
+        {/* Enhanced diagonal lines with additional patterns */}
+        <div className="absolute -left-10 top-40 w-40 h-40 z-0 opacity-15 dark:opacity-10">
+          <svg width="100%" height="100%" viewBox="0 0 100 100" className="text-neutral-400 dark:text-neutral-600">
+            <motion.line x1="10" y1="90" x2="90" y2="10" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1 3" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.8, ease: "easeOut" }} />
+            <motion.line x1="10" y1="60" x2="60" y2="10" stroke="currentColor" strokeWidth="0.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }} />
+            <motion.path d="M10,10 L30,10 L30,30" stroke="currentColor" strokeWidth="0.5" fill="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1, delay: 0.5, ease: "easeOut" }} />
+          </svg>
+        </div>
+
+        {/* Animated grid pattern */}
+        <motion.div className="absolute right-20 top-24 z-0 opacity-10 dark:opacity-5" initial={{ opacity: 0 }} animate={{ opacity: [0, 0.1, 0.05] }} transition={{ duration: 2, delay: 0.3 }}>
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <motion.path d="M0,20 L80,20 M0,40 L80,40 M0,60 L80,60 M20,0 L20,80 M40,0 L40,80 M60,0 L60,80" stroke="currentColor" strokeWidth="0.3" className="text-neutral-400 dark:text-neutral-600" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2, delay: 0.5, ease: "easeInOut" }} />
+          </svg>
+        </motion.div>
+
+        {/* Typed text animation dots */}
+        <div className="absolute left-28 bottom-32 z-0 opacity-20 dark:opacity-10">
+          <div className="flex gap-1">
+            {[...Array(5)].map((_, i) => (
+              <motion.div
+                key={`typing-dot-${i}`}
+                className="w-1 h-1 rounded-full bg-neutral-500 dark:bg-neutral-500"
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0.8, 1, 0.8],
+                }}
+                transition={{
+                  duration: 1.5,
+                  delay: i * 0.1,
+                  repeat: Infinity,
+                  repeatDelay: 1,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Main content container */}
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative">
-            {/* Added subtle decorative elements around the title */}
-            <div className="absolute w-full h-full flex items-center justify-center -z-10">
-              <div className="w-40 h-40 border border-neutral-200 dark:border-neutral-800 rounded-full opacity-20"></div>
-              <div className="absolute w-60 h-60 border border-neutral-200 dark:border-neutral-800 rounded-full opacity-10"></div>
-            </div>
+            {/* Animated concentric circles */}
+            <motion.div className="absolute w-full h-full flex items-center justify-center -z-10" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.2 }}>
+              <motion.div className="w-44 h-44 border border-neutral-200 dark:border-neutral-800 rounded-full" initial={{ opacity: 0 }} animate={{ opacity: [0, 0.2, 0.15] }} transition={{ duration: 1.5, delay: 0.4 }} />
+              <motion.div className="absolute w-64 h-64 border border-neutral-200 dark:border-neutral-800 rounded-full" initial={{ opacity: 0 }} animate={{ opacity: [0, 0.15, 0.1] }} transition={{ duration: 1.5, delay: 0.6 }} />
+              <motion.div
+                className="absolute w-80 h-80 border-dashed border border-neutral-200/60 dark:border-neutral-800/60 rounded-full"
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: [0, 0.1, 0.05],
+                  rotate: [0, 360],
+                }}
+                transition={{
+                  opacity: { duration: 1.5, delay: 0.8 },
+                  rotate: { duration: 60, repeat: Infinity, ease: "linear" },
+                }}
+              />
 
+              {/* Added measuring marks */}
+              <motion.div className="absolute w-96 h-96 opacity-10" initial={{ opacity: 0 }} animate={{ opacity: 0.1 }} transition={{ duration: 1.5, delay: 1.2 }}>
+                <motion.div className="absolute top-0 w-px h-3 bg-neutral-400 dark:bg-neutral-600 left-1/2 -translate-x-1/2" />
+                <motion.div className="absolute bottom-0 w-px h-3 bg-neutral-400 dark:bg-neutral-600 left-1/2 -translate-x-1/2" />
+                <motion.div className="absolute left-0 h-px w-3 bg-neutral-400 dark:bg-neutral-600 top-1/2 -translate-y-1/2" />
+                <motion.div className="absolute right-0 h-px w-3 bg-neutral-400 dark:bg-neutral-600 top-1/2 -translate-y-1/2" />
+              </motion.div>
+            </motion.div>
+
+            {/* Title with staggered animation - unchanged */}
             <h1 className="flex flex-col items-center justify-center text-5xl md:text-6xl font-thin tracking-wide text-neutral-900 dark:text-neutral-100 mb-8">
-              <span className="font-extralight text-neutral-700 dark:text-neutral-300">About</span>
-              <div className="my-4 relative">
-                {/* Added subtle hover animation */}
-                <motion.img src={yorushikaLogo} alt="Yorushika" className="h-16 md:h-20 w-auto relative z-10" whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }} />
+              <motion.span className="font-extralight text-neutral-700 dark:text-neutral-300" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                About
+              </motion.span>
 
-                {/* Decorative glow behind logo */}
-                <div className="absolute inset-0 bg-white dark:bg-neutral-800 blur-xl opacity-20 rounded-full z-0"></div>
-              </div>
-              <span className="font-extralight text-neutral-700 dark:text-neutral-300">Fan Zone</span>
+              {/* Logo with reveal and hover effects - unchanged */}
+              <motion.div className="my-4 relative" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7, delay: 0.2 }}>
+                {/* Animated rhombus background */}
+                <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 bg-white dark:bg-neutral-800 blur-xl z-0 origin-center" style={{ transform: "translate(-50%, -50%) skew(-12deg, -12deg)" }} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: [0, 0.3, 0.2], scale: 1 }} transition={{ duration: 1.5, delay: 0.3 }} />
+
+                {/* Animated pulsing rhombus border */}
+                <motion.div
+                  className="absolute top-1/2 left-1/2 w-44 h-44 z-0 border border-neutral-300/30 dark:border-neutral-700/30"
+                  style={{ transform: "translate(-50%, -50%) skew(-12deg, -12deg)" }}
+                  animate={{
+                    boxShadow: ["0 0 0 0 rgba(255,255,255,0)", "0 0 0 10px rgba(255,255,255,0.1)", "0 0 0 20px rgba(255,255,255,0)"],
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                />
+
+                {/* Outer decorative rhombus */}
+                <motion.div className="absolute top-1/2 left-1/2 w-52 h-52 z-0 border border-neutral-300/10 dark:border-neutral-700/10" style={{ transform: "translate(-50%, -50%) skew(-12deg, -12deg)" }} initial={{ opacity: 0 }} animate={{ opacity: 0.15, rotate: 360 }} transition={{ opacity: { duration: 1.5 }, rotate: { duration: 60, repeat: Infinity, ease: "linear" } }} />
+
+                {/* Logo image with hover effect */}
+                <motion.img src={yorushikaLogo} alt="Yorushika" className="h-16 md:h-20 w-auto relative z-10" whileHover={{ scale: 1.05, rotate: 2 }} transition={{ duration: 0.3 }} />
+              </motion.div>
+
+              <motion.span className="font-extralight text-neutral-700 dark:text-neutral-300" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
+                Fan Zone
+              </motion.span>
             </h1>
 
-            {/* Added decorative Japanese characters */}
-            <div className="mt-4 opacity-30 text-sm tracking-widest font-thin">
-              <span className="text-neutral-500 dark:text-neutral-400">夜しかもう眠れずに</span>
+            {/* Enhanced Japanese text with better typewriter-inspired effect */}
+            <motion.div className="mt-6 opacity-30 text-sm tracking-widest font-thin" initial={{ opacity: 0 }} animate={{ opacity: 0.3 }} transition={{ duration: 0.8, delay: 0.6 }}>
+              <motion.span className="text-neutral-500 dark:text-neutral-400 relative inline-block">
+                <motion.span
+                  className="absolute -right-4 top-0 w-0.5 h-4 bg-neutral-500 dark:bg-neutral-400"
+                  animate={{
+                    opacity: [1, 0, 1],
+                    height: [16, 14, 16],
+                  }}
+                  transition={{
+                    duration: 1.2,
+                    repeat: Infinity,
+                    repeatType: "loop",
+                  }}
+                />
+                <motion.span className="text-neutral-500 dark:text-neutral-400 relative inline-block">
+                  {/* Cursor animation */}
+                  <motion.span
+                    className="absolute -right-4 top-0 w-0.5 h-4 bg-neutral-500 dark:bg-neutral-400"
+                    animate={{
+                      opacity: [1, 0, 1],
+                      height: [16, 14, 16],
+                    }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      repeatType: "loop",
+                    }}
+                  />
+
+                  {/* Character-by-character typewriter effect */}
+                  <motion.div initial={{ opacity: 1 }} animate={{ opacity: 1 }} className="inline-flex">
+                    {Array.from("夜しかもう眠れずに").map((char, index) => (
+                      <motion.span
+                        key={index}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{
+                          duration: 0.2,
+                          delay: 0.7 + index * 0.08,
+                          ease: "easeOut",
+                        }}
+                        className="inline-block"
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                  </motion.div>
+                </motion.span>
+              </motion.span>
+            </motion.div>
+
+            {/* Enhanced dot pattern with staggered animation */}
+            <div className="absolute bottom-0 left-0 right-0 flex justify-center">
+              <div className="flex space-x-1.5 opacity-30 dark:opacity-20">
+                {[...Array(5)].map((_, i) => (
+                  <motion.div
+                    key={`dot-${i}`}
+                    className="w-1 h-1 rounded-full bg-neutral-500 dark:bg-neutral-500"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{
+                      opacity: 0.5,
+                      scale: 1,
+                    }}
+                    transition={{
+                      duration: 0.3,
+                      delay: 0.8 + i * 0.1,
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Moon icon decoration */}
+        {/* Enhanced moon icon with orbit effect */}
         <motion.div
-          className="absolute top-28 right-[15%] text-neutral-300 dark:text-neutral-700 opacity-30"
+          className="absolute top-28 right-[15%] text-neutral-300 dark:text-neutral-700 opacity-0"
+          initial={{ opacity: 0 }}
           animate={{
+            opacity: 0.3,
             rotateZ: [0, 10, 0, -10, 0],
-            opacity: [0.3, 0.4, 0.3],
           }}
           transition={{
-            duration: 10,
-            repeat: Infinity,
-            repeatType: "reverse",
+            opacity: { duration: 1, delay: 0.9 },
+            rotateZ: {
+              duration: 10,
+              repeat: Infinity,
+              repeatType: "reverse",
+            },
           }}
         >
           <BsMoonStarsFill className="text-2xl" />
+          <motion.div className="absolute -inset-3 rounded-full border border-neutral-300/10 dark:border-neutral-700/10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 1.2 }} />
+
+          {/* Added orbit path */}
+          <motion.div className="absolute -inset-6 rounded-full border border-neutral-300/5 dark:border-neutral-700/5" initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} transition={{ duration: 1, delay: 1.5 }} />
         </motion.div>
+
+        {/* Enhanced geometric element */}
+        <div className="absolute bottom-28 left-[12%] opacity-15 dark:opacity-10">
+          <svg width="40" height="40" viewBox="0 0 40 40" className="text-neutral-400 dark:text-neutral-600">
+            <motion.path d="M5,5 L35,5 L35,35 L5,35 Z" fill="none" stroke="currentColor" strokeWidth="0.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2, delay: 0.5, ease: "easeOut" }} />
+            <motion.path d="M15,15 L25,15 L25,25 L15,25 Z" fill="none" stroke="currentColor" strokeWidth="0.3" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5, delay: 2.5, ease: "easeOut" }} />
+          </svg>
+        </div>
+
+        {/* Text editor inspired cursor animation */}
+        <motion.div
+          className="absolute right-40 bottom-48 h-3 w-[1px] bg-neutral-400 dark:bg-neutral-600 z-0 opacity-20 dark:opacity-10"
+          animate={{
+            opacity: [0.2, 0.5, 0.2],
+            height: [12, 14, 12],
+          }}
+          transition={{
+            duration: 1.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
       </section>
 
       {/* About Content with enhanced styling */}

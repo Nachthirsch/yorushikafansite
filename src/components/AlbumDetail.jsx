@@ -73,16 +73,20 @@ const AlbumDetail = ({ album, onClose }) => {
               .sort((a, b) => (a.track_number || 0) - (b.track_number || 0))
               .map((song) => (
                 <div key={song.id} onClick={() => navigate(`/lyrics/${song.id}`)} className="flex items-center p-2 sm:p-3 hover:bg-neutral-700 rounded-lg cursor-pointer group transition-colors">
-                  <div className="w-6 sm:w-8 text-center text-neutral-400 group-hover:text-neutral-100 text-sm sm:text-base">{song.track_number}</div>
+                  {/* Track number */}
+                  <div className="w-6 sm:w-8 text-center text-neutral-400 group-hover:text-neutral-100 text-sm sm:text-base flex-shrink-0">{song.track_number}</div>
 
-                  <div className="flex-1 px-2 sm:px-3">
+                  {/* Track title - fixed width with proper truncation */}
+                  <div className="flex-1 min-w-0 px-2 sm:px-3">
                     <p className="text-neutral-100 group-hover:text-neutral-300 transition-colors text-sm sm:text-base truncate">{song.title}</p>
                   </div>
 
-                  <div className="text-neutral-400 text-xs sm:text-sm whitespace-nowrap flex-shrink-0">
+                  {/* Duration - ensuring it stays right-aligned */}
+                  <div className="text-neutral-400 text-xs sm:text-sm whitespace-nowrap ml-2 sm:ml-3 flex-shrink-0">
                     {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, "0")}
                   </div>
 
+                  {/* Play icon - ensuring it stays next to duration */}
                   <div className="ml-2 sm:ml-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                     <PlayIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-300" />
                   </div>

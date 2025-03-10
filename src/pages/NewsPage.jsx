@@ -134,26 +134,206 @@ export default function NewsPage() {
       {/* ... existing decorative elements ... */}
 
       {/* Minimalist Header */}
-      <header className="relative pt-32 pb-24 mb-16">
-        {/* ... existing header code ... */}
+      <header className="relative pt-32 pb-24 mb-16 overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-neutral-100 to-transparent dark:from-neutral-900 dark:to-transparent z-0" />
+
+        {/* Paper-like pattern lines - top right */}
+        <div className="absolute top-20 right-10 z-0 opacity-20 dark:opacity-10">
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={`line-tr-${i}`}
+              className="h-px bg-neutral-400 dark:bg-neutral-600 mb-5"
+              style={{ width: `${60 + i * 30}px`, marginLeft: "auto" }}
+              animate={{
+                width: [`${60 + i * 30}px`, `${90 + i * 20}px`, `${60 + i * 30}px`],
+                opacity: [0.2, 0.5, 0.2],
+                x: [0, -8, 0],
+              }}
+              transition={{
+                duration: 5 + i,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Paragraph-like lines - bottom left */}
+        <div className="absolute bottom-20 left-10 z-0 opacity-20 dark:opacity-10">
+          {[...Array(4)].map((_, i) => (
+            <motion.div
+              key={`line-bl-${i}`}
+              className="h-px bg-neutral-400 dark:bg-neutral-600 mb-4"
+              style={{ width: i === 3 ? `${80}px` : `${120 - i * 15}px` }}
+              animate={{
+                width: [i === 3 ? `${80}px` : `${120 - i * 15}px`, i === 3 ? `${60}px` : `${130 - i * 10}px`, i === 3 ? `${80}px` : `${120 - i * 15}px`],
+                opacity: [0.3, 0.6, 0.3],
+                x: [0, 5, 0],
+              }}
+              transition={{
+                duration: 6 + i,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Abstract geometric elements */}
+        <motion.div
+          className="absolute left-1/4 top-40 w-40 h-40 border border-neutral-300/20 dark:border-neutral-600/20 rounded-md z-0 opacity-20 dark:opacity-10"
+          animate={{
+            rotate: 360,
+            scale: [1, 1.05, 1],
+          }}
+          transition={{
+            rotate: {
+              duration: 35,
+              repeat: Infinity,
+              ease: "linear",
+            },
+            scale: {
+              duration: 9,
+              repeat: Infinity,
+              ease: "easeInOut",
+            },
+          }}
+        />
+
+        <motion.div
+          className="absolute right-1/3 bottom-10 w-24 h-24 border-b border-l border-neutral-300/20 dark:border-neutral-600/20 z-0 opacity-20 dark:opacity-10"
+          animate={{
+            rotate: [10, -10, 10],
+            scale: [1, 0.95, 1],
+          }}
+          transition={{
+            duration: 14,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        {/* Document-like diagonal lines */}
+        <div className="absolute -right-10 top-1/3 w-40 h-40 z-0 opacity-15 dark:opacity-10">
+          <svg width="100%" height="100%" viewBox="0 0 100 100" className="text-neutral-400 dark:text-neutral-600">
+            <motion.line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" strokeWidth="0.5" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 0] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.2 }} />
+            <motion.line x1="20" y1="0" x2="100" y2="80" stroke="currentColor" strokeWidth="0.5" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 0] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.6 }} />
+          </svg>
+        </div>
+
+        <div className="absolute left-10 bottom-30 w-40 h-40 z-0 opacity-15 dark:opacity-10">
+          <svg width="100%" height="100%" viewBox="0 0 100 100" className="text-neutral-400 dark:text-neutral-600">
+            <motion.line x1="100" y1="0" x2="0" y2="100" stroke="currentColor" strokeWidth="0.5" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 0] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.4 }} />
+            <motion.line x1="80" y1="0" x2="0" y2="80" stroke="currentColor" strokeWidth="0.5" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 0] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.8 }} />
+          </svg>
+        </div>
+
+        {/* Text highlighting wave */}
+        <div className="absolute left-0 right-0 top-52 flex justify-center z-0 opacity-20 dark:opacity-10 overflow-hidden">
+          <div className="w-3/4 h-20 flex items-end">
+            <svg width="100%" height="40" viewBox="0 0 1000 100" preserveAspectRatio="none">
+              <motion.path
+                d="M0,80 Q250,60 500,80 Q750,100 1000,80"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+                className="text-neutral-400 dark:text-neutral-600"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{
+                  pathLength: [0, 1],
+                  opacity: [0, 0.8],
+                }}
+                transition={{ duration: 2, ease: "easeOut" }}
+              />
+              <motion.path
+                d="M0,80 Q250,100 500,80 Q750,60 1000,80"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+                className="text-neutral-400 dark:text-neutral-600"
+                animate={{
+                  y: [0, 5, 0],
+                  opacity: [0.4, 0.7, 0.4],
+                }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* Text cursor visualization */}
+        <div className="absolute left-0 right-0 top-64 flex justify-center z-0 opacity-20 dark:opacity-10">
+          <div className="flex items-end space-x-3">
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={`cursor-${i}`}
+                className="w-0.5 h-3 rounded-full bg-neutral-400 dark:bg-neutral-600"
+                animate={{
+                  height: [3, 6 + 3 * Math.sin((i / 8) * Math.PI), 3],
+                  opacity: [0.4, 0.8, 0.4],
+                }}
+                transition={{
+                  duration: 1.6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: i * 0.1,
+                }}
+              />
+            ))}
+          </div>
+        </div>
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="inline-block mb-4">
-            <div className="h-14 w-14 mx-auto rounded-full flex items-center justify-center">
+          {/* Icon with animated outline */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="inline-block mb-6 mx-auto relative">
+            <div className="h-16 w-16 bg-white dark:bg-neutral-800 mx-auto shadow-sm flex items-center justify-center relative z-10 overflow-hidden">
+              <motion.div className="absolute inset-0 bg-neutral-100 dark:bg-neutral-700 origin-left" initial={{ scaleX: 1 }} animate={{ scaleX: 0 }} transition={{ duration: 0.8, ease: "easeInOut" }} />
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-neutral-600 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
               </svg>
             </div>
+
+            {/* Animated outline */}
+            <motion.div className="absolute -inset-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+              <svg className="w-[calc(100%+8px)] h-[calc(100%+8px)] -ml-1 -mt-1 absolute" viewBox="0 0 72 72">
+                <motion.rect x="0" y="0" width="72" height="72" fill="none" stroke="currentColor" strokeWidth="1" className="text-neutral-300 dark:text-neutral-600" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1, delay: 0.5, ease: "easeInOut" }} />
+              </svg>
+            </motion.div>
           </motion.div>
 
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-5xl md:text-6xl font-light tracking-tight text-neutral-900 dark:text-neutral-100 relative inline-block">
-            <span className="relative z-10">Lore</span>
-            <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-neutral-400 dark:via-neutral-600 to-transparent opacity-40"></span>
-          </motion.h1>
+          {/* Title with line drawing animation */}
+          <div className="relative inline-block mb-1">
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-5xl md:text-6xl font-light tracking-tight text-neutral-900 dark:text-neutral-100">
+              Lore
+            </motion.h1>
+            <div className="absolute -bottom-2 left-0 right-0 overflow-hidden">
+              <motion.div className="h-px bg-neutral-400 dark:bg-neutral-600" initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 1, delay: 0.8, ease: "easeInOut" }} />
+              <motion.div className="h-px bg-neutral-400/50 dark:bg-neutral-600/50 mt-1" initial={{ width: 0 }} animate={{ width: "70%" }} transition={{ duration: 1, delay: 1, ease: "easeInOut" }} />
+            </div>
+          </div>
 
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="mt-6 text-lg text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
+          {/* Description with subtle reveal */}
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 1.2 }} className="mt-10 text-lg text-neutral-600 dark:text-neutral-400 max-w-xl mx-auto">
             Stay updated with the latest lore from Yorushika
           </motion.p>
+
+          {/* Minimalist animated separator */}
+          <div className="mt-12 flex justify-center items-center space-x-4">
+            <motion.div className="h-px w-12 bg-neutral-300 dark:bg-neutral-700" animate={{ width: ["48px", "20px", "48px"] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} />
+            <motion.div
+              animate={{
+                rotate: [0, 180, 360],
+                scale: [1, 0.8, 1],
+              }}
+              transition={{
+                rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+                scale: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+              }}
+              className="w-1.5 h-1.5 bg-neutral-400 dark:bg-neutral-600 rounded-full"
+            />
+            <motion.div className="h-px w-12 bg-neutral-300 dark:bg-neutral-700" animate={{ width: ["20px", "48px", "20px"] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} />
+          </div>
         </div>
       </header>
 
