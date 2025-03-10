@@ -224,9 +224,27 @@ export default function PostDetailPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {relatedPosts.map((relatedPost, index) => (
-                  <motion.div key={relatedPost.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 + index * 0.05 }}>
+                  <motion.div key={`${relatedPost.id}-${currentPage}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 + index * 0.05 }}>
                     <Link to={`/news/${relatedPost.id}`} className="group block rounded-xl bg-neutral-50 dark:bg-neutral-800 shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md transition-all p-4">
-                      <div className="h-40 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded-lg overflow-hidden mb-4">{relatedPost.cover_image ? <img src={relatedPost.cover_image} alt={relatedPost.title} className="max-w-full max-h-full object-contain px-2" /> : <BookOpenIcon className="w-12 h-12 text-neutral-400 dark:text-neutral-500" />}</div>
+                      <div className="h-40 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded-lg overflow-hidden mb-4">
+                        {relatedLoading ? (
+                          <LoadingSpinner size="small" />
+                        ) : relatedPost.cover_image ? (
+                          <img
+                            key={`${relatedPost.id}-${currentPage}-${Date.now()}`}
+                            src={relatedPost.cover_image}
+                            alt={relatedPost.title}
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.src = ""; // Clear source on error
+                              e.target.className = "hidden";
+                            }}
+                            className="max-w-full max-h-full object-contain px-2"
+                          />
+                        ) : (
+                          <BookOpenIcon className="w-12 h-12 text-neutral-400 dark:text-neutral-500" />
+                        )}
+                      </div>
                       <h3 className="font-medium text-lg text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors">{relatedPost.title}</h3>
                       <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">{formatDate(relatedPost.publish_date)}</p>
                     </Link>

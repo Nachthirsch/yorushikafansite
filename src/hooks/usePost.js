@@ -35,6 +35,8 @@ export function useRelatedPosts(category, postId, currentPage, pageSize = 3) {
       };
     },
     enabled: !!category,
-    keepPreviousData: true,
+    keepPreviousData: false, // Ubah ini dari true ke false
+    cacheTime: 0, // Tambahkan ini untuk menghindari caching
+    refetchOnWindowFocus: false, // Tambahkan ini untuk menghindari refetch otomatis
   });
 }
