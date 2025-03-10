@@ -2,28 +2,24 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { formatDate } from "../utils/dateFormat";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowLeftIcon, CalendarIcon, ClockIcon, BookOpenIcon } from "@heroicons/react/24/outline";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
-import SecureImage from "../components/SecureImage";
-import { usePost, useRelatedPosts } from "../hooks/usePost";
-import { registerImage, clearImageCache } from "../utils/imageEncryption";
+import SecureImage, { preloadImage } from "../components/SecureImage";
+import { usePost, useRelatedPosts, prefetchPost } from "../hooks/usePost";
+import { preloadContentImages, preloadPostsImages } from "../utils/prefetchUtils";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function PostDetailPage() {
   const { postId } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [contentPage, setContentPage] = useState(1);
-  const [contentKey, setContentKey] = useState(Date.now());
   const sectionTitleRef = useRef(null);
-  const pageSize = 3;
-  const sectionsPerPage = 2;
+  const pageSize = 3; // Number of related posts per page
+  const sectionsPerPage = 2; // Number of content sections per page
+  const queryClient = useQueryClient();
 
-  // Reset image cache when component unmounts
-  useEffect(() => {
-    return () => clearImageCache();
-  }, []);
-
-  // Add scroll effect and reset content when page changes
+  // Add scroll effect when contentPage changes
   useEffect(() => {
     if (sectionTitleRef.current) {
       sectionTitleRef.current.scrollIntoView({
@@ -31,26 +27,7 @@ export default function PostDetailPage() {
         block: "start",
       });
     }
-
-    // Force remount of content when page changes
-    setContentKey(Date.now());
-
-    // Clear any image elements created as fallbacks
-    const cleanup = () => {
-      document.querySelectorAll(".secure-image-fallback").forEach((el) => {
-        el.parentNode?.removeChild(el);
-      });
-    };
-
-    cleanup();
-    return cleanup;
   }, [contentPage]);
-
-  // Reset content key when post changes
-  useEffect(() => {
-    setContentPage(1);
-    setContentKey(Date.now());
-  }, [postId]);
 
   const { data: post, isLoading: postLoading, error: postError } = usePost(postId);
 
@@ -59,6 +36,42 @@ export default function PostDetailPage() {
   const relatedPosts = relatedPostsData?.data || [];
   const totalPages = relatedPostsData ? Math.ceil(relatedPostsData.count / pageSize) : 0;
 
+  // Prefetch next content page when the current page is loaded
+  useEffect(() => {
+    if (!post || !Array.isArray(post.content)) return;
+
+    const totalContentPages = Math.ceil(post.content.length / sectionsPerPage);
+
+    if (contentPage < totalContentPages) {
+      const nextPage = contentPage + 1;
+      const nextPageContent = post.content.slice((nextPage - 1) * sectionsPerPage, nextPage * sectionsPerPage);
+
+      // Preload images from the next page content
+      preloadContentImages(nextPageContent);
+    }
+  }, [post, contentPage, sectionsPerPage]);
+
+  // Prefetch next post in related posts if any
+  useEffect(() => {
+    if (relatedPosts.length === 0) return;
+
+    // Try to preload the next post content if user might navigate to it
+    const nextPostIndex = 0; // Default to first related post
+    const nextPostId = relatedPosts[nextPostIndex]?.id;
+
+    if (nextPostId) {
+      prefetchPost(queryClient, nextPostId);
+
+      // Also preload the cover image of next post if available
+      if (relatedPosts[nextPostIndex].cover_image) {
+        preloadImage(relatedPosts[nextPostIndex].cover_image);
+      }
+    }
+
+    // Preload all cover images of visible related posts
+    preloadPostsImages(relatedPosts);
+  }, [relatedPosts, queryClient]);
+
   // Handle pagination
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
@@ -66,12 +79,6 @@ export default function PostDetailPage() {
 
   const handlePrevPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  // Content page navigation with forced remount
-  const handleContentPageChange = (newPage) => {
-    setContentPage(newPage);
-    setContentKey(Date.now());
   };
 
   // Estimate reading time based on content length
@@ -92,6 +99,23 @@ export default function PostDetailPage() {
     return Math.max(1, Math.ceil(words / wordsPerMinute));
   };
 
+  // Function to handle content page navigation with preloading
+  const navigateToContentPage = (newPage) => {
+    const totalContentPages = Math.ceil((post?.content?.length || 0) / sectionsPerPage);
+
+    if (newPage >= 1 && newPage <= totalContentPages) {
+      setContentPage(newPage);
+
+      // Preload the page after the new page we're navigating to
+      if (newPage < totalContentPages) {
+        const pageToPreload = newPage + 1;
+        const preloadContent = post.content.slice((pageToPreload - 1) * sectionsPerPage, pageToPreload * sectionsPerPage);
+
+        preloadContentImages(preloadContent);
+      }
+    }
+  };
+
   if (postLoading) {
     return <LoadingSpinner />;
   }
@@ -106,20 +130,6 @@ export default function PostDetailPage() {
       </div>
     );
   }
-
-  // Pre-register images for this view to avoid exposing URLs in props
-  const coverImageId = post.cover_image ? `cover-${postId}` : null;
-  if (coverImageId) registerImage(coverImageId, post.cover_image);
-
-  // Calculate current content blocks
-  const currentContentBlocks = Array.isArray(post.content) ? post.content.slice((contentPage - 1) * sectionsPerPage, contentPage * sectionsPerPage) : [{ type: "text", value: String(post.content) }];
-
-  // Register content block images
-  currentContentBlocks.forEach((block, index) => {
-    if (block.type === "image" && block.url) {
-      registerImage(`content-${contentPage}-${index}`, block.url);
-    }
-  });
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
@@ -141,7 +151,7 @@ export default function PostDetailPage() {
             {post.title}
           </motion.h1>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="flex flex-wrap items-center gap-4 mt-6 text-lg text-neutral-600 dark:text-neutral-400">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="flex flex-wrap items-center gap-4 mt-6 text-sm text-neutral-600 dark:text-neutral-400">
             <div className="flex items-center space-x-2">
               <CalendarIcon className="w-5 h-5" />
               <span>{formatDate(post.publish_date)}</span>
@@ -159,54 +169,51 @@ export default function PostDetailPage() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         {/* Content Area */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-neutral-50 dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6 md:p-8 mb-8">
-          {coverImageId && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-neutral-50 dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 p-6 mb-8">
+          {post.cover_image && (
             <div className="mb-8 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-              <SecureImage key={`cover-${contentKey}`} src={post.cover_image} alt={post.title} className="w-full h-auto max-h-[500px] object-contain" />
+              <SecureImage src={post.cover_image} alt={post.title} className="w-full h-auto max-h-[500px] object-contain" />
             </div>
           )}
 
           <div className="prose prose-neutral dark:prose-invert max-w-none select-none">
-            <AnimatePresence mode="wait">
-              <div key={contentKey}>
-                {Array.isArray(post.content) ? (
-                  <>
-                    {currentContentBlocks.map((block, index) => (
-                      <motion.div key={`block-${contentPage}-${index}-${block.type}`} className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ delay: 0.1 + index * 0.1 }} ref={index === 0 ? sectionTitleRef : null}>
-                        {block.title && <h3 className="text-xl font-medium text-neutral-900 dark:text-neutral-100 mb-3">{block.title}</h3>}
-
-                        {block.type === "text" && <p className="leading-relaxed text-neutral-900 dark:text-neutral-100 whitespace-pre-line">{block.value}</p>}
-
-                        {block.type === "image" && (
-                          <figure className="my-8 flex flex-col items-center">
-                            <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg">
-                              <SecureImage key={`img-${contentPage}-${index}-${contentKey}`} src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down" />
-                            </div>
-                            {block.caption && <figcaption className="text-center text-neutral-600 dark:text-neutral-400 mt-2 text-sm italic">{block.caption}</figcaption>}
-                          </figure>
-                        )}
-                      </motion.div>
-                    ))}
-
-                    {Array.isArray(post.content) && post.content.length > sectionsPerPage && (
-                      <div className="flex items-center justify-center space-x-4 mt-8">
-                        <button onClick={() => handleContentPageChange(Math.max(1, contentPage - 1))} disabled={contentPage === 1} className={`p-2 rounded-full ${contentPage === 1 ? "text-neutral-400 cursor-not-allowed" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800"}`}>
-                          <ChevronLeftIcon className="w-5 h-5" />
-                        </button>
-                        <span className="text-neutral-600 dark:text-neutral-400">
-                          {contentPage} / {Math.ceil(post.content.length / sectionsPerPage)}
-                        </span>
-                        <button onClick={() => handleContentPageChange(Math.min(Math.ceil(post.content.length / sectionsPerPage), contentPage + 1))} disabled={contentPage === Math.ceil(post.content.length / sectionsPerPage)} className={`p-2 rounded-full ${contentPage === Math.ceil(post.content.length / sectionsPerPage) ? "text-neutral-400 cursor-not-allowed" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800"}`}>
-                          <ChevronRightIcon className="w-5 h-5" />
-                        </button>
-                      </div>
+            {Array.isArray(post.content) ? (
+              <>
+                {post.content.slice((contentPage - 1) * sectionsPerPage, contentPage * sectionsPerPage).map((block, index) => (
+                  <motion.div key={index} className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }} ref={index === 0 ? sectionTitleRef : null}>
+                    {block.title && <h3 className="text-xl font-medium text-neutral-900 dark:text-neutral-100 mb-3">{block.title}</h3>}
+                    {block.type === "text" && <p className="leading-relaxed text-neutral-900 dark:text-neutral-100 whitespace-pre-line">{block.value}</p>}
+                    {block.type === "image" && (
+                      <figure className="my-8 flex flex-col items-center">
+                        <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg">
+                          <SecureImage src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down" />
+                        </div>
+                        {block.caption && <figcaption className="text-center text-neutral-600 dark:text-neutral-400 mt-2 text-sm italic">{block.caption}</figcaption>}
+                      </figure>
                     )}
-                  </>
-                ) : (
-                  <div className="leading-relaxed text-neutral-900 dark:text-neutral-100">{String(post.content)}</div>
+                  </motion.div>
+                ))}
+
+                {/* Hidden preload component for next page images */}
+                {Array.isArray(post.content) && contentPage < Math.ceil(post.content.length / sectionsPerPage) && <div className="hidden">{post.content.slice(contentPage * sectionsPerPage, (contentPage + 1) * sectionsPerPage).map((block, index) => block.type === "image" && <SecureImage key={`preload-${index}`} src={block.url} preload={true} />)}</div>}
+
+                {Array.isArray(post.content) && post.content.length > sectionsPerPage && (
+                  <div className="flex items-center justify-center space-x-4 mt-8">
+                    <button onClick={() => navigateToContentPage(contentPage - 1)} disabled={contentPage === 1} className={`p-2 rounded-full ${contentPage === 1 ? "text-neutral-400 cursor-not-allowed" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"}`}>
+                      <ChevronLeftIcon className="w-5 h-5" />
+                    </button>
+                    <span className="text-neutral-600 dark:text-neutral-400">
+                      {contentPage} / {Math.ceil(post.content.length / sectionsPerPage)}
+                    </span>
+                    <button onClick={() => navigateToContentPage(contentPage + 1)} disabled={contentPage === Math.ceil(post.content.length / sectionsPerPage)} className={`p-2 rounded-full ${contentPage === Math.ceil(post.content.length / sectionsPerPage) ? "text-neutral-400 cursor-not-allowed" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"}`}>
+                      <ChevronRightIcon className="w-5 h-5" />
+                    </button>
+                  </div>
                 )}
-              </div>
-            </AnimatePresence>
+              </>
+            ) : (
+              <div className="leading-relaxed text-neutral-900 dark:text-neutral-100">{String(post.content)}</div>
+            )}
           </div>
         </motion.div>
 
@@ -286,6 +293,7 @@ export default function PostDetailPage() {
                 ))}
               </div>
             )}
+            <div className="hidden">{relatedPosts.map((relatedPost, index) => relatedPost.cover_image && <SecureImage key={`preload-related-${index}`} src={relatedPost.cover_image} preload={true} />)}</div>
           </motion.div>
         )}
       </div>
