@@ -1,46 +1,95 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { formatDate } from "../utils/dateFormat";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { motion } from "framer-motion";
 import { ArrowLeftIcon, CalendarIcon, ClockIcon, BookOpenIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import SecureImage from "../components/SecureImage";
+import { useQuery } from "@tanstack/react-query";
 
 export default function PostDetailPage() {
   const { postId } = useParams();
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [relatedPosts, setRelatedPosts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 3; // Number of related posts per page
 
-  useEffect(() => {
-    fetchPost();
-  }, [postId]);
-
-  async function fetchPost() {
-    try {
+  // Fetch post details with React Query
+  const {
+    data: post,
+    isLoading: postLoading,
+    error: postError,
+  } = useQuery({
+    queryKey: ["post", postId],
+    queryFn: async () => {
       const { data, error } = await supabase.from("blog_posts").select("*").eq("id", postId).single();
 
       if (error) throw error;
-      setPost(data);
+      return data;
+    },
+  });
 
-      // Fetch related posts with similar categories or tags
-      if (data.category) {
-        const { data: related } = await supabase.from("blog_posts").select("id, title, cover_image, publish_date").eq("category", data.category).neq("id", postId).limit(3);
+  // Fetch related posts with React Query and pagination
+  const { data: relatedPostsData, isLoading: relatedLoading } = useQuery({
+    queryKey: ["relatedPosts", post?.category, currentPage],
+    queryFn: async () => {
+      if (!post?.category) return { data: [], count: 0 };
 
-        if (related) setRelatedPosts(related);
-      }
-    } catch (error) {
-      console.error("Error fetching post:", error);
-    } finally {
-      setLoading(false);
+      // Get total count for pagination
+      const { count } = await supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("category", post.category).neq("id", postId);
+
+      // Get paginated data
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id, title, cover_image, publish_date")
+        .eq("category", post.category)
+        .neq("id", postId)
+        .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
+
+      return {
+        data: data || [],
+        count: count || 0,
+      };
+    },
+    enabled: !!post?.category,
+    keepPreviousData: true,
+  });
+
+  const relatedPosts = relatedPostsData?.data || [];
+  const totalPages = relatedPostsData ? Math.ceil(relatedPostsData.count / pageSize) : 0;
+
+  // Handle pagination
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  // Estimate reading time based on content length
+  const getReadingTime = (postContent) => {
+    const wordsPerMinute = 200;
+    let textContent = "";
+
+    if (Array.isArray(postContent)) {
+      textContent = postContent
+        .filter((block) => block.type === "text")
+        .map((block) => block.value)
+        .join(" ");
+    } else {
+      textContent = String(postContent);
     }
-  }
 
-  if (loading) {
+    const words = textContent.split(/\s+/).length;
+    return Math.max(1, Math.ceil(words / wordsPerMinute));
+  };
+
+  if (postLoading) {
     return <LoadingSpinner />;
   }
 
-  if (!post) {
+  if (postError || !post) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-neutral-50 dark:bg-neutral-950">
         <p className="text-lg text-neutral-600 dark:text-neutral-300">Post not found</p>
@@ -50,24 +99,6 @@ export default function PostDetailPage() {
       </div>
     );
   }
-
-  // Estimate reading time based on content length
-  const getReadingTime = () => {
-    const wordsPerMinute = 200;
-    let textContent = "";
-
-    if (Array.isArray(post.content)) {
-      textContent = post.content
-        .filter((block) => block.type === "text")
-        .map((block) => block.value)
-        .join(" ");
-    } else {
-      textContent = String(post.content);
-    }
-
-    const words = textContent.split(/\s+/).length;
-    return Math.max(1, Math.ceil(words / wordsPerMinute));
-  };
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
@@ -99,7 +130,7 @@ export default function PostDetailPage() {
 
             <div className="flex items-center space-x-2">
               <ClockIcon className="w-5 h-5" />
-              <span>{getReadingTime()} min read</span>
+              <span>{getReadingTime(post.content)} min read</span>
             </div>
           </motion.div>
         </div>
@@ -110,19 +141,20 @@ export default function PostDetailPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-neutral-50 dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6 mb-12">
           {post.cover_image && (
             <div className="mb-8 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-              <img src={post.cover_image} alt={post.title} className="w-full h-auto max-h-[500px] object-contain" />
+              <SecureImage src={post.cover_image} alt={post.title} className="w-full h-auto max-h-[500px] object-contain" />
             </div>
           )}
 
-          <div className="prose prose-neutral dark:prose-invert max-w-none">
+          <div className="prose prose-neutral dark:prose-invert max-w-none select-none">
             {Array.isArray(post.content) ? (
               post.content.map((block, index) => (
                 <motion.div key={index} className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }}>
+                  {block.title && <h3 className="text-xl font-medium text-neutral-900 dark:text-neutral-100 mb-3">{block.title}</h3>}
                   {block.type === "text" && <p className="leading-relaxed text-neutral-900 dark:text-neutral-100">{block.value}</p>}
                   {block.type === "image" && (
                     <figure className="my-8 flex flex-col items-center">
                       <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg">
-                        <img src={block.url} alt={block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down" />
+                        <SecureImage src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down" />
                       </div>
                       {block.caption && <figcaption className="text-center text-neutral-600 dark:text-neutral-400 mt-2 text-sm italic">{block.caption}</figcaption>}
                     </figure>
@@ -170,25 +202,47 @@ export default function PostDetailPage() {
           </motion.div>
         )}
 
-        {/* Related posts */}
+        {/* Related posts with pagination */}
         {relatedPosts.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="bg-neutral-50 dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-            <div className="flex items-center mb-6">
-              <div className="w-1 h-6 bg-neutral-500 rounded mr-3"></div>
-              <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">Read More</h2>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="w-1 h-6 bg-neutral-500 rounded mr-3"></div>
+                <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">Read More</h2>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center space-x-2">
+                  <button onClick={handlePrevPage} disabled={currentPage === 1} className={`p-2 rounded-full ${currentPage === 1 ? "text-neutral-400 cursor-not-allowed" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800"}`}>
+                    <ChevronLeftIcon className="w-5 h-5" />
+                  </button>
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button onClick={handleNextPage} disabled={currentPage === totalPages} className={`p-2 rounded-full ${currentPage === totalPages ? "text-neutral-400 cursor-not-allowed" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800"}`}>
+                    <ChevronRightIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {relatedPosts.map((relatedPost, index) => (
-                <motion.div key={relatedPost.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 + index * 0.05 }}>
-                  <Link to={`/news/${relatedPost.id}`} className="group block rounded-xl bg-neutral-50 dark:bg-neutral-800 shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md transition-all p-4">
-                    <div className="h-40 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded-lg overflow-hidden mb-4">{relatedPost.cover_image ? <img src={relatedPost.cover_image} alt={relatedPost.title} className="max-w-full max-h-full object-contain px-2" /> : <BookOpenIcon className="w-12 h-12 text-neutral-400 dark:text-neutral-500" />}</div>
-                    <h3 className="font-medium text-lg text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors">{relatedPost.title}</h3>
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">{formatDate(relatedPost.publish_date)}</p>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+            {relatedLoading ? (
+              <div className="flex justify-center py-8">
+                <LoadingSpinner size="small" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {relatedPosts.map((relatedPost, index) => (
+                  <motion.div key={relatedPost.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 + index * 0.05 }}>
+                    <Link to={`/news/${relatedPost.id}`} className="group block rounded-xl bg-neutral-50 dark:bg-neutral-800 shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-md transition-all p-4">
+                      <div className="h-40 flex items-center justify-center bg-neutral-100 dark:bg-neutral-700 rounded-lg overflow-hidden mb-4">{relatedPost.cover_image ? <img src={relatedPost.cover_image} alt={relatedPost.title} className="max-w-full max-h-full object-contain px-2" /> : <BookOpenIcon className="w-12 h-12 text-neutral-400 dark:text-neutral-500" />}</div>
+                      <h3 className="font-medium text-lg text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors">{relatedPost.title}</h3>
+                      <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">{formatDate(relatedPost.publish_date)}</p>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </div>

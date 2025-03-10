@@ -44,7 +44,7 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
   const handleAddImage = () => {
     if (!currentImageUrl.trim()) return;
 
-    const contentBlocks = [...(Array.isArray(localPost.content) ? localPost.content : []), { type: "image", url: currentImageUrl }];
+    const contentBlocks = [...(Array.isArray(localPost.content) ? localPost.content : []), { type: "image", url: currentImageUrl, title: "" }];
 
     const updatedPost = { ...localPost, content: contentBlocks };
     setLocalPost(updatedPost);
@@ -64,11 +64,13 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     onChange?.(updatedPost);
   };
 
-  const handleUpdateBlock = (index, value) => {
+  const handleUpdateBlock = (index, field, value) => {
     if (!Array.isArray(localPost.content)) return;
 
     const updatedBlocks = [...localPost.content];
-    if (updatedBlocks[index].type === "text") {
+    if (field === "title") {
+      updatedBlocks[index] = { ...updatedBlocks[index], title: value };
+    } else if (updatedBlocks[index].type === "text") {
       updatedBlocks[index] = { ...updatedBlocks[index], value };
     } else if (updatedBlocks[index].type === "image") {
       updatedBlocks[index] = { ...updatedBlocks[index], url: value };
@@ -80,7 +82,7 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
   };
 
   const handleAddTextBlock = () => {
-    const contentBlocks = [...(Array.isArray(localPost.content) ? localPost.content : []), { type: "text", value: "" }];
+    const contentBlocks = [...(Array.isArray(localPost.content) ? localPost.content : []), { type: "text", value: "", title: "" }];
 
     const updatedPost = { ...localPost, content: contentBlocks };
     setLocalPost(updatedPost);

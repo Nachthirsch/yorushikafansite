@@ -33,12 +33,18 @@ const BlogPostContent = React.memo(({ content }) => {
       {contentBlocks.map((block, index) => {
         if (block.type === "text") {
           return (
-            <p key={index} className="text-neutral-600 dark:text-neutral-300 line-clamp-3">
-              {block.value}
-            </p>
+            <div key={index}>
+              {block.title && <h4 className="text-lg font-medium text-neutral-800 dark:text-neutral-200 mb-2">{block.title}</h4>}
+              <p className="text-neutral-600 dark:text-neutral-300 line-clamp-3">{block.value}</p>
+            </div>
           );
         } else if (block.type === "image") {
-          return <img key={index} src={block.url} alt="" className="w-full h-40 object-cover rounded-md" loading="lazy" />;
+          return (
+            <div key={index}>
+              {block.title && <h4 className="text-lg font-medium text-neutral-800 dark:text-neutral-200 mb-2">{block.title}</h4>}
+              <img src={block.url} alt={block.title || ""} className="w-full h-40 object-cover rounded-md" loading="lazy" />
+            </div>
+          );
         }
         return null;
       })}
