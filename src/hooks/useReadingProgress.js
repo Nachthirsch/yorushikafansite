@@ -4,19 +4,26 @@ export default function useReadingProgress() {
   const [completion, setCompletion] = useState(0);
 
   useEffect(() => {
-    const updateScrollCompletion = () => {
-      const currentProgress = window.scrollY;
-      const scrollHeight = document.body.scrollHeight - window.innerHeight;
-      if (scrollHeight) {
-        setCompletion(Number((currentProgress / scrollHeight).toFixed(2)) * 100);
-      }
-    };
+    function updateScrollCompletion() {
+      // Get the total scrollable height
+      const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
+      // Get current scroll position
+      const currentScroll = window.scrollY;
+
+      // Calculate completion percentage
+      if (totalHeight) {
+        setCompletion(Number((currentScroll / totalHeight) * 100).toFixed(2));
+      }
+    }
+
+    // Add scroll event listener
     window.addEventListener("scroll", updateScrollCompletion);
 
-    // Update on first load
+    // Initial calculation
     updateScrollCompletion();
 
+    // Cleanup
     return () => window.removeEventListener("scroll", updateScrollCompletion);
   }, []);
 
