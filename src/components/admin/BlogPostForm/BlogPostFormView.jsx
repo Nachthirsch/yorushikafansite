@@ -1,4 +1,76 @@
-export default function BlogPostFormView({ localPost, currentImageUrl, showImageInput, isEditing, onCancel, setCurrentImageUrl, handleChange, handleAddImage, handleRemoveBlock, handleUpdateBlock, handleAddTextBlock, handleFormSubmit, toggleImageInput }) {
+import { useState, useRef, useEffect } from "react";
+
+export default function BlogPostFormView({ localPost, currentImageUrl, showImageInput, isEditing, onCancel, setCurrentImageUrl, handleChange, handleAddImage, handleRemoveBlock, handleUpdateBlock, handleAddTextBlock, handleFormSubmit, toggleImageInput, handleAddTextBlockAt, handleAddImageBlockAt }) {
+  const [selection, setSelection] = useState({});
+  const textareaRefs = useRef({});
+
+  // Fungsi yang diperbarui untuk menangani seleksi teks dengan lebih baik
+  const handleTextSelection = (index) => {
+    const textarea = textareaRefs.current[index];
+    if (!textarea) return;
+
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+
+    if (selectionStart !== selectionEnd) {
+      setSelection({
+        index,
+        start: selectionStart,
+        end: selectionEnd,
+        text: textarea.value.substring(selectionStart, selectionEnd),
+      });
+    }
+  };
+
+  // Fungsi untuk menerapkan format ke teks yang diseleksi
+  const applyFormatting = (index, formatType, formatValue) => {
+    const textarea = textareaRefs.current[index];
+    if (!textarea) return;
+
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+    const hasSelection = selectionStart !== selectionEnd;
+    const currentValue = textarea.value;
+
+    // Format yang akan diterapkan
+    const format = { [formatType]: formatValue };
+
+    if (hasSelection) {
+      // Jika ada seleksi teks, format hanya teks yang diseleksi
+      handleUpdateBlock(index, "value", currentValue, format, { selectionStart, selectionEnd });
+
+      // Pertahankan seleksi setelah format diterapkan
+      setTimeout(() => {
+        if (textareaRefs.current[index]) {
+          textareaRefs.current[index].focus();
+          textareaRefs.current[index].setSelectionRange(selectionStart, selectionEnd);
+        }
+      }, 50);
+    } else {
+      // Jika tidak ada seleksi, format seluruh blok
+      // Untuk toggle format seperti bold/italic/underline
+      if (formatType === "bold" || formatType === "italic" || formatType === "underline") {
+        const currentFormatValue = localPost.content[index].format?.[formatType];
+        format[formatType] = !currentFormatValue;
+      }
+      handleUpdateBlock(index, "value", currentValue, format);
+    }
+  };
+
+  // Gunakan useEffect untuk memantau perubahan seleksi
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const activeIndex = Object.keys(textareaRefs.current).find((index) => textareaRefs.current[index] === document.activeElement);
+
+      if (activeIndex) {
+        handleTextSelection(parseInt(activeIndex));
+      }
+    };
+
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () => document.removeEventListener("selectionchange", handleSelectionChange);
+  }, []);
+
   const renderContentBlocks = () => {
     const contentArray = Array.isArray(localPost.content) ? localPost.content : [];
 
@@ -6,15 +78,88 @@ export default function BlogPostFormView({ localPost, currentImageUrl, showImage
       <div className="space-y-6">
         {contentArray.map((block, index) => (
           <div key={index} className="group relative transition-all duration-300 hover:shadow-lg rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+            {/* Block insertion buttons */}
+            <div className="absolute -left-12 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex flex-col gap-2">
+              <button type="button" onClick={() => handleAddTextBlockAt(index)} className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600" title="Add text block above">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button type="button" onClick={() => handleAddTextBlockAt(index, "below")} className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600" title="Add text block below">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
             {/* Optional Title Input for all block types */}
             <div className="mb-3">
               <input type="text" value={block.title || ""} onChange={(e) => handleUpdateBlock(index, "title", e.target.value)} className="w-full px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Optional block title..." />
             </div>
 
             {block.type === "text" ? (
-              <div className="relative">
-                <textarea value={block.value} onChange={(e) => handleUpdateBlock(index, "value", e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 min-h-[120px] resize-y" placeholder="Write your content here..." aria-label={`Content block ${index + 1}`} />
-                <div className="absolute bottom-3 right-3 text-sm text-gray-500">{block.value.length} characters</div>
+              <div className="space-y-2">
+                {/* Formatting toolbar */}
+                <div className="flex flex-wrap items-center gap-2 pb-2 bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+                  {/* Bold button */}
+                  <button type="button" onClick={() => applyFormatting(index, "bold", true)} className={`p-2 rounded ${block.format?.bold ? "bg-neutral-300 dark:bg-neutral-600" : "bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700"}`} title="Bold (Select text first to apply formatting)">
+                    <span className="font-bold">B</span>
+                  </button>
+
+                  {/* Italic button */}
+                  <button type="button" onClick={() => applyFormatting(index, "italic", true)} className={`p-2 rounded ${block.format?.italic ? "bg-neutral-300 dark:bg-neutral-600" : "bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700"}`} title="Italic (Select text first to apply formatting)">
+                    <span className="italic">I</span>
+                  </button>
+
+                  {/* Underline button */}
+                  <button type="button" onClick={() => applyFormatting(index, "underline", true)} className={`p-2 rounded ${block.format?.underline ? "bg-neutral-300 dark:bg-neutral-600" : "bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700"}`} title="Underline (Select text first to apply formatting)">
+                    <span className="underline">U</span>
+                  </button>
+
+                  {/* Divider */}
+                  <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+
+                  {/* Font size selector */}
+                  <div className="flex items-center">
+                    <select value={selection.index === index && selection.start !== selection.end ? "selection" : block.format?.fontSize || "normal"} onChange={(e) => applyFormatting(index, "fontSize", e.target.value)} className="px-2 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                      <option value="selection" disabled={!(selection.index === index && selection.start !== selection.end)}>
+                        {selection.index === index && selection.start !== selection.end ? "Format Selection..." : "Size"}
+                      </option>
+                      <option value="normal">Normal</option>
+                      <option value="large">Large</option>
+                      <option value="larger">Larger</option>
+                      <option value="largest">Largest</option>
+                    </select>
+                  </div>
+
+                  {/* Selection info */}
+                  {selection.index === index && selection.start !== selection.end && <span className="ml-auto text-xs text-gray-500 dark:text-gray-400 italic px-2">{selection.text?.length} characters selected</span>}
+                </div>
+
+                {/* Text area */}
+                <div className="relative">
+                  <textarea
+                    ref={(el) => (textareaRefs.current[index] = el)}
+                    value={block.value || ""}
+                    onChange={(e) => handleUpdateBlock(index, "value", e.target.value)}
+                    onClick={() => handleTextSelection(index)}
+                    onKeyUp={() => handleTextSelection(index)}
+                    onMouseUp={() => handleTextSelection(index)}
+                    className="w-full px-4 py-3 rounded-xl border border-neutral-300 
+                      dark:border-neutral-600 bg-white dark:bg-gray-800 
+                      text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 
+                      focus:border-transparent transition-all duration-200 
+                      min-h-[120px] resize-y"
+                    placeholder="Write your content here..."
+                    style={{
+                      fontWeight: block.format?.bold ? "bold" : "normal",
+                      fontStyle: block.format?.italic ? "italic" : "normal",
+                      textDecoration: block.format?.underline ? "underline" : "none",
+                      fontSize: block.format?.fontSize === "large" ? "1.125rem" : block.format?.fontSize === "larger" ? "1.25rem" : block.format?.fontSize === "largest" ? "1.5rem" : "1rem",
+                    }}
+                  />
+                  <div className="absolute bottom-3 right-3 text-sm text-gray-500">{(block.value || "").length} characters</div>
+                </div>
               </div>
             ) : block.type === "image" ? (
               <div className="space-y-3">
@@ -41,10 +186,9 @@ export default function BlogPostFormView({ localPost, currentImageUrl, showImage
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">Unknown block type: {typeof block === "object" ? JSON.stringify(block) : String(block)}</div>
-            )}
+            ) : null}
 
+            {/* Remove button */}
             <button type="button" onClick={() => handleRemoveBlock(index)} className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-all duration-200 transform hover:scale-110" title="Remove block" aria-label="Remove block">
               ×
             </button>

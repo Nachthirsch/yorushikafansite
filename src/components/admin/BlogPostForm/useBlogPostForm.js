@@ -64,14 +64,63 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     onChange?.(updatedPost);
   };
 
-  const handleUpdateBlock = (index, field, value) => {
+  const handleUpdateBlock = (index, field, value, format, selection = null) => {
     if (!Array.isArray(localPost.content)) return;
 
     const updatedBlocks = [...localPost.content];
+
     if (field === "title") {
       updatedBlocks[index] = { ...updatedBlocks[index], title: value };
     } else if (updatedBlocks[index].type === "text") {
-      updatedBlocks[index] = { ...updatedBlocks[index], value };
+      if (format && selection) {
+        // Selection-level formatting
+        const { selectionStart, selectionEnd } = selection;
+
+        // Create a fresh copy to avoid mutation issues
+        const existingSelections = Array.isArray(updatedBlocks[index].format?.selections) ? [...updatedBlocks[index].format.selections] : [];
+
+        // Remove any overlapping selections to avoid conflicts
+        const filteredSelections = existingSelections.filter((sel) => sel.end <= selectionStart || sel.start >= selectionEnd);
+
+        // Add the new selection
+        const newSelections = [
+          ...filteredSelections,
+          {
+            start: selectionStart,
+            end: selectionEnd,
+            ...format,
+          },
+        ];
+
+        updatedBlocks[index] = {
+          ...updatedBlocks[index],
+          value,
+          format: {
+            ...(updatedBlocks[index].format || {}),
+            selections: newSelections,
+          },
+        };
+
+        console.log("Applied format to selection", {
+          selectionStart,
+          selectionEnd,
+          text: value.substring(selectionStart, selectionEnd),
+          format,
+        });
+      } else if (format) {
+        // Block-level formatting
+        updatedBlocks[index] = {
+          ...updatedBlocks[index],
+          value,
+          format: {
+            ...(updatedBlocks[index].format || {}),
+            ...format,
+          },
+        };
+      } else {
+        // Just updating value
+        updatedBlocks[index] = { ...updatedBlocks[index], value };
+      }
     } else if (updatedBlocks[index].type === "image") {
       updatedBlocks[index] = { ...updatedBlocks[index], url: value };
     }
@@ -82,11 +131,62 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
   };
 
   const handleAddTextBlock = () => {
-    const contentBlocks = [...(Array.isArray(localPost.content) ? localPost.content : []), { type: "text", value: "", title: "" }];
+    const contentBlocks = [
+      ...(Array.isArray(localPost.content) ? localPost.content : []),
+      {
+        type: "text",
+        value: "",
+        title: "",
+        format: {
+          bold: false,
+          italic: false,
+          underline: false,
+          fontSize: "normal",
+          selections: [],
+        },
+      },
+    ];
 
     const updatedPost = { ...localPost, content: contentBlocks };
     setLocalPost(updatedPost);
     onChange?.(updatedPost);
+  };
+
+  const handleAddTextBlockAt = (index, position = "above") => {
+    if (!Array.isArray(localPost.content)) return;
+
+    const insertIndex = position === "above" ? index : index + 1;
+    const updatedBlocks = [...localPost.content];
+    updatedBlocks.splice(insertIndex, 0, {
+      type: "text",
+      value: "",
+      title: "",
+      format: {
+        bold: false,
+        italic: false,
+        underline: false,
+        fontSize: "normal",
+        selections: [],
+      },
+    });
+
+    const updatedPost = { ...localPost, content: updatedBlocks };
+    setLocalPost(updatedPost);
+    onChange?.(updatedPost);
+  };
+
+  const handleAddImageBlockAt = (index, position = "above") => {
+    if (!currentImageUrl.trim()) return;
+
+    const insertIndex = position === "above" ? index : index + 1;
+    const updatedBlocks = [...localPost.content];
+    updatedBlocks.splice(insertIndex, 0, { type: "image", url: currentImageUrl, title: "" });
+
+    const updatedPost = { ...localPost, content: updatedBlocks };
+    setLocalPost(updatedPost);
+    onChange?.(updatedPost);
+    setCurrentImageUrl("");
+    setShowImageInput(false);
   };
 
   const handleFormSubmit = async (e) => {
@@ -123,5 +223,7 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     handleAddTextBlock,
     handleFormSubmit,
     toggleImageInput,
+    handleAddTextBlockAt,
+    handleAddImageBlockAt,
   };
 }

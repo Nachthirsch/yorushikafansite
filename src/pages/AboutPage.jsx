@@ -343,7 +343,7 @@ const AboutPage = () => {
 
                   {/* Character-by-character typewriter effect */}
                   <motion.div initial={{ opacity: 1 }} animate={{ opacity: 1 }} className="inline-flex">
-                    {Array.from("夜しかもう眠れずに").map((char, index) => (
+                    {Array.from("夜しか照らさない無謬の光").map((char, index) => (
                       <motion.span
                         key={index}
                         initial={{ opacity: 0, y: 5 }}
