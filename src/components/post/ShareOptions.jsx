@@ -1,15 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import TextSelectionModal from "./TextSelectionModal";
-import { DocumentTextIcon, LinkIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { LinkIcon } from "@heroicons/react/24/outline";
 
 const shareOptions = [
-  {
-    id: "text-selection",
-    name: "Share Text",
-    icon: <DocumentTextIcon className="w-5 h-5 mr-3" />,
-    // This option will trigger the text selection modal
-  },
   {
     id: "twitter",
     name: "Twitter",
@@ -66,18 +58,10 @@ const shareOptions = [
   },
 ];
 
-export default function ShareOptions({ isOpen, onClose, post }) {
-  const [showTextSelectionModal, setShowTextSelectionModal] = useState(false);
-  const [selectedText, setSelectedText] = useState("");
-  const [showSharePlatforms, setShowSharePlatforms] = useState(false);
-
+export default function ShareOptions({ isOpen, onClose, post, selectedText }) {
   const handleOptionClick = (optionId) => {
-    if (optionId === "text-selection") {
-      setShowTextSelectionModal(true);
-      onClose(); // Close the dropdown menu
-    } else {
-      handleShare(optionId);
-    }
+    handleShare(optionId);
+    onClose();
   };
 
   const handleShare = async (platform) => {
@@ -108,55 +92,34 @@ export default function ShareOptions({ isOpen, onClose, post }) {
         console.log("Error sharing", error);
       }
     }
-
-    // Close everything after sharing
-    setShowSharePlatforms(false);
-    setSelectedText("");
-    onClose();
-  };
-
-  const handleTextSelected = (text) => {
-    setSelectedText(text);
-    setShowSharePlatforms(true);
-  };
-
-  const closeTextSelection = () => {
-    setShowTextSelectionModal(false);
-    setSelectedText("");
-    setShowSharePlatforms(false);
   };
 
   return (
-    <>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 5 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 5 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-xl shadow-lg 
-                border border-neutral-200 dark:border-neutral-700 overflow-hidden z-50"
-          >
-            <div className="py-1">
-              {shareOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => handleOptionClick(option.id)}
-                  className="flex items-center w-full px-4 py-3 text-left text-neutral-700 dark:text-neutral-300 
-                    hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-200"
-                >
-                  {option.icon}
-                  {option.name}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Text Selection Modal */}
-      <TextSelectionModal isOpen={showTextSelectionModal} onClose={closeTextSelection} post={post} onTextSelected={handleTextSelected} showSharePlatforms={showSharePlatforms} onShare={handleShare} />
-    </>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 5 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 5 }}
+          transition={{ duration: 0.2 }}
+          className="absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-xl shadow-lg 
+              border border-neutral-200 dark:border-neutral-700 overflow-hidden z-50"
+        >
+          <div className="py-1">
+            {shareOptions.map((option) => (
+              <button
+                key={option.id}
+                onClick={() => handleOptionClick(option.id)}
+                className="flex items-center w-full px-4 py-3 text-left text-neutral-700 dark:text-neutral-300 
+                  hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-200"
+              >
+                {option.icon}
+                {option.name}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

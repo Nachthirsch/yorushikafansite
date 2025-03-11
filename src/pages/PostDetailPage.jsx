@@ -26,6 +26,11 @@ export default function PostDetailPage() {
   const sectionsPerPage = 2; // Number of content sections per page
   const queryClient = useQueryClient();
   const completion = useReadingProgress(); // Use the new reading progress hook
+  const [currentTextSelection, setCurrentTextSelection] = useState({
+    text: "",
+    source: null, // 'content' or 'related'
+    title: "",
+  });
 
   // Add scroll effect when contentPage changes
   useEffect(() => {
@@ -172,9 +177,11 @@ export default function PostDetailPage() {
     setShowShareOptions(true);
   };
 
+  // We're no longer handling text sharing through this component
+  // Instead, the PostContent component will directly show the ShareTextAsImage modal
   const handleTextShare = (text) => {
-    setSelectedShareText(text);
-    setShowShareOptions(true);
+    // This function can remain for compatibility but will only be used for
+    // general post sharing, not text selection sharing
   };
 
   // Toggle bookmark
@@ -191,6 +198,48 @@ export default function PostDetailPage() {
     localStorage.setItem("bookmarkedPosts", JSON.stringify(newBookmarks));
     setIsBookmarked(!isBookmarked);
   };
+
+  // Handle text selection from PostContent
+  const handleContentTextSelection = (text) => {
+    if (text) {
+      setCurrentTextSelection({
+        text,
+        source: "content",
+        title: post.title,
+      });
+    }
+  };
+
+  // Handle text selection from related posts
+  const handleRelatedTextSelection = (text, title) => {
+    if (text) {
+      setCurrentTextSelection({
+        text,
+        source: "related",
+        title: title || "Related Post",
+      });
+    }
+  };
+
+  // When pagination changes, ensure references are updated
+  useEffect(() => {
+    // Add a very small delay to ensure the DOM has updated
+    const timer = setTimeout(() => {
+      // Force a re-assignment of the refs
+      if (sectionTitleRef.current) {
+        const element = sectionTitleRef.current;
+        sectionTitleRef.current = null;
+        sectionTitleRef.current = element;
+      }
+      if (relatedPostsRef.current) {
+        const element = relatedPostsRef.current;
+        relatedPostsRef.current = null;
+        relatedPostsRef.current = element;
+      }
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [contentPage, currentPage]);
 
   if (postLoading) {
     return (
@@ -217,18 +266,39 @@ export default function PostDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 relative">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 relative allow-select post-detail-page">
       <ReadingProgress completion={completion} />
       <PostHeader post={post} onShare={handlePostShare} getReadingTime={getReadingTime} />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <PostContent post={post} contentPage={contentPage} sectionsPerPage={sectionsPerPage} navigateToContentPage={navigateToContentPage} renderFormattedText={renderFormattedText} sectionTitleRef={sectionTitleRef} onShare={handleTextShare} />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 allow-select post-content">
+        <PostContent
+          post={post}
+          contentPage={contentPage}
+          sectionsPerPage={sectionsPerPage}
+          navigateToContentPage={navigateToContentPage}
+          renderFormattedText={renderFormattedText}
+          sectionTitleRef={sectionTitleRef}
+          onShare={handleContentTextSelection}
+          key={`post-content-${contentPage}`} // Add key to force remount on page change
+        />
 
         {/* Author section */}
         {(post.author || post.author_name) && <PostAuthor post={post} />}
 
         {/* Related posts section */}
-        {relatedPosts.length > 0 && <PostRelated relatedPosts={relatedPosts} currentPage={currentPage} totalPages={totalPages} handlePrevPage={handlePrevPage} handleNextPage={handleNextPage} isLoading={relatedLoading} relatedPostsRef={relatedPostsRef} />}
+        {relatedPosts.length > 0 && (
+          <PostRelated
+            relatedPosts={relatedPosts}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePrevPage={handlePrevPage}
+            handleNextPage={handleNextPage}
+            isLoading={relatedLoading}
+            relatedPostsRef={relatedPostsRef}
+            onTextSelection={handleRelatedTextSelection}
+            key={`related-posts-${currentPage}`} // Add key to force remount on page change
+          />
+        )}
 
         <ShareOptions isOpen={showShareOptions} onClose={() => setShowShareOptions(false)} post={post} selectedText={selectedShareText} />
       </div>

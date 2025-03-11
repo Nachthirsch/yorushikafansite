@@ -1,68 +1,93 @@
-import { motion } from "framer-motion";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeftIcon, ChevronRightIcon, ShareIcon } from "@heroicons/react/24/solid";
 import SecureImage from "../SecureImage";
 import { useRef, useState, useEffect } from "react";
-import FloatingShareButton from "./FloatingShareButton";
+import ShareTextAsImage from "./ShareTextAsImage";
+import { setHighlightMode } from "../../utils/eventBus";
 
 export default function PostContent({ post, contentPage, sectionsPerPage, navigateToContentPage, renderFormattedText, sectionTitleRef, onShare }) {
-  const [selection, setSelection] = useState({
-    text: "",
-    position: { x: 0, y: 0 },
-  });
+  const [showTextShareModal, setShowTextShareModal] = useState(false);
+  const [selectedText, setSelectedText] = useState("");
+  const [isHighlightMode, setIsHighlightMode] = useState(false);
+  const contentRef = useRef(null);
 
+  // Reset when page changes
   useEffect(() => {
-    let timeoutId;
+    setSelectedText("");
+  }, [contentPage]);
 
-    function handleSelectionChange() {
-      const selection = window.getSelection();
-      const text = selection.toString().trim();
+  // Toggle highlight mode
+  const toggleHighlightMode = () => {
+    const newMode = !isHighlightMode;
+    setIsHighlightMode(newMode);
+    setHighlightMode(newMode); // Broadcast the change
 
-      if (text) {
-        // Clear any existing timeout to prevent flickering
-        if (timeoutId) clearTimeout(timeoutId);
-
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-
-        // Calculate position relative to viewport for fixed positioning
-        const viewportX = Math.min(Math.max(rect.left + rect.width / 2, 50), window.innerWidth - 50);
-        const viewportY = Math.max(rect.top + window.scrollY, window.scrollY + 100);
-
-        setSelection({
-          text,
-          position: {
-            x: viewportX,
-            y: viewportY,
-          },
-        });
-      } else {
-        // Add small delay before hiding to prevent flickering during selection
-        timeoutId = setTimeout(() => {
-          setSelection({ text: "", position: { x: 0, y: 0 } });
-        }, 250);
-      }
-    }
-
-    document.addEventListener("selectionchange", handleSelectionChange);
-    return () => {
-      document.removeEventListener("selectionchange", handleSelectionChange);
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, []);
-
-  const handleShare = () => {
-    if (selection.text) {
-      // Pass both the selected text and its position to the onShare function
-      onShare(selection.text, selection.position);
+    // Clear any existing selection
+    if (window.getSelection) {
       window.getSelection().removeAllRanges();
-      setSelection({ text: "", position: { x: 0, y: 0 } });
     }
+  };
+
+  // When in highlight mode, use mouseup to detect text selection
+  const handleMouseUp = (e) => {
+    if (!isHighlightMode) return;
+
+    // Small delay to let the selection finalize
+    setTimeout(() => {
+      const selection = window.getSelection();
+      const selectedText = selection?.toString().trim();
+
+      if (selectedText) {
+        setSelectedText(selectedText);
+        setShowTextShareModal(true);
+
+        // Clear selection after a brief delay
+        setTimeout(() => {
+          if (window.getSelection) {
+            window.getSelection().removeAllRanges();
+          }
+        }, 100);
+      }
+    }, 50);
+  };
+
+  // Handle paragraph click in highlight mode (for full paragraph)
+  const handleParagraphClick = (e, paragraphText) => {
+    // Only in highlight mode and only if no text is selected
+    if (!isHighlightMode) return;
+
+    const selection = window.getSelection();
+    const hasSelection = selection && selection.toString().trim().length > 0;
+
+    // If there's a text selection, don't share the whole paragraph
+    if (hasSelection) return;
+
+    // Share the full paragraph
+    setSelectedText(paragraphText);
+    setShowTextShareModal(true);
+  };
+
+  // Share quote button handler for explicit share
+  const handleShareQuote = (text) => {
+    setSelectedText(text);
+    setShowTextShareModal(true);
   };
 
   return (
     <>
-      <FloatingShareButton isVisible={!!selection.text} position={selection.position} onClick={handleShare} />
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md border border-neutral-200 dark:border-neutral-800 p-6 md:p-10">
+      <ShareTextAsImage isOpen={showTextShareModal} onClose={() => setShowTextShareModal(false)} selectedText={selectedText} postTitle={post.title} />
+
+      {/* Floating indicator that Quote Mode is active */}
+      <AnimatePresence>
+        {isHighlightMode && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="quote-mode-active-indicator">
+            <span>✒️</span>
+            <span>Quote Mode Active - Select text or click paragraph</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div ref={contentRef} key={`content-page-${contentPage}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md border border-neutral-200 dark:border-neutral-800 p-6 md:p-10 allow-select post-content" onMouseUp={handleMouseUp}>
         {post.cover_image && (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }} className="mb-10 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-lg">
             <figure className="overflow-hidden">
@@ -71,30 +96,58 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
           </motion.div>
         )}
 
+        {/* Highlight mode toggle button - slightly improved styling */}
+        <div className="flex justify-end mb-4 items-center">
+          <button
+            onClick={toggleHighlightMode}
+            className={`flex items-center px-3 py-1.5 text-sm rounded-full transition-colors
+              ${isHighlightMode ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500" : "bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300"}`}
+          >
+            <span className="mr-2">✒️</span>
+            {isHighlightMode ? "Exit Quote Mode" : "Enter Quote Mode"}
+          </button>
+        </div>
+
         <div
-          className="prose prose-neutral dark:prose-invert max-w-none select-auto
-          [&_::selection]:bg-blue-500/20 dark:[&_::selection]:bg-blue-500/30
-          [&_::selection]:text-neutral-900 dark:[&_::selection]:text-neutral-100"
+          className={`prose prose-neutral dark:prose-invert max-w-none allow-select
+            [&_::selection]:bg-blue-500/20 dark:[&_::selection]:bg-blue-500/30
+            [&_::selection]:text-neutral-900 dark:[&_::selection]:text-neutral-100
+            ${isHighlightMode ? "quote-mode" : ""}`}
         >
           {Array.isArray(post.content) ? (
             <>
               {post.content.slice((contentPage - 1) * sectionsPerPage, contentPage * sectionsPerPage).map((block, index) => (
-                <motion.div key={index} className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }} ref={index === 0 ? sectionTitleRef : null}>
+                <motion.div key={index} className="mb-10 allow-select" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }} ref={index === 0 ? sectionTitleRef : null}>
                   {block.title && (
-                    <h3 id={block.title.toLowerCase().replace(/\s+/g, "-")} className="text-2xl font-medium text-neutral-900 dark:text-neutral-100 mb-4">
+                    <h3 id={block.title.toLowerCase().replace(/\s+/g, "-")} className="text-2xl font-medium text-neutral-900 dark:text-neutral-100 mb-4 allow-select">
                       {block.title}
                     </h3>
                   )}
 
                   {block.type === "text" && (
-                    <div
-                      className={`leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre-line
-                        ${block.format?.bold ? "font-bold" : ""}
-                        ${block.format?.italic ? "italic" : ""}
-                        ${block.format?.underline ? "underline" : ""}
-                        ${block.format?.fontSize === "large" ? "text-lg" : block.format?.fontSize === "larger" ? "text-xl" : block.format?.fontSize === "largest" ? "text-2xl" : ""}`}
-                    >
-                      {block.format?.selections && block.format.selections.length > 0 ? renderFormattedText(block.value || "", block.format.selections) : block.value || ""}
+                    <div className="relative group">
+                      {/* Share paragraph button visible in all modes */}
+                      <button
+                        onClick={() => handleShareQuote(block.value || "")}
+                        className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 p-1.5 bg-blue-100 dark:bg-blue-900/70 
+                          rounded-full transform -translate-y-1/2 translate-x-1/2 transition-opacity"
+                        aria-label="Share this paragraph"
+                      >
+                        <ShareIcon className="w-4 h-4 text-blue-600 dark:text-blue-300" />
+                      </button>
+
+                      {/* The paragraph itself - simplified event handling */}
+                      <div
+                        onClick={(e) => handleParagraphClick(e, block.value || "")}
+                        className={`leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre-line allow-select
+                          ${isHighlightMode ? "cursor-text hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors p-2 -m-2 rounded relative quote-paragraph" : ""}
+                          ${block.format?.bold ? "font-bold" : ""}
+                          ${block.format?.italic ? "italic" : ""}
+                          ${block.format?.underline ? "underline" : ""}
+                          ${block.format?.fontSize === "large" ? "text-lg" : block.format?.fontSize === "larger" ? "text-xl" : block.format?.fontSize === "largest" ? "text-2xl" : ""}`}
+                      >
+                        {block.format?.selections && block.format.selections.length > 0 ? renderFormattedText(block.value || "", block.format.selections) : block.value || ""}
+                      </div>
                     </div>
                   )}
 
@@ -129,7 +182,13 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
               )}
             </>
           ) : (
-            <div className="leading-relaxed text-neutral-900 dark:text-neutral-100 whitespace-pre-line">{String(post.content)}</div>
+            <div
+              onClick={(e) => handleParagraphClick(e, String(post.content))}
+              className={`leading-relaxed text-neutral-900 dark:text-neutral-100 whitespace-pre-line allow-select
+                ${isHighlightMode ? "cursor-text hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors p-2 -m-2 rounded relative quote-paragraph" : ""}`}
+            >
+              {String(post.content)}
+            </div>
           )}
         </div>
       </motion.div>

@@ -285,3 +285,140 @@ img {
 ::-moz-selection {
   background: transparent;
 }
+
+/* Post content should allow selection - ADD THIS WITH HIGHER SPECIFICITY */
+.post-content ::selection {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: inherit !important;
+}
+.post-content ::-moz-selection {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: inherit !important;
+}
+
+/* Add these stronger text selection overrides */
+.allow-select,
+.allow-select * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  pointer-events: auto !important;
+}
+
+/* Stronger override for post detail page */
+.post-detail-page .prose *,
+.post-content *,
+.allow-select * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  pointer-events: auto !important;
+}
+
+/* Images can still be protected */
+.post-content img,
+.allow-select img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Add this to your global CSS file */
+.select-text,
+.select-text * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+.post-detail-page .select-none {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+/* Quote Mode Styles - Completely revised for better usability */
+
+/* Base styles for elements in quote mode */
+.quote-mode p,
+.quote-mode div.quote-paragraph,
+.quote-card {
+  position: relative;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+/* Hover effect - subtle highlight without overlay */
+.quote-mode p:hover,
+.quote-mode div.quote-paragraph:hover,
+.quote-card:hover {
+  background-color: rgba(59, 130, 246, 0.05); /* Very subtle blue background */
+}
+
+/* Selection style in quote mode */
+.quote-mode ::selection {
+  background: rgba(37, 99, 235, 0.25) !important;
+  color: inherit !important;
+}
+
+.quote-mode ::-moz-selection {
+  background: rgba(37, 99, 235, 0.25) !important;
+  color: inherit !important;
+}
+
+/* Indicator for paragraphs */
+.quote-mode p::before,
+.quote-mode div.quote-paragraph::before {
+  content: "";
+  position: absolute;
+  right: -20px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233b82f6"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke="%233b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-size: contain;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.quote-mode p:hover::before,
+.quote-mode div.quote-paragraph:hover::before {
+  opacity: 0.7;
+}
+
+/* Text cursor in quote mode */
+.quote-mode * {
+  cursor: text !important;
+}
+
+/* Quote mode active indicator */
+.quote-mode-active-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  background-color: rgba(59, 130, 246, 0.9);
+  color: white;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 50;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Remove any potentially problematic tooltip styles */
+.quote-mode p::after,
+.quote-mode div.quote-paragraph::after {
+  display: none;
+}
+
+/* Force outlines to be gone */
+.quote-mode p:focus,
+.quote-mode div.quote-paragraph:focus,
+.quote-mode *:focus {
+  outline: none !important;
+}
