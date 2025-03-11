@@ -52,7 +52,8 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
 
   const handleShare = () => {
     if (selection.text) {
-      onShare(selection.text);
+      // Pass both the selected text and its position to the onShare function
+      onShare(selection.text, selection.position);
       window.getSelection().removeAllRanges();
       setSelection({ text: "", position: { x: 0, y: 0 } });
     }
@@ -61,7 +62,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
   return (
     <>
       <FloatingShareButton isVisible={!!selection.text} position={selection.position} onClick={handleShare} />
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md border border-neutral-200 dark:border-neutral-800 p-6 md:p-8 mb-10">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md border border-neutral-200 dark:border-neutral-800 p-6 md:p-10">
         {post.cover_image && (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }} className="mb-10 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-lg">
             <figure className="overflow-hidden">

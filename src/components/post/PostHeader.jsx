@@ -90,7 +90,7 @@ export default function PostHeader({ post, getReadingTime }) {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="space-y-6">
           {post.category && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-block px-4 py-1.5 rounded-full bg-neutral-200/80 backdrop-blur-sm dark:bg-neutral-800/80 text-neutral-700 dark:text-neutral-300 text-sm font-medium shadow-sm">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-block px-4 py-1.5 rounded-full bg-neutral-200/80 backdrop-blur-sm dark:bg-neutral-800/80 text-neutral-700 dark:text-neutral-300 font-medium text-sm">
               <div className="flex items-center space-x-1.5">
                 <TagIcon className="w-4 h-4" />
                 <span>{post.category}</span>
@@ -102,7 +102,7 @@ export default function PostHeader({ post, getReadingTime }) {
             {post.title}
           </motion.h1>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-neutral-600 dark:text-neutral-400 pt-2">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-neutral-600 dark:text-neutral-400">
             <div className="flex items-center space-x-2">
               <CalendarIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-500" />
               <span>{formatDate(post.publish_date)}</span>

@@ -1,4 +1,4 @@
-export default function FormattedText({ text, format }) {
+export default function FormattedText({ text, format = {} }) {
   const getFontSizeClass = (size) => {
     switch (size) {
       case "large":
