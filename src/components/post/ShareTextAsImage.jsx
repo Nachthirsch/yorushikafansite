@@ -1,15 +1,16 @@
 import { useRef, useEffect, useState } from "react";
-import html2canvas from "html2canvas";
 import { XMarkIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 
 export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTitle }) {
-  const cardRef = useRef(null);
   const [theme, setTheme] = useState("dark"); // dark, light, gradient
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
   const [showSocialOptions, setShowSocialOptions] = useState(false);
   const [error, setError] = useState(null);
+
+  // Create a ref for the canvas element
+  const canvasRef = useRef(null);
 
   // Reset state when modal is opened
   useEffect(() => {
@@ -21,152 +22,84 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     }
   }, [isOpen]);
 
+  // Generate image directly with Canvas API instead of html2canvas
   const generateImage = async () => {
-    if (!cardRef.current) return;
-
     setIsGenerating(true);
     setError(null);
 
     try {
-      // Step 1: Create a clone of the element to manipulate safely
-      const originalElement = cardRef.current;
-      const clone = originalElement.cloneNode(true);
-      clone.style.position = "absolute";
-      clone.style.top = "-9999px";
-      clone.style.left = "-9999px";
-      document.body.appendChild(clone);
+      // Canvas dimensions
+      const width = 560; // Doubled for higher resolution
+      const height = 560; // Doubled for higher resolution
 
-      // Step 2: Apply only basic CSS to the clone (no Tailwind classes)
-      const themeStyles = {
+      // Get canvas context
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+
+      // Set canvas dimensions
+      canvas.width = width;
+      canvas.height = height;
+
+      // Set up theme colors
+      const themeColors = {
         dark: {
-          background: "linear-gradient(to bottom right, #1f2937, #111827)",
-          color: "#ffffff",
+          background: createGradient(ctx, ["#1f2937", "#111827"]),
+          text: "#ffffff",
+          subtext: "#d1d5db",
         },
         light: {
           background: "#ffffff",
-          color: "#1f2937",
+          text: "#1f2937",
+          subtext: "#6b7280",
         },
         gradient: {
-          background: "linear-gradient(to bottom right, #3b82f6, #8b5cf6)",
-          color: "#ffffff",
+          background: createGradient(ctx, ["#3b82f6", "#8b5cf6"]),
+          text: "#ffffff",
+          subtext: "#d1d5db",
         },
       };
 
-      // Apply the theme styles directly
-      const currentTheme = themeStyles[theme];
-      Object.assign(clone.style, {
-        width: "280px",
-        height: "280px",
-        borderRadius: "8px",
-        padding: "20px",
-        fontFamily: "Arial, sans-serif",
-        boxSizing: "border-box",
-        position: "relative",
-        overflow: "hidden",
-        ...currentTheme,
-      });
+      const colors = themeColors[theme];
 
-      // Handle inner elements
-      const children = clone.children;
-      for (let i = 0; i < children.length; i++) {
-        if (children[i].classList.contains("absolute")) {
-          // This is likely the pattern background
-          Object.assign(children[i].style, {
-            position: "absolute",
-            inset: "0px",
-            opacity: "0.1",
-            backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
-            backgroundSize: "10px 10px",
-            backgroundPosition: "0 0",
-          });
-        }
-      }
+      // Draw background
+      ctx.fillStyle = colors.background;
+      ctx.fillRect(0, 0, width, height);
 
-      // Style the content container
-      const contentDiv = clone.querySelector(".flex.flex-col.h-full");
-      if (contentDiv) {
-        Object.assign(contentDiv.style, {
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          justifyContent: "space-between",
-          position: "relative",
-          zIndex: "1",
-        });
+      // Draw pattern
+      drawPattern(ctx, width, height);
 
-        // Style the quote text
-        const quoteDiv = contentDiv.querySelector("div:first-child");
-        if (quoteDiv) {
-          Object.assign(quoteDiv.style, {
-            fontSize: "18px",
-            fontWeight: "500",
-            marginTop: "16px",
-            lineHeight: "1.5",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-          });
-        }
+      // Set text color
+      ctx.fillStyle = colors.text;
 
-        // Style the attribution
-        const attributionDiv = contentDiv.querySelector(".mt-auto");
-        if (attributionDiv) {
-          Object.assign(attributionDiv.style, {
-            marginTop: "auto",
-          });
+      // Draw quote
+      const quoteText = `"${selectedText.length > 280 ? selectedText.substring(0, 280) + "..." : selectedText}"`;
+      drawWrappedText(ctx, quoteText, 40, 80, width - 80, 32, "Arial", "500");
 
-          // Style "From the article" text
-          const fromText = attributionDiv.querySelector("div:first-child");
-          if (fromText) {
-            Object.assign(fromText.style, {
-              fontSize: "14px",
-              marginBottom: "8px",
-              color: theme === "light" ? "#6b7280" : "#d1d5db",
-            });
-          }
+      // Draw "From the article" text
+      ctx.fillStyle = colors.subtext;
+      ctx.font = "24px Arial";
+      ctx.fillText("From the article", 40, height - 100);
 
-          // Style title
-          const titleDiv = attributionDiv.querySelector(".font-medium");
-          if (titleDiv) {
-            Object.assign(titleDiv.style, {
-              fontWeight: "500",
-            });
-          }
+      // Draw title
+      ctx.fillStyle = colors.text;
+      ctx.font = "bold 28px Arial";
+      const titleText = postTitle.length > 40 ? postTitle.substring(0, 40) + "..." : postTitle;
+      ctx.fillText(titleText, 40, height - 60);
 
-          // Style footer text
-          const footerText = attributionDiv.querySelector(".absolute");
-          if (footerText) {
-            Object.assign(footerText.style, {
-              position: "absolute",
-              bottom: "5px",
-              right: "5px",
-              fontSize: "10px",
-              opacity: "0.5",
-            });
-          }
-        }
-      }
+      // Draw website
+      ctx.fillStyle = colors.text;
+      ctx.globalAlpha = 0.5;
+      ctx.font = "20px Arial";
+      ctx.textAlign = "right";
+      ctx.fillText("yorushikafansite.com", width - 40, height - 40);
+      ctx.globalAlpha = 1;
+      ctx.textAlign = "left";
 
-      // Step 3: Wait for styles to apply
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      // Step 4: Use html2canvas with the clone
-      const canvas = await html2canvas(clone, {
-        backgroundColor: null,
-        scale: 3, // Higher resolution
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        removeContainer: false, // We'll remove it manually
-      });
-
-      // Step 5: Clean up - remove the clone
-      document.body.removeChild(clone);
-
-      // Step 6: Generate and use the image
+      // Convert canvas to image
       const image = canvas.toDataURL("image/png");
       setGeneratedImage(image);
 
-      // Step 7: Download
+      // Download the image
       const link = document.createElement("a");
       link.href = image;
       link.download = `yorushika-quote-${Date.now()}.png`;
@@ -174,7 +107,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
       link.click();
       document.body.removeChild(link);
 
-      // Show social sharing options after successful generation
+      // Show social sharing options
       setShowSocialOptions(true);
     } catch (error) {
       console.error("Error generating image:", error);
@@ -184,19 +117,80 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     }
   };
 
-  // Function to get simpler CSS classes for themes that avoid advanced CSS
-  const getThemeClasses = () => {
-    switch (theme) {
-      case "light":
-        return "bg-white text-neutral-800";
-      case "gradient":
-        // Use simple gradient colors that html2canvas can handle
-        return "bg-gradient-to-br from-blue-500 to-purple-500 text-white";
-      case "dark":
-      default:
-        return "bg-gradient-to-br from-gray-800 to-gray-900 text-white";
+  // Helper function to create gradient
+  function createGradient(ctx, colors) {
+    if (colors.length === 1) return colors[0];
+
+    const gradient = ctx.createLinearGradient(0, 0, 560, 560);
+    colors.forEach((color, index) => {
+      gradient.addColorStop(index / (colors.length - 1), color);
+    });
+
+    return gradient;
+  }
+
+  // Helper function to draw pattern
+  function drawPattern(ctx, width, height) {
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    ctx.globalAlpha = 0.1;
+
+    const dotSize = 2;
+    const spacing = 20;
+
+    for (let x = 0; x < width; x += spacing) {
+      for (let y = 0; y < height; y += spacing) {
+        ctx.beginPath();
+        ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
-  };
+
+    ctx.restore();
+  }
+
+  // Helper function to draw wrapped text
+  function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, fontFamily, fontWeight) {
+    // Set the font
+    ctx.font = `${fontWeight} ${lineHeight}px ${fontFamily}`;
+
+    // Split the text into words
+    const words = text.split(" ");
+    let line = "";
+    let lines = [];
+
+    // Create wrapped lines
+    for (let i = 0; i < words.length; i++) {
+      const testLine = line + words[i] + " ";
+      const metrics = ctx.measureText(testLine);
+
+      if (metrics.width > maxWidth && i > 0) {
+        lines.push(line);
+        line = words[i] + " ";
+      } else {
+        line = testLine;
+      }
+    }
+
+    // Push the last line
+    if (line.trim() !== "") {
+      lines.push(line);
+    }
+
+    // Limit to a max of 6 lines to prevent overflow
+    if (lines.length > 6) {
+      lines = lines.slice(0, 6);
+      const lastLine = lines[5].trim();
+      if (lastLine.length > 3) {
+        lines[5] = lastLine.substring(0, lastLine.length - 3) + "...";
+      }
+    }
+
+    // Draw each line
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i].trim(), x, y + i * lineHeight);
+    }
+  }
 
   // Function to share to social media
   const shareToSocial = (platform) => {
@@ -243,6 +237,14 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
 
   if (!isOpen) return null;
 
+  // Calculate preview dimensions based on the theme
+  const previewStyle = {
+    background: theme === "dark" ? "linear-gradient(to bottom right, #1f2937, #111827)" : theme === "gradient" ? "linear-gradient(to bottom right, #3b82f6, #8b5cf6)" : "#ffffff",
+    color: theme === "light" ? "#1f2937" : "#ffffff",
+  };
+
+  const subtextColor = theme === "light" ? "#6b7280" : "#d1d5db";
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none">
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white dark:bg-neutral-800 rounded-xl w-full max-w-md shadow-xl">
@@ -261,16 +263,12 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
             <button onClick={() => setTheme("gradient")} className={`w-8 h-8 rounded-full border-2 ${theme === "gradient" ? "border-blue-500" : "border-transparent"}`} aria-label="Gradient theme" style={{ background: "linear-gradient(to bottom right, #3b82f6, #8b5cf6)" }} />
           </div>
 
-          {/* Preview card that will be captured */}
+          {/* Hidden canvas for image generation */}
+          <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+
+          {/* Preview card that approximates what the image will look like */}
           <div className="flex justify-center" style={{ minHeight: "280px" }}>
-            <div
-              ref={cardRef}
-              className={`relative w-[280px] h-[280px] rounded-lg overflow-hidden p-5 shadow-lg`}
-              style={{
-                background: theme === "dark" ? "linear-gradient(to bottom right, #1f2937, #111827)" : theme === "gradient" ? "linear-gradient(to bottom right, #3b82f6, #8b5cf6)" : "#ffffff",
-                color: theme === "light" ? "#1f2937" : "#ffffff",
-              }}
-            >
+            <div className={`relative w-[280px] h-[280px] rounded-lg overflow-hidden p-5 shadow-lg`} style={previewStyle}>
               {/* Simple pattern background */}
               <div
                 className="absolute inset-0 opacity-10"
@@ -281,17 +279,24 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
               ></div>
 
               <div className="flex flex-col h-full justify-between">
-                {/* Quote */}
-                <div className="text-lg font-medium mt-4 leading-snug overflow-hidden" style={{ wordBreak: "break-word" }}>
-                  "{selectedText.substring(0, 150)}
-                  {selectedText.length > 150 ? "..." : ""}"
+                {/* Quote preview */}
+                <div
+                  className="text-base font-medium mt-2 leading-snug"
+                  style={{
+                    wordBreak: "break-word",
+                    maxHeight: "160px",
+                    overflow: "hidden",
+                  }}
+                >
+                  "{selectedText.substring(0, 200)}
+                  {selectedText.length > 200 ? "..." : ""}"
                 </div>
 
                 {/* Attribution */}
                 <div className="mt-auto">
-                  <div style={{ color: theme === "light" ? "#6b7280" : "#d1d5db", fontSize: "14px", marginBottom: "8px" }}>From the article</div>
-                  <div className="font-medium">{postTitle}</div>
-                  <div className="absolute bottom-5 right-5 text-xs opacity-50">yorushikafansite.com</div>
+                  <div style={{ color: subtextColor, fontSize: "12px", marginBottom: "4px" }}>From the article</div>
+                  <div className="font-medium text-sm">{postTitle}</div>
+                  <div className="absolute bottom-3 right-3 text-xs opacity-50">yorushikafansite.com</div>
                 </div>
               </div>
             </div>
