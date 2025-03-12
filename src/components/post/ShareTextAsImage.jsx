@@ -10,6 +10,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
   const [generatedImage, setGeneratedImage] = useState(null);
   const [showSocialOptions, setShowSocialOptions] = useState(false);
   const [error, setError] = useState(null);
+  const [decoration, setDecoration] = useState("corner"); // corner, border, dots, none
 
   // Additional refs for image generation
   const fullImageRef = useRef(null);
@@ -24,25 +25,34 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     }
   }, [isOpen]);
 
-  // Theme styles configuration
+  // Enhanced theme styles with decorative elements
   const themeStyles = {
     dark: {
       background: "linear-gradient(to bottom right, #1f2937, #111827)",
       color: "#ffffff",
       metaColor: "#d1d5db",
       footerBg: "rgba(255, 255, 255, 0.2)",
+      accentColor: "#60a5fa",
+      borderColor: "rgba(255, 255, 255, 0.1)",
+      quotesColor: "rgba(255, 255, 255, 0.07)",
     },
     light: {
       background: "#ffffff",
       color: "#1f2937",
       metaColor: "#6b7280",
-      footerBg: "rgba(0, 0, 0, 0.1)",
+      footerBg: "rgba(0, 0, 0, 0.05)",
+      accentColor: "#3b82f6",
+      borderColor: "rgba(0, 0, 0, 0.08)",
+      quotesColor: "rgba(0, 0, 0, 0.04)",
     },
     gradient: {
-      background: "linear-gradient(to bottom right, #3b82f6, #8b5cf6)",
+      background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
       color: "#ffffff",
       metaColor: "#e9d5ff",
       footerBg: "rgba(255, 255, 255, 0.2)",
+      accentColor: "#c4b5fd",
+      borderColor: "rgba(255, 255, 255, 0.15)",
+      quotesColor: "rgba(255, 255, 255, 0.1)",
     },
   };
 
@@ -142,6 +152,206 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
   // Get current theme values
   const currentTheme = themeStyles[theme];
 
+  // Render corner decorations based on selected style
+  const renderDecorations = (forPreview = false) => {
+    const size = forPreview ? "20px" : "40px";
+    const thickness = forPreview ? "1px" : "2px";
+    const cornerSize = forPreview ? "10px" : "20px";
+
+    switch (decoration) {
+      case "corner":
+        return (
+          <>
+            <div
+              style={{
+                position: "absolute",
+                top: "16px",
+                left: "16px",
+                width: size,
+                height: size,
+                borderLeft: `${thickness} solid ${currentTheme.accentColor}`,
+                borderTop: `${thickness} solid ${currentTheme.accentColor}`,
+              }}
+            ></div>
+            <div
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                width: size,
+                height: size,
+                borderRight: `${thickness} solid ${currentTheme.accentColor}`,
+                borderTop: `${thickness} solid ${currentTheme.accentColor}`,
+              }}
+            ></div>
+            <div
+              style={{
+                position: "absolute",
+                bottom: "16px",
+                left: "16px",
+                width: size,
+                height: size,
+                borderLeft: `${thickness} solid ${currentTheme.accentColor}`,
+                borderBottom: `${thickness} solid ${currentTheme.accentColor}`,
+              }}
+            ></div>
+            <div
+              style={{
+                position: "absolute",
+                bottom: "16px",
+                right: "16px",
+                width: size,
+                height: size,
+                borderRight: `${thickness} solid ${currentTheme.accentColor}`,
+                borderBottom: `${thickness} solid ${currentTheme.accentColor}`,
+              }}
+            ></div>
+          </>
+        );
+
+      case "border":
+        return (
+          <div
+            style={{
+              position: "absolute",
+              inset: "8px",
+              border: `${thickness} solid ${currentTheme.borderColor}`,
+              borderRadius: forPreview ? "8px" : "10px",
+              pointerEvents: "none",
+            }}
+          ></div>
+        );
+
+      case "dots":
+        // Create dot pattern corners
+        return (
+          <>
+            {/* Top left dots */}
+            <div style={{ position: "absolute", top: "12px", left: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: forPreview ? "3px" : "5px",
+                }}
+              >
+                {[...Array(9)].map((_, i) => (
+                  <div
+                    key={`tl-${i}`}
+                    style={{
+                      width: forPreview ? "2px" : "4px",
+                      height: forPreview ? "2px" : "4px",
+                      borderRadius: "50%",
+                      backgroundColor: i % 2 === 0 ? currentTheme.accentColor : "transparent",
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top right dots */}
+            <div style={{ position: "absolute", top: "12px", right: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: forPreview ? "3px" : "5px",
+                }}
+              >
+                {[...Array(9)].map((_, i) => (
+                  <div
+                    key={`tr-${i}`}
+                    style={{
+                      width: forPreview ? "2px" : "4px",
+                      height: forPreview ? "2px" : "4px",
+                      borderRadius: "50%",
+                      backgroundColor: i % 2 === 0 ? currentTheme.accentColor : "transparent",
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom left dots */}
+            <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: forPreview ? "3px" : "5px",
+                }}
+              >
+                {[...Array(9)].map((_, i) => (
+                  <div
+                    key={`bl-${i}`}
+                    style={{
+                      width: forPreview ? "2px" : "4px",
+                      height: forPreview ? "2px" : "4px",
+                      borderRadius: "50%",
+                      backgroundColor: i % 2 === 0 ? currentTheme.accentColor : "transparent",
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom right dots */}
+            <div style={{ position: "absolute", bottom: "12px", right: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: forPreview ? "3px" : "5px",
+                }}
+              >
+                {[...Array(9)].map((_, i) => (
+                  <div
+                    key={`br-${i}`}
+                    style={{
+                      width: forPreview ? "2px" : "4px",
+                      height: forPreview ? "2px" : "4px",
+                      borderRadius: "50%",
+                      backgroundColor: i % 2 === 0 ? currentTheme.accentColor : "transparent",
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+          </>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  // Render quote decoration
+  const renderQuoteMark = (forPreview = false) => {
+    const fontSize = forPreview ? "60px" : "120px";
+    const positionTop = forPreview ? "10px" : "20px";
+    const positionLeft = forPreview ? "10px" : "20px";
+
+    return (
+      <div
+        style={{
+          position: "absolute",
+          top: positionTop,
+          left: positionLeft,
+          fontSize: fontSize,
+          fontFamily: "Georgia, serif",
+          lineHeight: "1",
+          color: currentTheme.quotesColor,
+          pointerEvents: "none",
+          fontWeight: "bold",
+          zIndex: "0",
+          userSelect: "none",
+        }}
+      >
+        "
+      </div>
+    );
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none">
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white dark:bg-neutral-800 rounded-xl w-full max-w-md shadow-xl overflow-hidden">
@@ -154,10 +364,49 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
 
         <div className="p-6 space-y-6">
           {/* Theme selector */}
-          <div className="flex justify-center space-x-3">
+          <div className="flex justify-center space-x-3 mb-2">
             <button onClick={() => setTheme("dark")} className={`w-8 h-8 rounded-full border-2 ${theme === "dark" ? "border-blue-500" : "border-transparent"}`} aria-label="Dark theme" style={{ background: "linear-gradient(to bottom right, #1f2937, #111827)" }}></button>
             <button onClick={() => setTheme("light")} className={`w-8 h-8 rounded-full border-2 ${theme === "light" ? "border-blue-500" : "border-transparent"}`} aria-label="Light theme" style={{ background: "#ffffff" }}></button>
             <button onClick={() => setTheme("gradient")} className={`w-8 h-8 rounded-full border-2 ${theme === "gradient" ? "border-blue-500" : "border-transparent"}`} aria-label="Gradient theme" style={{ background: "linear-gradient(to bottom right, #3b82f6, #8b5cf6)" }}></button>
+          </div>
+
+          {/* Decoration style selector */}
+          <div className="flex flex-col items-center">
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">Decoration Style:</p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setDecoration("corner")}
+                className={`w-10 h-10 rounded border flex items-center justify-center 
+                  ${decoration === "corner" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
+                aria-label="Corner decoration"
+              >
+                <span className="text-xs">⌜⌝</span>
+              </button>
+              <button
+                onClick={() => setDecoration("border")}
+                className={`w-10 h-10 rounded border flex items-center justify-center 
+                  ${decoration === "border" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
+                aria-label="Border decoration"
+              >
+                <span className="text-xs">□</span>
+              </button>
+              <button
+                onClick={() => setDecoration("dots")}
+                className={`w-10 h-10 rounded border flex items-center justify-center 
+                  ${decoration === "dots" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
+                aria-label="Dots decoration"
+              >
+                <span className="text-xs">⁙⁘</span>
+              </button>
+              <button
+                onClick={() => setDecoration("none")}
+                className={`w-10 h-10 rounded border flex items-center justify-center 
+                  ${decoration === "none" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
+                aria-label="No decoration"
+              >
+                <span className="text-xs">✕</span>
+              </button>
+            </div>
           </div>
 
           {/* Preview card with 16:9 ratio */}
@@ -182,6 +431,10 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                 }}
               ></div>
 
+              {/* Decorative elements */}
+              {renderDecorations(true)}
+              {renderQuoteMark(true)}
+
               <div className="flex flex-col h-full relative z-10">
                 {/* Quote with scrollable area */}
                 <div
@@ -189,6 +442,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                   style={{
                     wordBreak: "break-word",
                     maxHeight: "105px", // Limit height for preview
+                    paddingLeft: decoration === "none" ? "0" : "12px", // Space for quote mark
                   }}
                 >
                   "{selectedText.length > 200 ? `${selectedText.substring(0, 200)}...` : selectedText}"
@@ -207,8 +461,16 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                   </div>
                   <div className="font-medium text-xs truncate pr-12">{postTitle}</div>
 
-                  {/* Website footer with background */}
-                  <div className="absolute bottom-1 right-2 text-[9px] px-2 py-1 rounded-sm bg-black/20 dark:bg-white/20">yorushikafansite.com</div>
+                  {/* Website footer with refined styling */}
+                  <div
+                    className="absolute bottom-2 right-2 text-[9px] px-2 py-1 rounded-sm"
+                    style={{
+                      background: currentTheme.footerBg,
+                      backdropFilter: "blur(4px)",
+                    }}
+                  >
+                    yorushikafansite.com
+                  </div>
                 </div>
               </div>
             </div>
@@ -217,8 +479,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
           {/* Note about output format */}
           <p className="text-xs text-center text-neutral-500 dark:text-neutral-400">Preview shows 16:9 format. Final image will be exported in 9:16 portrait format.</p>
 
-          {/* IMPORTANT: This is the element that will be captured 
-              but not shown to the user (opacity:0) */}
+          {/* HIDDEN: Element that will be captured */}
           <div className="relative" style={{ height: 0, overflow: "hidden" }}>
             <div
               ref={fullImageRef}
@@ -231,6 +492,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                 fontFamily: "Arial, sans-serif",
                 borderRadius: "12px",
                 position: "relative",
+                boxSizing: "border-box",
               }}
             >
               {/* Pattern background */}
@@ -244,6 +506,10 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                   zIndex: "0",
                 }}
               ></div>
+
+              {/* Decorative elements */}
+              {renderDecorations()}
+              {renderQuoteMark()}
 
               {/* Content container */}
               <div
@@ -263,6 +529,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                     lineHeight: "1.5",
                     marginBottom: "24px",
                     wordBreak: "break-word",
+                    paddingLeft: decoration === "none" ? "0" : "24px", // Space for quote mark
                   }}
                 >
                   "{selectedText}"
@@ -293,17 +560,19 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                   </div>
                 </div>
 
-                {/* Website footer */}
+                {/* Website footer with refined styling */}
                 <div
                   style={{
                     position: "absolute",
                     right: "16px",
                     bottom: "16px",
-                    padding: "5px 10px",
+                    padding: "6px 12px",
                     borderRadius: "4px",
                     background: currentTheme.footerBg,
+                    backdropFilter: "blur(4px)",
                     fontSize: "14px",
                     fontWeight: "500",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                   }}
                 >
                   yorushikafansite.com
