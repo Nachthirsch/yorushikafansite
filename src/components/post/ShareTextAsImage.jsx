@@ -11,6 +11,9 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
   const [showSocialOptions, setShowSocialOptions] = useState(false);
   const [error, setError] = useState(null);
 
+  // Additional refs for image generation
+  const fullImageRef = useRef(null);
+
   // Reset state when modal is opened
   useEffect(() => {
     if (isOpen) {
@@ -21,176 +24,68 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     }
   }, [isOpen]);
 
+  // Theme styles configuration
+  const themeStyles = {
+    dark: {
+      background: "linear-gradient(to bottom right, #1f2937, #111827)",
+      color: "#ffffff",
+      metaColor: "#d1d5db",
+      footerBg: "rgba(255, 255, 255, 0.2)",
+    },
+    light: {
+      background: "#ffffff",
+      color: "#1f2937",
+      metaColor: "#6b7280",
+      footerBg: "rgba(0, 0, 0, 0.1)",
+    },
+    gradient: {
+      background: "linear-gradient(to bottom right, #3b82f6, #8b5cf6)",
+      color: "#ffffff",
+      metaColor: "#e9d5ff",
+      footerBg: "rgba(255, 255, 255, 0.2)",
+    },
+  };
+
   const generateImage = async () => {
-    if (!cardRef.current) return;
+    if (!fullImageRef.current) return;
 
     setIsGenerating(true);
     setError(null);
 
     try {
-      // Build a new element from scratch
-      const outputContainer = document.createElement("div");
-      outputContainer.style.position = "absolute";
-      outputContainer.style.top = "-9999px";
-      outputContainer.style.left = "-9999px";
-      document.body.appendChild(outputContainer);
+      // 1. Ensure fonts are loaded first
+      await document.fonts.ready;
 
-      // Set dimensions for 9:16 aspect ratio
-      const baseWidth = 360; // Base width for output
-      const baseHeight = 640; // Base height for 9:16 ratio
-
-      // Theme configuration
-      const themeStyles = {
-        dark: {
-          background: "linear-gradient(to bottom right, #1f2937, #111827)",
-          color: "#ffffff",
-          metaColor: "#d1d5db",
-          footerBg: "rgba(17, 24, 39, 0.7)",
-        },
-        light: {
-          background: "#ffffff",
-          color: "#1f2937",
-          metaColor: "#6b7280",
-          footerBg: "rgba(229, 231, 235, 0.7)",
-        },
-        gradient: {
-          background: "linear-gradient(to bottom right, #3b82f6, #8b5cf6)",
-          color: "#ffffff",
-          metaColor: "#e9d5ff",
-          footerBg: "rgba(91, 33, 182, 0.7)",
-        },
-      };
-
-      const currentTheme = themeStyles[theme];
-
-      // Main container styling
-      outputContainer.style.width = `${baseWidth}px`;
-      outputContainer.style.minHeight = `${baseHeight}px`;
-      outputContainer.style.background = currentTheme.background;
-      outputContainer.style.color = currentTheme.color;
-      outputContainer.style.borderRadius = "12px";
-      outputContainer.style.fontFamily = "Arial, sans-serif";
-      outputContainer.style.boxSizing = "border-box";
-      outputContainer.style.padding = "36px";
-      outputContainer.style.overflow = "hidden";
-
-      // Pattern background
-      const patternBg = document.createElement("div");
-      patternBg.style.position = "absolute";
-      patternBg.style.inset = "0";
-      patternBg.style.opacity = "0.1";
-      patternBg.style.backgroundImage = "radial-gradient(#ffffff 1px, transparent 1px)";
-      patternBg.style.backgroundSize = "12px 12px";
-      patternBg.style.zIndex = "0";
-      outputContainer.appendChild(patternBg);
-
-      // Content wrapper
-      const contentWrapper = document.createElement("div");
-      contentWrapper.style.position = "relative";
-      contentWrapper.style.zIndex = "1";
-      contentWrapper.style.height = "100%";
-      contentWrapper.style.display = "flex";
-      contentWrapper.style.flexDirection = "column";
-      contentWrapper.style.width = "100%";
-      outputContainer.appendChild(contentWrapper);
-
-      // Quote text element
-      const quoteElement = document.createElement("div");
-      // Adjust font size based on text length
-      quoteElement.style.fontSize = selectedText.length > 1000 ? "16px" : selectedText.length > 500 ? "18px" : "22px";
-      quoteElement.style.fontWeight = "500";
-      quoteElement.style.lineHeight = "1.6";
-      quoteElement.style.marginBottom = "36px";
-      quoteElement.style.wordBreak = "break-word";
-      quoteElement.style.overflowWrap = "break-word";
-      quoteElement.textContent = `"${selectedText}"`;
-      contentWrapper.appendChild(quoteElement);
-
-      // Attribution section
-      const attributionContainer = document.createElement("div");
-      attributionContainer.style.marginTop = "auto";
-      attributionContainer.style.paddingTop = "24px";
-      attributionContainer.style.marginBottom = "24px";
-      contentWrapper.appendChild(attributionContainer);
-
-      // "From the article" text
-      const fromLabel = document.createElement("div");
-      fromLabel.style.fontSize = "15px";
-      fromLabel.style.marginBottom = "8px";
-      fromLabel.style.color = currentTheme.metaColor;
-      fromLabel.textContent = "From the article";
-      attributionContainer.appendChild(fromLabel);
-
-      // Article title
-      const titleElement = document.createElement("div");
-      titleElement.style.fontSize = "17px";
-      titleElement.style.fontWeight = "600";
-      titleElement.style.maxWidth = "90%";
-      titleElement.style.whiteSpace = "nowrap";
-      titleElement.style.overflow = "hidden";
-      titleElement.style.textOverflow = "ellipsis";
-      titleElement.textContent = postTitle;
-      attributionContainer.appendChild(titleElement);
-
-      // Website attribution with background
-      const footerWrapper = document.createElement("div");
-      footerWrapper.style.position = "absolute";
-      footerWrapper.style.bottom = "22px";
-      footerWrapper.style.right = "22px";
-      footerWrapper.style.padding = "6px 12px";
-      footerWrapper.style.borderRadius = "6px";
-      footerWrapper.style.background = currentTheme.footerBg;
-      footerWrapper.style.backdropFilter = "blur(4px)";
-      footerWrapper.style.webkitBackdropFilter = "blur(4px)";
-      footerWrapper.style.zIndex = "10";
-      footerWrapper.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
-
-      const footerText = document.createElement("div");
-      footerText.style.fontSize = "14px";
-      footerText.style.fontWeight = "500";
-      footerText.style.opacity = "0.95";
-      footerText.textContent = "yorushikafansite.com";
-      footerWrapper.appendChild(footerText);
-
-      outputContainer.appendChild(footerWrapper);
-
-      // Wait for layout to calculate correct sizes
+      // 2. Wait a bit for any final rendering
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Dynamically adjust height based on content
-      const quoteHeight = quoteElement.scrollHeight;
-      const attributionHeight = attributionContainer.scrollHeight;
-      const requiredContentHeight = quoteHeight + attributionHeight + 150;
-
-      // Set final container height (minimum 9:16 ratio, or taller if needed)
-      const finalHeight = Math.max(baseHeight, requiredContentHeight);
-      outputContainer.style.height = `${finalHeight}px`;
-
-      // Use html-to-image instead of html2canvas
-      const image = await toPng(outputContainer, {
+      // 3. Generate image using html-to-image with optimized settings
+      const dataUrl = await toPng(fullImageRef.current, {
         quality: 0.95,
-        pixelRatio: 3, // Higher resolution
-        fontEmbedCSS: true, // Embed fonts for better rendering
+        pixelRatio: 3,
+        cacheBust: true, // Prevent caching issues
+        includeQueryParams: true, // Include background images
+        fontEmbedCSS: true, // Embed fonts
         skipAutoScale: true,
-        canvasWidth: baseWidth * 3, // Higher resolution
-        canvasHeight: finalHeight * 3,
+        style: {
+          // Override any problematic styles during capture
+          opacity: "1",
+          visibility: "visible",
+        },
       });
 
-      // Clean up
-      document.body.removeChild(outputContainer);
+      // 4. Set generated image and show preview
+      setGeneratedImage(dataUrl);
 
-      // Set generated image
-      setGeneratedImage(image);
-
-      // Download
+      // 5. Download the image
       const link = document.createElement("a");
-      link.href = image;
+      link.href = dataUrl;
       link.download = `yorushika-quote-${Date.now()}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      // Show social sharing options
+      // 6. Show social sharing options
       setShowSocialOptions(true);
     } catch (error) {
       console.error("Error generating image:", error);
@@ -244,6 +139,9 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
 
   if (!isOpen) return null;
 
+  // Get current theme values
+  const currentTheme = themeStyles[theme];
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none">
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white dark:bg-neutral-800 rounded-xl w-full max-w-md shadow-xl overflow-hidden">
@@ -271,8 +169,8 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                 width: "320px",
                 height: "180px", // 16:9 ratio
                 padding: "16px",
-                background: theme === "dark" ? "linear-gradient(to bottom right, #1f2937, #111827)" : theme === "gradient" ? "linear-gradient(to bottom right, #3b82f6, #8b5cf6)" : "#ffffff",
-                color: theme === "light" ? "#1f2937" : "#ffffff",
+                background: currentTheme.background,
+                color: currentTheme.color,
               }}
             >
               {/* Pattern background */}
@@ -300,7 +198,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                 <div className="mt-auto">
                   <div
                     style={{
-                      color: theme === "light" ? "#6b7280" : "#d1d5db",
+                      color: currentTheme.metaColor,
                       fontSize: "10px",
                       marginBottom: "2px",
                     }}
@@ -318,6 +216,109 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
 
           {/* Note about output format */}
           <p className="text-xs text-center text-neutral-500 dark:text-neutral-400">Preview shows 16:9 format. Final image will be exported in 9:16 portrait format.</p>
+
+          {/* IMPORTANT: This is the element that will be captured 
+              but not shown to the user (opacity:0) */}
+          <div className="relative" style={{ height: 0, overflow: "hidden" }}>
+            <div
+              ref={fullImageRef}
+              style={{
+                width: "360px",
+                height: "640px",
+                padding: "32px",
+                background: currentTheme.background,
+                color: currentTheme.color,
+                fontFamily: "Arial, sans-serif",
+                borderRadius: "12px",
+                position: "relative",
+              }}
+            >
+              {/* Pattern background */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: "0",
+                  opacity: "0.1",
+                  backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
+                  backgroundSize: "12px 12px",
+                  zIndex: "0",
+                }}
+              ></div>
+
+              {/* Content container */}
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: "1",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                {/* Quote text - full version */}
+                <div
+                  style={{
+                    fontSize: selectedText.length > 500 ? "18px" : "22px",
+                    fontWeight: "500",
+                    lineHeight: "1.5",
+                    marginBottom: "24px",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  "{selectedText}"
+                </div>
+
+                {/* Attribution at bottom */}
+                <div style={{ marginTop: "auto", paddingTop: "24px" }}>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      marginBottom: "8px",
+                      color: currentTheme.metaColor,
+                    }}
+                  >
+                    From the article
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      maxWidth: "85%",
+                    }}
+                  >
+                    {postTitle}
+                  </div>
+                </div>
+
+                {/* Website footer */}
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "16px",
+                    bottom: "16px",
+                    padding: "5px 10px",
+                    borderRadius: "4px",
+                    background: currentTheme.footerBg,
+                    fontSize: "14px",
+                    fontWeight: "500",
+                  }}
+                >
+                  yorushikafansite.com
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Image preview after generation */}
+          {generatedImage && (
+            <div className="mt-4 flex flex-col items-center">
+              <p className="text-sm text-center text-neutral-500 dark:text-neutral-400 mb-2">Generated Image:</p>
+              <img src={generatedImage} alt="Generated quote" className="max-h-[200px] rounded-md shadow-md border border-neutral-200 dark:border-neutral-700" />
+            </div>
+          )}
 
           {/* Error message */}
           {error && (
