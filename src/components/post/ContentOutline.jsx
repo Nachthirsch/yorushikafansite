@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronDownIcon, ChevronUpIcon, ListIcon } from "lucide-react";
 
 export default function ContentOutline({ post, contentPage, sectionsPerPage, navigateToContentPage }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [sectionIDs, setSectionIDs] = useState({});
+  const [hasOverflow, setHasOverflow] = useState(false);
+  const listRef = useRef(null);
 
   /// Efek untuk membangun peta ID dari judul bagian
   useEffect(() => {
@@ -51,6 +53,14 @@ export default function ContentOutline({ post, contentPage, sectionsPerPage, nav
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [post, sectionIDs]);
+
+  /// Efek untuk mendeteksi apakah daftar konten memiliki overflow
+  useEffect(() => {
+    if (isExpanded && listRef.current) {
+      const hasVerticalOverflow = listRef.current.scrollHeight > listRef.current.clientHeight;
+      setHasOverflow(hasVerticalOverflow);
+    }
+  }, [isExpanded, post]);
 
   /// Toggle tampilan daftar konten
   const toggleExpand = () => {
@@ -123,6 +133,16 @@ export default function ContentOutline({ post, contentPage, sectionsPerPage, nav
     return null;
   }
 
+  /// Menghitung tinggi maksimum untuk daftar konten berdasarkan jumlah item
+  const getMaxHeight = () => {
+    // Asumsi tinggi per item sekitar 44px (py-2 + text + padding)
+    const itemCount = sectionsWithTitles.length;
+    // Gunakan tinggi otomatis untuk 5 item pertama, lalu batasi jika lebih banyak
+    const baseHeight = Math.min(itemCount, 5) * 44;
+    // Jika banyaknya item lebih dari 5, tambahkan ruang untuk scrollbar
+    return itemCount > 5 ? `${baseHeight}px` : "auto";
+  };
+
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-white dark:bg-neutral-900 rounded-xl shadow-md border border-neutral-200 dark:border-neutral-800 mb-8">
       {/* Header daftar konten dengan tombol toggle */}
@@ -140,40 +160,50 @@ export default function ContentOutline({ post, contentPage, sectionsPerPage, nav
 
       {/* Daftar konten - hanya ditampilkan saat expanded */}
       {isExpanded && (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="px-4 pb-4">
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="px-4 pb-4 relative">
           <div className="border-t border-neutral-200 dark:border-neutral-800 pt-2">
-            <ul className="space-y-1 mt-2">
-              {sectionsWithTitles.map((section, index) => {
-                const originalIndex = post.content.indexOf(section);
+            {/* Container dengan scroll untuk daftar konten */}
+            <div ref={listRef} className="space-y-1 mt-2 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 scrollbar-track-transparent pr-1" style={{ maxHeight: getMaxHeight() }}>
+              <ul className="space-y-1">
+                {sectionsWithTitles.map((section, index) => {
+                  const originalIndex = post.content.indexOf(section);
 
-                // Menentukan apakah bagian ini aktif
-                const isActive = index === activeSection;
+                  // Menentukan apakah bagian ini aktif
+                  const isActive = index === activeSection;
 
-                // Menentukan halaman tempat bagian ini berada
-                const sectionPage = Math.floor(originalIndex / sectionsPerPage) + 1;
+                  // Menentukan halaman tempat bagian ini berada
+                  const sectionPage = Math.floor(originalIndex / sectionsPerPage) + 1;
 
-                return (
-                  <li key={originalIndex}>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault(); // Mencegah perilaku default
-                        e.stopPropagation(); // Mencegah bubbling event
-                        scrollToSection(originalIndex);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between
-                        ${isActive ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium" : "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300"}`}
-                      aria-current={isActive ? "location" : undefined}
-                      data-section-index={originalIndex}
-                      data-section-title={section.title}
-                      data-section-page={sectionPage}
-                    >
-                      <span className="line-clamp-1">{section.title}</span>
-                      {contentPage !== sectionPage && <span className="text-xs bg-neutral-200 dark:bg-neutral-700 px-2 py-0.5 rounded-full ml-2 flex-shrink-0">Page {sectionPage}</span>}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+                  return (
+                    <li key={originalIndex}>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault(); // Mencegah perilaku default
+                          e.stopPropagation(); // Mencegah bubbling event
+                          scrollToSection(originalIndex);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between
+                          ${isActive ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium" : "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300"}`}
+                        aria-current={isActive ? "location" : undefined}
+                        data-section-index={originalIndex}
+                        data-section-title={section.title}
+                        data-section-page={sectionPage}
+                      >
+                        <span className="line-clamp-1">{section.title}</span>
+                        {contentPage !== sectionPage && <span className="text-xs bg-neutral-200 dark:bg-neutral-700 px-2 py-0.5 rounded-full ml-2 flex-shrink-0">Page {sectionPage}</span>}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Indikator scroll jika daftar memiliki overflow */}
+            {hasOverflow && (
+              <div className="flex justify-center mt-2">
+                <div className="w-10 h-1 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+              </div>
+            )}
           </div>
         </motion.div>
       )}

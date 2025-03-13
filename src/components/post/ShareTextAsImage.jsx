@@ -1,21 +1,90 @@
 import { useRef, useEffect, useState } from "react";
 import { toPng } from "html-to-image";
-import { XMarkIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
-import { Download, Twitter, Facebook, Instagram } from "lucide-react"; // Menggunakan Lucide React untuk icons
+import { Download, Twitter, Facebook, Instagram, Type } from "lucide-react"; // Menambahkan ikon Type untuk bagian pemilihan font
 
 export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTitle }) {
   const cardRef = useRef(null);
-  // Mengganti default theme dengan neutralLight yang valid
+  const fullImageRef = useRef(null);
+
+  // State untuk konfigurasi gambar
   const [theme, setTheme] = useState("neutralLight");
   const [background, setBackground] = useState("gradient");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
   const [showSocialOptions, setShowSocialOptions] = useState(false);
   const [error, setError] = useState(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
 
-  // Additional refs for image generation
-  const fullImageRef = useRef(null);
+  // State untuk pemilihan font
+  const [selectedFont, setSelectedFont] = useState("inter");
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  /// Daftar font estetik yang tersedia
+  const fontOptions = [
+    { id: "inter", name: "Inter", style: "'Inter', system-ui, sans-serif", preview: "Modern", weights: [400, 500, 600] },
+    { id: "playfair", name: "Playfair", style: "'Playfair Display', serif", preview: "Elegant", weights: [400, 500, 700] },
+    { id: "montserrat", name: "Montserrat", style: "'Montserrat', sans-serif", preview: "Clean", weights: [400, 500, 600] },
+    { id: "cormorant", name: "Cormorant", style: "'Cormorant Garamond', serif", preview: "Classic", weights: [400, 500] },
+    { id: "karla", name: "Karla", style: "'Karla', sans-serif", preview: "Friendly", weights: [400, 500, 600] },
+  ];
+
+  /// Deteksi apakah perangkat adalah mobile untuk mengoptimalkan UI
+  useEffect(() => {
+    const checkIfMobile = () => {
+      // Menggunakan kombinasi dari user agent dan ukuran layar untuk deteksi mobile
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+      setIsMobileDevice(isMobile);
+    };
+
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
+
+  /// Effect untuk memuat Google Fonts
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Hapus link sebelumnya jika ada
+    const existingLink = document.getElementById("quote-google-fonts");
+    if (existingLink) {
+      existingLink.remove();
+    }
+
+    // Menyusun string untuk memuat font
+    const fontFamiliesParam = fontOptions
+      .map((font) => {
+        const weights = font.weights.join(",");
+        return `${font.name.replace(/\s+/g, "+")}:wght@${weights}`;
+      })
+      .join("&family=");
+
+    // Membuat link element untuk Google Fonts
+    const linkElement = document.createElement("link");
+    linkElement.rel = "stylesheet";
+    linkElement.href = `https://fonts.googleapis.com/css2?family=${fontFamiliesParam}&display=swap`;
+    linkElement.id = "quote-google-fonts";
+
+    // Menambahkan link ke document head
+    document.head.appendChild(linkElement);
+
+    // Menunggu font selesai dimuat
+    document.fonts.ready.then(() => {
+      console.log("Fonts loaded successfully");
+      setFontsLoaded(true);
+    });
+
+    return () => {
+      // Clean up - hapus link elemen saat komponen unmount
+      const fontLink = document.getElementById("quote-google-fonts");
+      if (fontLink) {
+        document.head.removeChild(fontLink);
+      }
+    };
+  }, [isOpen]);
 
   // Reset state when modal is opened
   useEffect(() => {
@@ -27,66 +96,72 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     }
   }, [isOpen]);
 
-  // Minimalistic decorative theme styles dengan pallete warna neutral
+  /// Mendapatkan font style yang aktif
+  const getActiveFont = () => {
+    const font = fontOptions.find((font) => font.id === selectedFont);
+    return font ? font.style : fontOptions[0].style;
+  };
+
+  // Minimalistic decorative theme styles dengan font yang dipilih
   const themeStyles = {
     neutralLight: {
       background: "#FFFFFF",
       mainColor: "#2C2C2C",
-      accentColor: "#8A8A8A", // abu-abu medium
-      secondAccent: "#E2E2E2", // abu-abu terang
-      thirdAccent: "#F7F7F7", // hampir putih
-      fontMain: "'Inter', system-ui, sans-serif",
-      fontAccent: "'Inter', system-ui, sans-serif",
+      accentColor: "#8A8A8A",
+      secondAccent: "#E2E2E2",
+      thirdAccent: "#F7F7F7",
+      fontMain: getActiveFont(),
+      fontAccent: getActiveFont(),
       quoteStyle: "normal",
       decoration: "minimal",
     },
     neutralDark: {
       background: "#1A1A1A",
       mainColor: "#E8E8E8",
-      accentColor: "#9E9E9E", // abu-abu medium
-      secondAccent: "#555555", // abu-abu gelap
-      thirdAccent: "#333333", // abu-abu sangat gelap
-      fontMain: "'Inter', system-ui, sans-serif",
-      fontAccent: "'Inter', system-ui, sans-serif",
+      accentColor: "#9E9E9E",
+      secondAccent: "#555555",
+      thirdAccent: "#333333",
+      fontMain: getActiveFont(),
+      fontAccent: getActiveFont(),
       quoteStyle: "normal",
       decoration: "dot",
     },
     sandstone: {
       background: "#F6F4F0",
       mainColor: "#3A3A3A",
-      accentColor: "#A8A295", // taupe medium
-      secondAccent: "#D8D4CD", // taupe terang
-      thirdAccent: "#EEEAE4", // taupe sangat terang
-      fontMain: "'DM Sans', system-ui, sans-serif",
-      fontAccent: "'DM Serif Display', Georgia, serif",
+      accentColor: "#A8A295",
+      secondAccent: "#D8D4CD",
+      thirdAccent: "#EEEAE4",
+      fontMain: getActiveFont(),
+      fontAccent: getActiveFont(),
       quoteStyle: "italic",
       decoration: "line",
     },
     chalk: {
       background: "#F9F9F7",
       mainColor: "#2F2F2F",
-      accentColor: "#ADADAD", // abu-abu chalk
-      secondAccent: "#E5E5E3", // abu-abu chalk terang
-      thirdAccent: "#F0F0EE", // abu-abu chalk sangat terang
-      fontMain: "'Spectral', Georgia, serif",
-      fontAccent: "'Spectral', Georgia, serif",
+      accentColor: "#ADADAD",
+      secondAccent: "#E5E5E3",
+      thirdAccent: "#F0F0EE",
+      fontMain: getActiveFont(),
+      fontAccent: getActiveFont(),
       quoteStyle: "normal",
       decoration: "frame",
     },
     slate: {
       background: "#EAEDF0",
       mainColor: "#2D3339",
-      accentColor: "#8B95A0", // slate medium
-      secondAccent: "#C4CCD4", // slate terang
-      thirdAccent: "#DFE3E8", // slate sangat terang
-      fontMain: "'Sora', sans-serif",
-      fontAccent: "'Sora', sans-serif",
+      accentColor: "#8B95A0",
+      secondAccent: "#C4CCD4",
+      thirdAccent: "#DFE3E8",
+      fontMain: getActiveFont(),
+      fontAccent: getActiveFont(),
       quoteStyle: "normal",
       decoration: "corner",
     },
   };
 
-  const currentTheme = themeStyles[theme] || themeStyles.neutralLight; // Menambahkan fallback untuk menghindari undefined
+  const currentTheme = themeStyles[theme] || themeStyles.neutralLight;
 
   // Background styles dengan variasi netral
   const backgroundStyles = {
@@ -117,6 +192,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     },
   };
 
+  /// Generator gambar dengan dukungan font
   const generateImage = async () => {
     if (!fullImageRef.current) return;
 
@@ -124,31 +200,40 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     setError(null);
 
     try {
-      // 1. Ensure fonts are loaded first
-      await document.fonts.ready;
+      // 1. Memastikan font sudah dimuat
+      if (!fontsLoaded) {
+        await document.fonts.ready;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
 
-      // 2. Wait a bit for any final rendering
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // 2. Menerapkan font secara eksplisit ke elemen
+      const currentFont = getActiveFont();
+      const textElements = fullImageRef.current.querySelectorAll(".font-apply");
+      textElements.forEach((el) => {
+        el.style.fontFamily = currentFont;
+      });
 
-      // 3. Generate image using html-to-image with optimized settings
+      // 3. Menunggu sebentar untuk memastikan rendering sempurna
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      // 4. Generate image dengan pengaturan terbaik untuk font
       const dataUrl = await toPng(fullImageRef.current, {
         quality: 0.95,
         pixelRatio: 3,
-        cacheBust: true, // Prevent caching issues
-        includeQueryParams: true, // Include background images
-        fontEmbedCSS: true, // Embed fonts
+        cacheBust: true,
+        includeQueryParams: true,
+        fontEmbedCSS: document.styleSheets,
         skipAutoScale: true,
         style: {
-          // Override any problematic styles during capture
           opacity: "1",
           visibility: "visible",
         },
       });
 
-      // 4. Set generated image and show preview
+      // 5. Set generated image and show preview
       setGeneratedImage(dataUrl);
 
-      // 5. Download the image
+      // 6. Download the image
       const link = document.createElement("a");
       link.href = dataUrl;
       link.download = `quote-${Date.now()}.png`;
@@ -156,7 +241,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
       link.click();
       document.body.removeChild(link);
 
-      // 6. Show social sharing options
+      // 7. Show social sharing options
       setShowSocialOptions(true);
     } catch (error) {
       console.error("Error generating image:", error);
@@ -209,8 +294,6 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-
-  // Get current theme values
 
   // Get background style based on theme and background type
   const getBackgroundStyle = (forPreview = false) => {
@@ -457,24 +540,60 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none">
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white dark:bg-neutral-800 rounded-xl w-full max-w-md shadow-xl overflow-hidden">
-        <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 select-none">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white dark:bg-neutral-800 rounded-xl w-full max-w-md shadow-xl overflow-hidden" style={{ maxHeight: isMobileDevice ? "90vh" : "85vh" }}>
+        {/* Header Modal */}
+        <div className="p-3 sm:p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center sticky top-0 bg-white dark:bg-neutral-800 z-10">
           <h3 className="font-medium text-neutral-900 dark:text-neutral-100">Share Quote Image</h3>
-          <button onClick={onClose} className="p-1 rounded-full text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300">
+          <button onClick={onClose} className="p-2 rounded-full text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300" aria-label="Close modal">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
-          {/* Theme selector */}
+        {/* Konten dengan scroll jika terlalu panjang di mobile */}
+        <div className="overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6" style={{ maxHeight: "calc(90vh - 60px)" }}>
+          {/* Font selector - ditambahkan di awal sebelum theme selector */}
+          <div>
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Type size={16} className="text-neutral-500 dark:text-neutral-400" />
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Font Style:</p>
+            </div>
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 mb-1">
+              {fontOptions.map((font) => (
+                <button
+                  key={font.id}
+                  onClick={() => setSelectedFont(font.id)}
+                  className={`px-3 py-2 rounded text-sm border transition-all ${selectedFont === font.id ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 shadow-sm" : "border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800"}`}
+                  style={{
+                    fontFamily: font.style,
+                    minHeight: "42px",
+                    minWidth: isMobileDevice ? "100%" : "auto",
+                  }}
+                  aria-label={`Select ${font.name} font`}
+                >
+                  <span className="block text-center">
+                    {font.name}
+                    <span className="block text-[10px] opacity-60">{font.preview}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="text-center text-[10px] text-neutral-500 dark:text-neutral-400 mt-1">
+              Selected Font:{" "}
+              <span className="font-medium" style={{ fontFamily: getActiveFont() }}>
+                {fontOptions.find((f) => f.id === selectedFont)?.name || "Inter"}
+              </span>
+            </div>
+          </div>
+
+          {/* Theme selector dengan grid layout untuk layar kecil */}
           <div>
             <p className="text-xs text-center text-neutral-500 dark:text-neutral-400 mb-2">Card Style:</p>
-            <div className="flex justify-center space-x-3 mb-4">
-              {/* Neutral Light theme preview */}
+            <div className="flex flex-wrap justify-center gap-3 mb-4">
+              {/* Tombol-tombol tema dengan ukuran yang lebih besar untuk mobile */}
               <button
                 onClick={() => setTheme("neutralLight")}
-                className={`w-12 h-12 rounded flex items-center justify-center border-2 ${theme === "neutralLight" ? "border-neutral-600" : "border-neutral-300"}`}
+                className={`w-14 h-14 sm:w-12 sm:h-12 rounded flex items-center justify-center border-2 ${theme === "neutralLight" ? "border-neutral-600" : "border-neutral-300"}`}
                 aria-label="Neutral Light style"
                 style={{
                   background: "#FFFFFF",
@@ -490,7 +609,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
               {/* Neutral Dark theme preview */}
               <button
                 onClick={() => setTheme("neutralDark")}
-                className={`w-12 h-12 rounded flex items-center justify-center border-2 ${theme === "neutralDark" ? "border-neutral-600" : "border-neutral-300"}`}
+                className={`w-14 h-14 sm:w-12 sm:h-12 rounded flex items-center justify-center border-2 ${theme === "neutralDark" ? "border-neutral-600" : "border-neutral-300"}`}
                 aria-label="Neutral Dark style"
                 style={{
                   background: "#1A1A1A",
@@ -516,7 +635,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
               {/* Sandstone theme preview */}
               <button
                 onClick={() => setTheme("sandstone")}
-                className={`w-12 h-12 rounded flex items-center justify-center border-2 ${theme === "sandstone" ? "border-neutral-600" : "border-neutral-300"}`}
+                className={`w-14 h-14 sm:w-12 sm:h-12 rounded flex items-center justify-center border-2 ${theme === "sandstone" ? "border-neutral-600" : "border-neutral-300"}`}
                 aria-label="Sandstone style"
                 style={{
                   background: "#F6F4F0",
@@ -532,7 +651,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
               {/* Chalk theme preview */}
               <button
                 onClick={() => setTheme("chalk")}
-                className={`w-12 h-12 rounded flex items-center justify-center border-2 ${theme === "chalk" ? "border-neutral-600" : "border-neutral-300"}`}
+                className={`w-14 h-14 sm:w-12 sm:h-12 rounded flex items-center justify-center border-2 ${theme === "chalk" ? "border-neutral-600" : "border-neutral-300"}`}
                 aria-label="Chalk style"
                 style={{
                   background: "#F9F9F7",
@@ -547,7 +666,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
               {/* Slate theme preview */}
               <button
                 onClick={() => setTheme("slate")}
-                className={`w-12 h-12 rounded flex items-center justify-center border-2 ${theme === "slate" ? "border-neutral-600" : "border-neutral-300"}`}
+                className={`w-14 h-14 sm:w-12 sm:h-12 rounded flex items-center justify-center border-2 ${theme === "slate" ? "border-neutral-600" : "border-neutral-300"}`}
                 aria-label="Slate style"
                 style={{
                   background: "#EAEDF0",
@@ -564,13 +683,13 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
             </div>
           </div>
 
-          {/* Background selector */}
+          {/* Background selector dengan ukuran yang lebih besar untuk mobile */}
           <div>
             <p className="text-xs text-center text-neutral-500 dark:text-neutral-400 mb-2">Background Style:</p>
-            <div className="flex justify-center space-x-3">
+            <div className="flex justify-center gap-4">
               <button
                 onClick={() => setBackground("gradient")}
-                className={`w-10 h-10 rounded border flex items-center justify-center 
+                className={`w-12 h-12 sm:w-10 sm:h-10 rounded border flex items-center justify-center 
                   ${background === "gradient" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
                 aria-label="Gradient Background"
                 style={{
@@ -580,7 +699,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
               ></button>
               <button
                 onClick={() => setBackground("solid")}
-                className={`w-10 h-10 rounded border flex items-center justify-center 
+                className={`w-12 h-12 sm:w-10 sm:h-10 rounded border flex items-center justify-center 
                   ${background === "solid" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
                 aria-label="Solid Background"
                 style={{
@@ -589,7 +708,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
               ></button>
               <button
                 onClick={() => setBackground("blur")}
-                className={`w-10 h-10 rounded border flex items-center justify-center 
+                className={`w-12 h-12 sm:w-10 sm:h-10 rounded border flex items-center justify-center 
                   ${background === "blur" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
                 aria-label="Blur Background"
                 style={{
@@ -608,7 +727,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
 
               <button
                 onClick={() => setBackground("pattern")}
-                className={`w-10 h-10 rounded border flex items-center justify-center 
+                className={`w-12 h-12 sm:w-10 sm:h-10 rounded border flex items-center justify-center 
                   ${background === "pattern" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
                 aria-label="Pattern Background"
                 style={{
@@ -619,15 +738,13 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
             </div>
           </div>
 
-          {/* Preview card dengan aspek 16:9 dalam container 9:16 */}
-
-          {/* Preview card dengan ukuran dinamis */}
+          {/* Preview card dengan ukuran yang responsif */}
           <div className="flex justify-center">
             <div
               className="relative rounded-lg overflow-hidden shadow-lg"
               style={{
-                width: "180px", // Preview scaled down dari 360px
-                height: "320px", // Container tetap 9:16
+                width: isMobileDevice ? "200px" : "180px", // Sedikit lebih besar pada mobile
+                height: isMobileDevice ? "356px" : "320px", // Tetap proporsi 9:16
                 ...getBackgroundStyle(true),
               }}
             >
@@ -636,12 +753,13 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                 ref={cardRef}
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 shadow-md rounded"
                 style={{
-                  width: "160px", // Lebar tetap
-                  height: "90px", // Tinggi tetap untuk preview
+                  width: isMobileDevice ? "180px" : "160px", // Sedikit lebih besar pada mobile
+                  height: isMobileDevice ? "101px" : "90px", // Tetap proporsi 16:9
                   background: currentTheme.background,
                   color: currentTheme.mainColor,
                   fontFamily: currentTheme.fontMain,
                   overflow: "hidden",
+                  position: "relative", // Pastikan position relative agar absolute positioning bekerja dengan benar
                 }}
               >
                 {/* Elemen dekoratif */}
@@ -649,38 +767,43 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                 {renderQuoteMarks(true)}
 
                 {/* Container konten */}
-                <div className="flex flex-col h-full p-2 relative z-2">
-                  {/* Teks kutipan dengan indikasi terpotong */}
+                <div className="h-full w-full" style={{ padding: "5px" }}>
+                  {/* Teks kutipan dengan indikasi terpotong dan font yang dipilih */}
                   <div
                     style={{
-                      marginTop: "5px",
-                      marginLeft: "5px",
-                      marginRight: "5px",
-                      fontSize: "7px",
+                      fontSize: isMobileDevice ? "8px" : "7px", // Sedikit lebih besar pada mobile
                       fontWeight: "500",
                       fontStyle: currentTheme.quoteStyle,
                       lineHeight: "1.5",
-                      maxHeight: "45px",
+                      maxHeight: isMobileDevice ? "55px" : "50px",
                       overflow: "hidden",
+                      fontFamily: getActiveFont(), // Menggunakan font yang dipilih
                     }}
+                    className="font-apply"
                   >
                     "{selectedText.length > 80 ? `${selectedText.substring(0, 80)}...` : selectedText}"
                   </div>
 
-                  {/* Atribusi - dipindahkan dari position: absolute ke relative positioning */}
-                  <div className="mt-auto">
-                    <div
-                      style={{
-                        fontSize: "5px",
-                        marginTop: "5px",
-                        textAlign: "right",
-                        color: currentTheme.accentColor,
-                        paddingRight: "5px",
-                        letterSpacing: "0.02em",
-                      }}
-                    >
-                      {postTitle.length > 20 ? `${postTitle.substring(0, 20)}...` : postTitle}
-                    </div>
+                  {/* Atribusi sebagai elemen absolut pada posisi yang sama dengan output */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "6px", // Posisi dari bawah card
+                      right: "8px", // Posisi dari kanan card
+                      fontSize: isMobileDevice ? "6px" : "5px", // Sedikit lebih besar pada mobile
+                      fontStyle: "italic",
+                      textAlign: "right",
+                      color: currentTheme.accentColor,
+                      letterSpacing: "0.02em",
+                      maxWidth: "80%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      fontFamily: getActiveFont(), // Menggunakan font yang dipilih
+                    }}
+                    className="font-apply"
+                  >
+                    {postTitle.length > 20 ? `${postTitle.substring(0, 20)}...` : postTitle}
                   </div>
                 </div>
               </div>
@@ -697,7 +820,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                     background: "rgba(30,30,30,0.7)",
                     color: "#fff",
                     borderRadius: "4px",
-                    fontSize: "5px",
+                    fontSize: isMobileDevice ? "6px" : "5px", // Sedikit lebih besar pada mobile
                     fontWeight: "500",
                     textAlign: "center",
                     backdropFilter: "blur(2px)",
@@ -724,56 +847,43 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                 justifyContent: "center",
               }}
             >
-              {/* Card dengan ukuran dinamis berdasarkan konten */}
+              {/* Card dengan struktur yang sama persis dengan preview dan font konsisten */}
               <div
                 style={{
                   width: "320px", // Lebar tetap
-                  minHeight: "180px", // Tinggi minimum (16:9 ratio)
-                  maxHeight: "480px", // Tinggi maksimum agar tidak terlalu panjang
+                  position: "relative",
                   background: currentTheme.background,
                   color: currentTheme.mainColor,
-                  fontFamily: currentTheme.fontMain,
+                  fontFamily: getActiveFont(),
                   boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
                   borderRadius: "6px",
-                  position: "relative",
                   overflow: "visible", // Penting! Memungkinkan konten mengatur tinggi
-                  paddingBottom: "40px", // Tambahkan ruang lebih untuk judul post
                 }}
               >
                 {/* Elemen dekoratif */}
                 {renderDecorations()}
                 {renderQuoteMarks()}
 
-                {/* Container konten dengan tinggi yang dapat menyesuaikan */}
-                <div
-                  style={{
-                    padding: "20px",
-                    paddingBottom: "0", // Kurangi padding bawah
-                    position: "relative",
-                    zIndex: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  {/* Konten kutipan tanpa batasan tinggi */}
+                {/* Container konten tanpa height yang dapat menyesuaikan, gunakan padding yang sama */}
+                <div className="w-full" style={{ padding: "20px" }}>
+                  {/* Konten kutipan dengan font yang dipilih */}
                   <div
                     style={{
                       fontSize: selectedText.length > 150 ? "14px" : "15px",
                       fontWeight: "400",
                       lineHeight: "1.6",
-                      marginTop: "8px",
-                      marginLeft: "10px",
-                      marginRight: "10px",
                       fontStyle: currentTheme.quoteStyle,
                       letterSpacing: "0.01em",
                       wordWrap: "break-word", // Untuk menangani kata panjang
-                      marginBottom: "20px", // Tambahkan margin bawah untuk jarak dengan judul
+                      paddingBottom: "30px", // Padding untuk memberikan ruang di bawah teks
+                      fontFamily: getActiveFont(), // Menggunakan font yang dipilih
                     }}
+                    className="font-apply"
                   >
                     "{selectedText}"
                   </div>
 
-                  {/* Atribusi */}
+                  {/* Atribusi dengan font yang dipilih */}
                   <div
                     style={{
                       position: "absolute",
@@ -781,26 +891,26 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                       right: "12px", // Posisi dari kanan card
                       fontSize: "10px",
                       fontWeight: "500",
+                      fontStyle: "italic",
                       color: currentTheme.accentColor,
                       letterSpacing: "0.02em",
                       opacity: 0.8,
-                      zIndex: 20, // Pastikan z-index lebih tinggi
-                      fontStyle: "italic",
                       maxWidth: "80%",
                       textAlign: "right",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      padding: "0", // Reset padding
-                      margin: "0", // Reset margin
+                      zIndex: 20, // Pastikan z-index lebih tinggi
+                      fontFamily: getActiveFont(), // Menggunakan font yang dipilih
                     }}
+                    className="font-apply"
                   >
                     {postTitle}
                   </div>
                 </div>
               </div>
 
-              {/* Watermark dipindahkan ke pojok kanan bawah gambar */}
+              {/* Watermark di pojok kanan bawah */}
               <div
                 style={{
                   position: "absolute",
@@ -817,56 +927,59 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
               </div>
             </div>
           </div>
+
           {/* Image preview setelah di-generate */}
           {generatedImage && (
             <div className="mt-4 flex flex-col items-center">
               <p className="text-sm text-center text-neutral-500 dark:text-neutral-400 mb-2">Generated Image:</p>
-              <img src={generatedImage} alt="Generated quote" className="max-h-[200px] rounded-md shadow-md border border-neutral-200 dark:border-neutral-700" />
+              <img src={generatedImage} alt="Generated quote" className="max-h-[180px] sm:max-h-[200px] w-auto max-w-full rounded-md shadow-md border border-neutral-200 dark:border-neutral-700" style={{ touchAction: "manipulation" }} onContextMenu={(e) => e.preventDefault()} />
             </div>
           )}
 
           {/* Error message */}
           {error && (
-            <div className="text-red-500 text-sm text-center p-2 bg-red-50 dark:bg-red-900/20 rounded-md">
+            <div className="text-red-500 text-sm text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-md">
               {error}
-              <button className="ml-2 underline text-red-600 dark:text-red-400" onClick={() => setError(null)}>
+              <button className="ml-2 underline text-red-600 dark:text-red-400 py-2 px-3 mt-1" onClick={() => setError(null)} style={{ minHeight: "40px", display: "inline-block" }}>
                 Dismiss
               </button>
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex flex-col space-y-3">
+          {/* Actions - tombol-tombol */}
+          <div className="flex flex-col space-y-4 pt-1">
             {/* Tombol download */}
             <button
               onClick={generateImage}
               disabled={isGenerating}
-              className={`px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg 
+              className={`px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg 
                 transition-colors font-medium flex items-center justify-center 
+                min-h-[52px] text-base
                 ${isGenerating ? "opacity-70 cursor-not-allowed" : ""}`}
+              style={{ touchAction: "manipulation" }}
             >
-              <Download className="w-5 h-5 mr-2" /> {/* Menggunakan Lucide icon */}
+              <Download className="w-5 h-5 mr-2" />
               {isGenerating ? "Generating..." : "Download Image"}
             </button>
 
             {/* Tombol share ke media sosial */}
             {showSocialOptions && (
-              <div className="flex flex-col space-y-3 pt-2 border-t border-neutral-200 dark:border-neutral-700 mt-2">
-                <p className="text-sm text-center text-neutral-500 dark:text-neutral-400">Share to social media:</p>
-                <div className="flex justify-center space-x-4">
+              <div className="flex flex-col space-y-3 pt-3 border-t border-neutral-200 dark:border-neutral-700 mt-1">
+                <p className="text-sm text-center text-neutral-500 dark:text-neutral-400 mb-1">Share to social media:</p>
+                <div className="flex justify-center space-x-6">
                   {/* Twitter */}
-                  <button onClick={() => shareToSocial("twitter")} className="p-2 rounded-full bg-[#1DA1F2] text-white hover:bg-opacity-90 transition-colors" aria-label="Share to Twitter">
-                    <Twitter className="w-5 h-5" /> {/* Menggunakan Lucide icon */}
+                  <button onClick={() => shareToSocial("twitter")} className="p-3.5 rounded-full bg-[#1DA1F2] text-white hover:bg-opacity-90 transition-colors" aria-label="Share to Twitter" style={{ minWidth: "52px", minHeight: "52px", display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation" }}>
+                    <Twitter className="w-5 h-5" />
                   </button>
 
                   {/* Facebook */}
-                  <button onClick={() => shareToSocial("facebook")} className="p-2 rounded-full bg-[#1877F2] text-white hover:bg-opacity-90 transition-colors" aria-label="Share to Facebook">
-                    <Facebook className="w-5 h-5" /> {/* Menggunakan Lucide icon */}
+                  <button onClick={() => shareToSocial("facebook")} className="p-3.5 rounded-full bg-[#1877F2] text-white hover:bg-opacity-90 transition-colors" aria-label="Share to Facebook" style={{ minWidth: "52px", minHeight: "52px", display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation" }}>
+                    <Facebook className="w-5 h-5" />
                   </button>
 
                   {/* Instagram */}
-                  <button onClick={() => shareToSocial("instagram")} className="p-2 rounded-full bg-[#E1306C] text-white hover:bg-opacity-90 transition-colors" aria-label="Share to Instagram">
-                    <Instagram className="w-5 h-5" /> {/* Menggunakan Lucide icon */}
+                  <button onClick={() => shareToSocial("instagram")} className="p-3.5 rounded-full bg-[#E1306C] text-white hover:bg-opacity-90 transition-colors" aria-label="Share to Instagram" style={{ minWidth: "52px", minHeight: "52px", display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation" }}>
+                    <Instagram className="w-5 h-5" />
                   </button>
                 </div>
               </div>
