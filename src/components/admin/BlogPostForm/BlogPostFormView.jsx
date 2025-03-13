@@ -49,7 +49,7 @@ export default function BlogPostFormView({ localPost, currentImageUrl, showImage
     } else {
       // Jika tidak ada seleksi, format seluruh blok
       // Untuk toggle format seperti bold/italic/underline
-      if (formatType === "bold" || formatType === "italic" || formatType === "underline") {
+      if (formatType === "bold" || formatType === "italic" || formatType === "underline" || formatType === "lineThrough") {
         const currentFormatValue = localPost.content[index].format?.[formatType];
         format[formatType] = !currentFormatValue;
       }
@@ -116,6 +116,11 @@ export default function BlogPostFormView({ localPost, currentImageUrl, showImage
                     <span className="underline">U</span>
                   </button>
 
+                  {/* Linethrough button */}
+                  <button type="button" onClick={() => applyFormatting(index, "lineThrough", true)} className={`p-2 rounded ${block.format?.lineThrough ? "bg-neutral-300 dark:bg-neutral-600" : "bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700"}`} title="Linethrough (Select text first to apply formatting)">
+                    <span className="line-through">S</span>
+                  </button>
+
                   {/* Divider */}
                   <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
@@ -154,7 +159,7 @@ export default function BlogPostFormView({ localPost, currentImageUrl, showImage
                     style={{
                       fontWeight: block.format?.bold ? "bold" : "normal",
                       fontStyle: block.format?.italic ? "italic" : "normal",
-                      textDecoration: block.format?.underline ? "underline" : "none",
+                      textDecoration: block.format?.underline ? "underline" : block.format?.lineThrough ? "line-through" : block.format?.underline && block.format?.lineThrough ? "underline line-through" : "none",
                       fontSize: block.format?.fontSize === "large" ? "1.125rem" : block.format?.fontSize === "larger" ? "1.25rem" : block.format?.fontSize === "largest" ? "1.5rem" : "1rem",
                     }}
                   />

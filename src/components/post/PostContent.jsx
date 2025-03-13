@@ -163,59 +163,55 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
             <>
               {post.content.slice((contentPage - 1) * sectionsPerPage, contentPage * sectionsPerPage).map((block, index) => {
                 const originalIndex = post.content.indexOf(block);
-                
+
                 return (
-                <motion.div key={index} className="mb-10 allow-select" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }} ref={index === 0 ? sectionTitleRef : null}>
-                  {/* Section title with data attributes for improved targeting */}
-                  {block.title && (
-                    <h3 
-                      className="text-2xl font-medium text-neutral-900 dark:text-neutral-100 mb-4 allow-select scroll-mt-24"
-                      data-section-title={block.title}
-                      data-section-index={originalIndex}
-                      id={`section-${originalIndex}`}
-                    >
-                      {block.title}
-                    </h3>
-                  )}
+                  <motion.div key={index} className="mb-10 allow-select" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }} ref={index === 0 ? sectionTitleRef : null}>
+                    {/* Section title with data attributes for improved targeting */}
+                    {block.title && (
+                      <h3 className="text-2xl font-medium text-neutral-900 dark:text-neutral-100 mb-4 allow-select scroll-mt-24" data-section-title={block.title} data-section-index={originalIndex} id={`section-${originalIndex}`}>
+                        {block.title}
+                      </h3>
+                    )}
 
-                  {/* Text block */}
-                  {block.type === "text" && (
-                    <div className="relative group">
-                      {/* Share paragraph button visible in all modes */}
-                      <button
-                        onClick={() => handleShareQuote(block.value || "")}
-                        className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 p-1.5 bg-blue-100 dark:bg-blue-900/70 
+                    {/* Text block */}
+                    {block.type === "text" && (
+                      <div className="relative group">
+                        {/* Share paragraph button visible in all modes */}
+                        <button
+                          onClick={() => handleShareQuote(block.value || "")}
+                          className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 p-1.5 bg-blue-100 dark:bg-blue-900/70 
                           rounded-full transform -translate-y-1/2 translate-x-1/2 transition-opacity"
-                        aria-label="Share this paragraph"
-                      >
-                        <ShareIcon className="w-4 h-4 text-blue-600 dark:text-blue-300" />
-                      </button>
+                          aria-label="Share this paragraph"
+                        >
+                          <ShareIcon className="w-4 h-4 text-blue-600 dark:text-blue-300" />
+                        </button>
 
-                      {/* The paragraph itself - simplified event handling */}
-                      <div
-                        onClick={(e) => handleParagraphClick(e, block.value || "")}
-                        className={`leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre-line allow-select
+                        {/* The paragraph itself - simplified event handling */}
+                        <div
+                          onClick={(e) => handleParagraphClick(e, block.value || "")}
+                          className={`leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre-line allow-select
                           ${isHighlightMode ? "cursor-text hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors p-2 -m-2 rounded relative quote-paragraph" : ""}
                           ${block.format?.bold ? "font-bold" : ""}
                           ${block.format?.italic ? "italic" : ""}
                           ${block.format?.underline ? "underline" : ""}
+                          ${block.format?.lineThrough ? "line-through" : ""}
                           ${block.format?.fontSize === "large" ? "text-lg" : block.format?.fontSize === "larger" ? "text-xl" : block.format?.fontSize === "largest" ? "text-2xl" : ""}`}
-                      >
-                        {block.format?.selections && block.format.selections.length > 0 ? renderFormattedText(block.value || "", block.format.selections) : block.value || ""}
+                        >
+                          {block.format?.selections && block.format.selections.length > 0 ? renderFormattedText(block.value || "", block.format.selections) : block.value || ""}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Image block */}
-                  {block.type === "image" && (
-                    <figure className="my-8 flex flex-col items-center">
-                      <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <SecureImage src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down rounded" />
-                      </div>
-                      {block.caption && <figcaption className="text-center text-neutral-600 dark:text-neutral-400 mt-3 text-sm italic">{block.caption}</figcaption>}
-                    </figure>
-                  )}
-                </motion.div>
+                    {/* Image block */}
+                    {block.type === "image" && (
+                      <figure className="my-8 flex flex-col items-center">
+                        <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                          <SecureImage src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down rounded" />
+                        </div>
+                        {block.caption && <figcaption className="text-center text-neutral-600 dark:text-neutral-400 mt-3 text-sm italic">{block.caption}</figcaption>}
+                      </figure>
+                    )}
+                  </motion.div>
                 );
               })}
 

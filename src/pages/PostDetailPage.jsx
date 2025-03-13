@@ -342,6 +342,7 @@ function renderFormattedText(text, selections) {
             ${selection.bold ? "font-bold" : ""}
             ${selection.italic ? "italic" : ""}
             ${selection.underline ? "underline" : ""}
+            ${selection.lineThrough ? "line-through" : ""}
             ${fontSizeClass}
           `}
         >
