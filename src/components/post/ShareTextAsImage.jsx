@@ -5,12 +5,12 @@ import { motion } from "framer-motion";
 
 export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTitle }) {
   const cardRef = useRef(null);
-  const [theme, setTheme] = useState("dark"); // dark, light, gradient
+  const [theme, setTheme] = useState("bauhaus"); // bauhaus, neomemphis, nordic, brutalist
+  const [background, setBackground] = useState("gradient"); // gradient, solid, blur, pattern
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
   const [showSocialOptions, setShowSocialOptions] = useState(false);
   const [error, setError] = useState(null);
-  const [decoration, setDecoration] = useState("corner"); // corner, border, dots, none
 
   // Additional refs for image generation
   const fullImageRef = useRef(null);
@@ -25,34 +25,77 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     }
   }, [isOpen]);
 
-  // Enhanced theme styles with decorative elements
+  // Minimalistic decorative theme styles
   const themeStyles = {
-    dark: {
-      background: "linear-gradient(to bottom right, #1f2937, #111827)",
-      color: "#ffffff",
-      metaColor: "#d1d5db",
-      footerBg: "rgba(255, 255, 255, 0.2)",
-      accentColor: "#60a5fa",
-      borderColor: "rgba(255, 255, 255, 0.1)",
-      quotesColor: "rgba(255, 255, 255, 0.07)",
+    bauhaus: {
+      background: "#FFFFFF",
+      mainColor: "#121212",
+      accentColor: "#E53935", // red
+      secondAccent: "#1E88E5", // blue
+      thirdAccent: "#FFD600", // yellow
+      fontMain: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+      fontAccent: "'Futura PT', 'Century Gothic', sans-serif",
+      quoteStyle: "normal",
+      decoration: "geometric",
     },
-    light: {
-      background: "#ffffff",
-      color: "#1f2937",
-      metaColor: "#6b7280",
-      footerBg: "rgba(0, 0, 0, 0.05)",
-      accentColor: "#3b82f6",
-      borderColor: "rgba(0, 0, 0, 0.08)",
-      quotesColor: "rgba(0, 0, 0, 0.04)",
+    neomemphis: {
+      background: "#F8F9FA",
+      mainColor: "#202124",
+      accentColor: "#FF89DE", // pink
+      secondAccent: "#00C1B5", // teal
+      thirdAccent: "#FFBE0B", // gold
+      fontMain: "'Poppins', sans-serif",
+      fontAccent: "'Poppins', sans-serif",
+      quoteStyle: "italic",
+      decoration: "pattern",
     },
+    nordic: {
+      background: "#F5F5F5",
+      mainColor: "#2E3440",
+      accentColor: "#5E81AC", // blue grey
+      secondAccent: "#A3BE8C", // sage green
+      thirdAccent: "#EBCB8B", // sand
+      fontMain: "'Inter', system-ui, sans-serif",
+      fontAccent: "'Inter', system-ui, sans-serif",
+      quoteStyle: "normal",
+      decoration: "minimal",
+    },
+    brutalist: {
+      background: "#FFFFFF",
+      mainColor: "#000000",
+      accentColor: "#000000", // just black
+      secondAccent: "#D3D3D3", // light grey
+      thirdAccent: "#707070", // dark grey
+      fontMain: "'JetBrains Mono', 'Courier New', monospace",
+      fontAccent: "'JetBrains Mono', 'Courier New', monospace",
+      quoteStyle: "normal",
+      decoration: "raw",
+    },
+  };
+
+  // Background styles
+  const backgroundStyles = {
     gradient: {
-      background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-      color: "#ffffff",
-      metaColor: "#e9d5ff",
-      footerBg: "rgba(255, 255, 255, 0.2)",
-      accentColor: "#c4b5fd",
-      borderColor: "rgba(255, 255, 255, 0.15)",
-      quotesColor: "rgba(255, 255, 255, 0.1)",
+      bauhaus: "linear-gradient(135deg, #FF9AA2, #FFB7B2, #FFDAC1, #E2F0CB, #B5EAD7, #C7CEEA)",
+      neomemphis: "linear-gradient(135deg, #F72585, #7209B7, #3A0CA3, #4361EE, #4CC9F0)",
+      nordic: "linear-gradient(135deg, #5E81AC, #81A1C1, #88C0D0, #8FBCBB)",
+      brutalist: "linear-gradient(135deg, #000000, #1A1A1A, #333333, #4D4D4D)",
+    },
+    solid: {
+      bauhaus: "#F5F5F5",
+      neomemphis: "#F8EDFF",
+      nordic: "#ECEFF4",
+      brutalist: "#F0F0F0",
+    },
+    blur: {
+      backgroundBlur: "8px",
+      opacity: 0.9,
+    },
+    pattern: {
+      bauhaus: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23E53935' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+      neomemphis: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FF89DE' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+      nordic: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%235E81AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+      brutalist: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
     },
   };
 
@@ -90,7 +133,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
       // 5. Download the image
       const link = document.createElement("a");
       link.href = dataUrl;
-      link.download = `yorushika-quote-${Date.now()}.png`;
+      link.download = `quote-${Date.now()}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -152,171 +195,205 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
   // Get current theme values
   const currentTheme = themeStyles[theme];
 
-  // Render corner decorations based on selected style
-  const renderDecorations = (forPreview = false) => {
-    const size = forPreview ? "20px" : "40px";
-    const thickness = forPreview ? "1px" : "2px";
-    const cornerSize = forPreview ? "10px" : "20px";
+  // Get background style based on theme and background type
+  const getBackgroundStyle = (forPreview = false) => {
+    let backgroundStyle = {};
 
-    switch (decoration) {
-      case "corner":
+    if (background === "gradient") {
+      backgroundStyle.background = backgroundStyles.gradient[theme];
+    } else if (background === "solid") {
+      backgroundStyle.background = backgroundStyles.solid[theme];
+    } else if (background === "blur") {
+      // For blur, we'll use a gradient but add a blur effect
+      backgroundStyle.background = backgroundStyles.gradient[theme];
+      backgroundStyle.backdropFilter = `blur(${backgroundStyles.blur.backgroundBlur})`;
+    } else if (background === "pattern") {
+      backgroundStyle.backgroundImage = backgroundStyles.pattern[theme];
+      backgroundStyle.backgroundColor = backgroundStyles.solid[theme];
+    }
+
+    return backgroundStyle;
+  };
+
+  // Render decorative elements based on theme
+  const renderDecorations = (forPreview = false) => {
+    const scale = forPreview ? 0.5 : 1;
+
+    switch (currentTheme.decoration) {
+      case "geometric":
         return (
           <>
+            {/* Bauhaus inspired geometric shapes */}
             <div
               style={{
                 position: "absolute",
-                top: "16px",
-                left: "16px",
-                width: size,
-                height: size,
-                borderLeft: `${thickness} solid ${currentTheme.accentColor}`,
-                borderTop: `${thickness} solid ${currentTheme.accentColor}`,
+                top: forPreview ? "16px" : "32px",
+                right: forPreview ? "16px" : "32px",
+                width: forPreview ? "15px" : "30px",
+                height: forPreview ? "15px" : "30px",
+                borderRadius: "50%",
+                background: currentTheme.accentColor,
+                zIndex: 1,
               }}
             ></div>
+
             <div
               style={{
                 position: "absolute",
-                top: "16px",
-                right: "16px",
-                width: size,
-                height: size,
-                borderRight: `${thickness} solid ${currentTheme.accentColor}`,
-                borderTop: `${thickness} solid ${currentTheme.accentColor}`,
+                bottom: forPreview ? "16px" : "32px",
+                left: forPreview ? "16px" : "32px",
+                width: forPreview ? "20px" : "40px",
+                height: forPreview ? "20px" : "40px",
+                background: currentTheme.secondAccent,
+                zIndex: 1,
               }}
             ></div>
+
             <div
               style={{
                 position: "absolute",
-                bottom: "16px",
-                left: "16px",
-                width: size,
-                height: size,
-                borderLeft: `${thickness} solid ${currentTheme.accentColor}`,
-                borderBottom: `${thickness} solid ${currentTheme.accentColor}`,
-              }}
-            ></div>
-            <div
-              style={{
-                position: "absolute",
-                bottom: "16px",
-                right: "16px",
-                width: size,
-                height: size,
-                borderRight: `${thickness} solid ${currentTheme.accentColor}`,
-                borderBottom: `${thickness} solid ${currentTheme.accentColor}`,
+                top: forPreview ? "40px" : "80px",
+                left: forPreview ? "25px" : "50px",
+                width: forPreview ? "10px" : "20px",
+                height: forPreview ? "40px" : "80px",
+                background: currentTheme.thirdAccent,
+                zIndex: 1,
               }}
             ></div>
           </>
         );
 
-      case "border":
-        return (
-          <div
-            style={{
-              position: "absolute",
-              inset: "8px",
-              border: `${thickness} solid ${currentTheme.borderColor}`,
-              borderRadius: forPreview ? "8px" : "10px",
-              pointerEvents: "none",
-            }}
-          ></div>
-        );
-
-      case "dots":
-        // Create dot pattern corners
+      case "pattern":
         return (
           <>
-            {/* Top left dots */}
-            <div style={{ position: "absolute", top: "12px", left: "12px" }}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: forPreview ? "3px" : "5px",
-                }}
-              >
-                {[...Array(9)].map((_, i) => (
-                  <div
-                    key={`tl-${i}`}
-                    style={{
-                      width: forPreview ? "2px" : "4px",
-                      height: forPreview ? "2px" : "4px",
-                      borderRadius: "50%",
-                      backgroundColor: i % 2 === 0 ? currentTheme.accentColor : "transparent",
-                    }}
-                  ></div>
-                ))}
-              </div>
-            </div>
+            {/* Neo-Memphis style patterns */}
+            <div
+              style={{
+                position: "absolute",
+                top: forPreview ? "16px" : "32px",
+                left: forPreview ? "16px" : "32px",
+                width: forPreview ? "40px" : "80px",
+                height: forPreview ? "40px" : "80px",
+                backgroundImage: `radial-gradient(${currentTheme.accentColor} 2px, transparent 2px)`,
+                backgroundSize: forPreview ? "8px 8px" : "16px 16px",
+                zIndex: 1,
+                opacity: 0.6,
+              }}
+            ></div>
 
-            {/* Top right dots */}
-            <div style={{ position: "absolute", top: "12px", right: "12px" }}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: forPreview ? "3px" : "5px",
-                }}
-              >
-                {[...Array(9)].map((_, i) => (
-                  <div
-                    key={`tr-${i}`}
-                    style={{
-                      width: forPreview ? "2px" : "4px",
-                      height: forPreview ? "2px" : "4px",
-                      borderRadius: "50%",
-                      backgroundColor: i % 2 === 0 ? currentTheme.accentColor : "transparent",
-                    }}
-                  ></div>
-                ))}
-              </div>
-            </div>
+            <div
+              style={{
+                position: "absolute",
+                bottom: forPreview ? "16px" : "32px",
+                right: forPreview ? "16px" : "32px",
+                width: forPreview ? "60px" : "120px",
+                height: forPreview ? "30px" : "60px",
+                background: currentTheme.secondAccent,
+                borderRadius: forPreview ? "10px" : "20px",
+                zIndex: 1,
+                opacity: 0.3,
+              }}
+            ></div>
 
-            {/* Bottom left dots */}
-            <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: forPreview ? "3px" : "5px",
-                }}
-              >
-                {[...Array(9)].map((_, i) => (
-                  <div
-                    key={`bl-${i}`}
-                    style={{
-                      width: forPreview ? "2px" : "4px",
-                      height: forPreview ? "2px" : "4px",
-                      borderRadius: "50%",
-                      backgroundColor: i % 2 === 0 ? currentTheme.accentColor : "transparent",
-                    }}
-                  ></div>
-                ))}
-              </div>
-            </div>
+            <div
+              style={{
+                position: "absolute",
+                top: forPreview ? "30px" : "60px",
+                right: forPreview ? "25px" : "50px",
+                width: forPreview ? "15px" : "30px",
+                height: forPreview ? "15px" : "30px",
+                background: currentTheme.thirdAccent,
+                transform: "rotate(45deg)",
+                zIndex: 1,
+                opacity: 0.6,
+              }}
+            ></div>
+          </>
+        );
 
-            {/* Bottom right dots */}
-            <div style={{ position: "absolute", bottom: "12px", right: "12px" }}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: forPreview ? "3px" : "5px",
-                }}
-              >
-                {[...Array(9)].map((_, i) => (
-                  <div
-                    key={`br-${i}`}
-                    style={{
-                      width: forPreview ? "2px" : "4px",
-                      height: forPreview ? "2px" : "4px",
-                      borderRadius: "50%",
-                      backgroundColor: i % 2 === 0 ? currentTheme.accentColor : "transparent",
-                    }}
-                  ></div>
-                ))}
-              </div>
-            </div>
+      case "minimal":
+        return (
+          <>
+            {/* Nordic minimal design */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: forPreview ? "4px" : "8px",
+                background: currentTheme.accentColor,
+                opacity: 0.7,
+                zIndex: 1,
+              }}
+            ></div>
+
+            <div
+              style={{
+                position: "absolute",
+                bottom: forPreview ? "30px" : "60px",
+                left: forPreview ? "20px" : "40px",
+                width: forPreview ? "30px" : "60px",
+                height: forPreview ? "1px" : "2px",
+                background: currentTheme.secondAccent,
+                zIndex: 1,
+              }}
+            ></div>
+
+            <div
+              style={{
+                position: "absolute",
+                bottom: forPreview ? "30px" : "60px",
+                right: forPreview ? "20px" : "40px",
+                width: forPreview ? "30px" : "60px",
+                height: forPreview ? "1px" : "2px",
+                background: currentTheme.secondAccent,
+                zIndex: 1,
+              }}
+            ></div>
+          </>
+        );
+
+      case "raw":
+        return (
+          <>
+            {/* Brutalist raw design */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                border: forPreview ? "3px solid #000" : "6px solid #000",
+                boxSizing: "border-box",
+                zIndex: 1,
+              }}
+            ></div>
+
+            <div
+              style={{
+                position: "absolute",
+                top: forPreview ? "25px" : "50px",
+                right: forPreview ? "-5px" : "-10px",
+                width: forPreview ? "30px" : "60px",
+                height: forPreview ? "2px" : "4px",
+                background: currentTheme.mainColor,
+                zIndex: 2,
+              }}
+            ></div>
+
+            <div
+              style={{
+                position: "absolute",
+                bottom: forPreview ? "25px" : "50px",
+                left: forPreview ? "-5px" : "-10px",
+                width: forPreview ? "30px" : "60px",
+                height: forPreview ? "2px" : "4px",
+                background: currentTheme.mainColor,
+                zIndex: 2,
+              }}
+            ></div>
           </>
         );
 
@@ -325,26 +402,32 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     }
   };
 
-  // Render quote decoration
-  const renderQuoteMark = (forPreview = false) => {
-    const fontSize = forPreview ? "60px" : "120px";
-    const positionTop = forPreview ? "10px" : "20px";
-    const positionLeft = forPreview ? "10px" : "20px";
+  // Render quote marks based on theme
+  const renderQuoteMarks = (forPreview = false) => {
+    if (theme === "brutalist") {
+      // Brutalist doesn't use fancy quote marks
+      return null;
+    }
+
+    const size = forPreview ? "60px" : "120px";
+    const top = forPreview ? "5px" : "10px";
+    const left = forPreview ? "10px" : "20px";
 
     return (
       <div
         style={{
           position: "absolute",
-          top: positionTop,
-          left: positionLeft,
-          fontSize: fontSize,
-          fontFamily: "Georgia, serif",
+          top: top,
+          left: left,
+          fontSize: size,
+          fontFamily: currentTheme.fontAccent,
           lineHeight: "1",
-          color: currentTheme.quotesColor,
-          pointerEvents: "none",
+          color: theme === "neomemphis" ? currentTheme.accentColor : `${currentTheme.accentColor}20`, // Very transparent
+          opacity: theme === "neomemphis" ? 0.2 : 0.1,
           fontWeight: "bold",
-          zIndex: "0",
+          zIndex: 1,
           userSelect: "none",
+          pointerEvents: "none",
         }}
       >
         "
@@ -356,7 +439,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none">
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white dark:bg-neutral-800 rounded-xl w-full max-w-md shadow-xl overflow-hidden">
         <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
-          <h3 className="font-medium text-neutral-900 dark:text-neutral-100">Share Quote as Image</h3>
+          <h3 className="font-medium text-neutral-900 dark:text-neutral-100">Share Quote Image</h3>
           <button onClick={onClose} className="p-1 rounded-full text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300">
             <XMarkIcon className="w-5 h-5" />
           </button>
@@ -364,120 +447,313 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
 
         <div className="p-6 space-y-6">
           {/* Theme selector */}
-          <div className="flex justify-center space-x-3 mb-2">
-            <button onClick={() => setTheme("dark")} className={`w-8 h-8 rounded-full border-2 ${theme === "dark" ? "border-blue-500" : "border-transparent"}`} aria-label="Dark theme" style={{ background: "linear-gradient(to bottom right, #1f2937, #111827)" }}></button>
-            <button onClick={() => setTheme("light")} className={`w-8 h-8 rounded-full border-2 ${theme === "light" ? "border-blue-500" : "border-transparent"}`} aria-label="Light theme" style={{ background: "#ffffff" }}></button>
-            <button onClick={() => setTheme("gradient")} className={`w-8 h-8 rounded-full border-2 ${theme === "gradient" ? "border-blue-500" : "border-transparent"}`} aria-label="Gradient theme" style={{ background: "linear-gradient(to bottom right, #3b82f6, #8b5cf6)" }}></button>
-          </div>
+          <div>
+            <p className="text-xs text-center text-neutral-500 dark:text-neutral-400 mb-2">Card Style:</p>
+            <div className="flex justify-center space-x-3 mb-4">
+              <button
+                onClick={() => setTheme("bauhaus")}
+                className={`w-12 h-12 rounded flex items-center justify-center border-2 ${theme === "bauhaus" ? "border-blue-500" : "border-gray-300"}`}
+                aria-label="Bauhaus style"
+                style={{
+                  background: "#FFFFFF",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <div className="absolute top-1 right-1 w-4 h-4 bg-red-600 rounded-full"></div>
+                <div className="absolute bottom-1 left-1 w-5 h-5 bg-blue-500"></div>
+                <div className="absolute left-3 top-2 w-2 h-8 bg-yellow-400"></div>
+              </button>
 
-          {/* Decoration style selector */}
-          <div className="flex flex-col items-center">
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">Decoration Style:</p>
-            <div className="flex space-x-3">
               <button
-                onClick={() => setDecoration("corner")}
-                className={`w-10 h-10 rounded border flex items-center justify-center 
-                  ${decoration === "corner" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
-                aria-label="Corner decoration"
+                onClick={() => setTheme("neomemphis")}
+                className={`w-12 h-12 rounded flex items-center justify-center border-2 ${theme === "neomemphis" ? "border-blue-500" : "border-gray-300"}`}
+                aria-label="Neo-Memphis style"
+                style={{
+                  background: "#F8F9FA",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
               >
-                <span className="text-xs">⌜⌝</span>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "4px",
+                    left: "4px",
+                    width: "20px",
+                    height: "20px",
+                    backgroundImage: "radial-gradient(#FF89DE 1px, transparent 1px)",
+                    backgroundSize: "5px 5px",
+                    opacity: 0.6,
+                  }}
+                ></div>
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "4px",
+                    right: "4px",
+                    width: "24px",
+                    height: "12px",
+                    background: "#00C1B5",
+                    borderRadius: "6px",
+                    opacity: 0.5,
+                  }}
+                ></div>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "8px",
+                    right: "6px",
+                    width: "6px",
+                    height: "6px",
+                    background: "#FFBE0B",
+                    transform: "rotate(45deg)",
+                    opacity: 0.7,
+                  }}
+                ></div>
               </button>
+
               <button
-                onClick={() => setDecoration("border")}
-                className={`w-10 h-10 rounded border flex items-center justify-center 
-                  ${decoration === "border" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
-                aria-label="Border decoration"
+                onClick={() => setTheme("nordic")}
+                className={`w-12 h-12 rounded flex items-center justify-center border-2 ${theme === "nordic" ? "border-blue-500" : "border-gray-300"}`}
+                aria-label="Nordic style"
+                style={{
+                  background: "#F5F5F5",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
               >
-                <span className="text-xs">□</span>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "0",
+                    left: "0",
+                    width: "100%",
+                    height: "3px",
+                    background: "#5E81AC",
+                    opacity: 0.7,
+                  }}
+                ></div>
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "8px",
+                    left: "6px",
+                    width: "16px",
+                    height: "1px",
+                    background: "#A3BE8C",
+                  }}
+                ></div>
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "8px",
+                    right: "6px",
+                    width: "16px",
+                    height: "1px",
+                    background: "#A3BE8C",
+                  }}
+                ></div>
               </button>
+
               <button
-                onClick={() => setDecoration("dots")}
-                className={`w-10 h-10 rounded border flex items-center justify-center 
-                  ${decoration === "dots" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
-                aria-label="Dots decoration"
+                onClick={() => setTheme("brutalist")}
+                className={`w-12 h-12 rounded flex items-center justify-center border-2 ${theme === "brutalist" ? "border-blue-500" : "border-gray-300"}`}
+                aria-label="Brutalist style"
+                style={{
+                  background: "#FFFFFF",
+                  position: "relative",
+                  overflow: "hidden",
+                  border: theme === "brutalist" ? "2px solid blue" : "2px solid black",
+                }}
               >
-                <span className="text-xs">⁙⁘</span>
-              </button>
-              <button
-                onClick={() => setDecoration("none")}
-                className={`w-10 h-10 rounded border flex items-center justify-center 
-                  ${decoration === "none" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
-                aria-label="No decoration"
-              >
-                <span className="text-xs">✕</span>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "6px",
+                    right: "-2px",
+                    width: "14px",
+                    height: "2px",
+                    background: "black",
+                  }}
+                ></div>
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "6px",
+                    left: "-2px",
+                    width: "14px",
+                    height: "2px",
+                    background: "black",
+                  }}
+                ></div>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  Aa
+                </div>
               </button>
             </div>
           </div>
 
-          {/* Preview card with 16:9 ratio */}
+          {/* Background selector */}
+          <div>
+            <p className="text-xs text-center text-neutral-500 dark:text-neutral-400 mb-2">Background Style:</p>
+            <div className="flex justify-center space-x-3">
+              <button
+                onClick={() => setBackground("gradient")}
+                className={`w-10 h-10 rounded border flex items-center justify-center 
+                  ${background === "gradient" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
+                aria-label="Gradient Background"
+                style={{
+                  background: backgroundStyles.gradient[theme],
+                  overflow: "hidden",
+                }}
+              ></button>
+              <button
+                onClick={() => setBackground("solid")}
+                className={`w-10 h-10 rounded border flex items-center justify-center 
+                  ${background === "solid" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
+                aria-label="Solid Background"
+                style={{
+                  background: backgroundStyles.solid[theme],
+                }}
+              ></button>
+              <button
+                onClick={() => setBackground("blur")}
+                className={`w-10 h-10 rounded border flex items-center justify-center 
+                  ${background === "blur" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
+                aria-label="Blur Background"
+                style={{
+                  background: backgroundStyles.gradient[theme],
+                  position: "relative",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: "0",
+                    backdropFilter: "blur(3px)",
+                  }}
+                ></div>
+              </button>
+              <button
+                onClick={() => setBackground("pattern")}
+                className={`w-10 h-10 rounded border flex items-center justify-center 
+                  ${background === "pattern" ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-700"}`}
+                aria-label="Pattern Background"
+                style={{
+                  backgroundImage: backgroundStyles.pattern[theme],
+                  backgroundColor: backgroundStyles.solid[theme],
+                }}
+              ></button>
+            </div>
+          </div>
+
+          {/* Preview card with 16:9 in 9:16 container */}
           <div className="flex justify-center">
             <div
-              ref={cardRef}
-              className="relative shadow-lg rounded-lg overflow-hidden"
+              className="relative rounded-lg overflow-hidden shadow-lg"
               style={{
-                width: "320px",
-                height: "180px", // 16:9 ratio
-                padding: "16px",
-                background: currentTheme.background,
-                color: currentTheme.color,
+                width: "180px", // Preview scaled down from 360px
+                height: "320px", // 9:16 aspect ratio
+                ...getBackgroundStyle(true),
               }}
             >
-              {/* Pattern background */}
+              {/* 16:9 card centered in 9:16 container */}
               <div
-                className="absolute inset-0 opacity-10"
+                ref={cardRef}
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 shadow-md rounded"
                 style={{
-                  backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
-                  backgroundSize: "10px 10px",
+                  width: "160px", // 16:9 ratio, scaled down from original
+                  height: "90px",
+                  background: currentTheme.background,
+                  color: currentTheme.mainColor,
+                  fontFamily: currentTheme.fontMain,
+                  overflow: "hidden",
                 }}
-              ></div>
+              >
+                {/* Decorative elements */}
+                {renderDecorations(true)}
+                {renderQuoteMarks(true)}
 
-              {/* Decorative elements */}
-              {renderDecorations(true)}
-              {renderQuoteMark(true)}
-
-              <div className="flex flex-col h-full relative z-10">
-                {/* Quote with scrollable area */}
-                <div
-                  className="overflow-y-auto mb-2 pr-1 text-sm font-medium leading-tight"
-                  style={{
-                    wordBreak: "break-word",
-                    maxHeight: "105px", // Limit height for preview
-                    paddingLeft: decoration === "none" ? "0" : "12px", // Space for quote mark
-                  }}
-                >
-                  "{selectedText.length > 200 ? `${selectedText.substring(0, 200)}...` : selectedText}"
-                </div>
-
-                {/* Attribution */}
-                <div className="mt-auto">
+                {/* Content container */}
+                <div className="flex flex-col h-full p-2 relative z-2">
+                  {/* Quote text */}
                   <div
                     style={{
-                      color: currentTheme.metaColor,
-                      fontSize: "10px",
-                      marginBottom: "2px",
+                      marginTop: theme === "bauhaus" ? "10px" : "5px",
+                      marginLeft: theme === "brutalist" ? "0" : "5px",
+                      marginRight: theme === "brutalist" ? "0" : "5px",
+                      fontSize: "7px",
+                      fontWeight: theme === "brutalist" ? "normal" : "500",
+                      fontStyle: currentTheme.quoteStyle,
+                      lineHeight: "1.5",
+                      maxHeight: "45px",
+                      overflow: "hidden",
                     }}
                   >
-                    From the article
+                    "{selectedText.length > 80 ? `${selectedText.substring(0, 80)}...` : selectedText}"
                   </div>
-                  <div className="font-medium text-xs truncate pr-12">{postTitle}</div>
 
-                  {/* Website footer with refined styling */}
-                  <div
-                    className="absolute bottom-2 right-2 text-[9px] px-2 py-1 rounded-sm"
-                    style={{
-                      background: currentTheme.footerBg,
-                      backdropFilter: "blur(4px)",
-                    }}
-                  >
-                    yorushikafansite.com
+                  {/* Attribution */}
+                  <div className="mt-auto">
+                    <div
+                      style={{
+                        fontSize: "5px",
+                        marginTop: "5px",
+                        textAlign: theme === "brutalist" ? "left" : "right",
+                        fontWeight: theme === "brutalist" ? "bold" : "normal",
+                        color: theme === "brutalist" ? "black" : currentTheme.accentColor,
+                        paddingRight: theme === "brutalist" ? "5px" : "0",
+                      }}
+                    >
+                      {postTitle.length > 20 ? `${postTitle.substring(0, 20)}...` : postTitle}
+                    </div>
+
+                    {/* Watermark */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: "2px",
+                        right: theme === "brutalist" ? "auto" : "3px",
+                        left: theme === "brutalist" ? "3px" : "auto",
+                        fontSize: "4px",
+                        opacity: 0.5,
+                      }}
+                    >
+                      yorushikafansite.com
+                    </div>
                   </div>
                 </div>
               </div>
+
+              {/* Bottom text on background */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "10px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  fontSize: "8px",
+                  color: theme === "brutalist" ? "#000" : "#fff",
+                  textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                  textAlign: "center",
+                  width: "80%",
+                }}
+              >
+                yorushikafansite.com
+              </div>
             </div>
           </div>
-
-          {/* Note about output format */}
-          <p className="text-xs text-center text-neutral-500 dark:text-neutral-400">Preview shows 16:9 format. Final image will be exported in 9:16 portrait format.</p>
 
           {/* HIDDEN: Element that will be captured */}
           <div className="relative" style={{ height: 0, overflow: "hidden" }}>
@@ -486,97 +762,115 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
               style={{
                 width: "360px",
                 height: "640px",
-                padding: "32px",
-                background: currentTheme.background,
-                color: currentTheme.color,
-                fontFamily: "Arial, sans-serif",
-                borderRadius: "12px",
+                ...getBackgroundStyle(false),
                 position: "relative",
-                boxSizing: "border-box",
+                overflow: "hidden",
               }}
             >
-              {/* Pattern background */}
+              {/* 16:9 card centered in 9:16 container */}
               <div
                 style={{
                   position: "absolute",
-                  inset: "0",
-                  opacity: "0.1",
-                  backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
-                  backgroundSize: "12px 12px",
-                  zIndex: "0",
-                }}
-              ></div>
-
-              {/* Decorative elements */}
-              {renderDecorations()}
-              {renderQuoteMark()}
-
-              {/* Content container */}
-              <div
-                style={{
-                  position: "relative",
-                  zIndex: "1",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: "320px", // 16:9 ratio
+                  height: "180px",
+                  background: currentTheme.background,
+                  color: currentTheme.mainColor,
+                  fontFamily: currentTheme.fontMain,
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  borderRadius: "8px",
+                  overflow: "hidden",
                 }}
               >
-                {/* Quote text - full version */}
+                {/* Decorative elements */}
+                {renderDecorations()}
+                {renderQuoteMarks()}
+
+                {/* Content container */}
                 <div
                   style={{
-                    fontSize: selectedText.length > 500 ? "18px" : "22px",
-                    fontWeight: "500",
-                    lineHeight: "1.5",
-                    marginBottom: "24px",
-                    wordBreak: "break-word",
-                    paddingLeft: decoration === "none" ? "0" : "24px", // Space for quote mark
+                    padding: "20px",
+                    height: "100%",
+                    position: "relative",
+                    zIndex: 2,
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
-                  "{selectedText}"
-                </div>
-
-                {/* Attribution at bottom */}
-                <div style={{ marginTop: "auto", paddingTop: "24px" }}>
+                  {/* Quote content */}
                   <div
                     style={{
-                      fontSize: "14px",
-                      marginBottom: "8px",
-                      color: currentTheme.metaColor,
-                    }}
-                  >
-                    From the article
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      whiteSpace: "nowrap",
+                      fontSize: selectedText.length > 150 ? "14px" : "16px",
+                      fontWeight: theme === "brutalist" ? "normal" : "500",
+                      lineHeight: "1.5",
+                      marginTop: theme === "bauhaus" ? "20px" : "10px",
+                      marginLeft: theme === "brutalist" ? "0" : "10px",
+                      marginRight: theme === "brutalist" ? "0" : "10px",
+                      fontStyle: currentTheme.quoteStyle,
+                      padding: theme === "brutalist" ? "0 10px" : "0",
+                      maxHeight: "110px",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      maxWidth: "85%",
+                    }}
+                  >
+                    "{selectedText.length > 300 ? `${selectedText.substring(0, 300)}...` : selectedText}"
+                  </div>
+
+                  {/* Attribution */}
+                  <div
+                    style={{
+                      marginTop: "auto",
+                      fontSize: "12px",
+                      textAlign: theme === "brutalist" ? "left" : "right",
+                      fontWeight: theme === "brutalist" ? "bold" : "normal",
+                      color: theme === "brutalist" ? "black" : currentTheme.accentColor,
+                      paddingRight: theme === "brutalist" ? "10px" : "0",
+                      marginBottom: "10px",
+                      marginRight: theme === "brutalist" ? "0" : "10px",
+                      marginLeft: theme === "brutalist" ? "10px" : "0",
                     }}
                   >
                     {postTitle}
                   </div>
-                </div>
 
-                {/* Website footer with refined styling */}
-                <div
-                  style={{
-                    position: "absolute",
-                    right: "16px",
-                    bottom: "16px",
-                    padding: "6px 12px",
-                    borderRadius: "4px",
-                    background: currentTheme.footerBg,
-                    backdropFilter: "blur(4px)",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  }}
-                >
-                  yorushikafansite.com
+                  {/* Website watermark */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "8px",
+                      right: theme === "brutalist" ? "auto" : "10px",
+                      left: theme === "brutalist" ? "10px" : "auto",
+                      fontSize: "8px",
+                      opacity: 0.7,
+                      fontFamily: "'Inter', sans-serif",
+                    }}
+                  >
+                    yorushikafansite.com
+                  </div>
                 </div>
+              </div>
+
+              {/* Bottom branding on background */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "30px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  padding: "8px 20px",
+                  background: "rgba(0,0,0,0.2)",
+                  color: "#fff",
+                  borderRadius: "20px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  textAlign: "center",
+                  backdropFilter: "blur(5px)",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                }}
+              >
+                yorushikafansite.com
               </div>
             </div>
           </div>
