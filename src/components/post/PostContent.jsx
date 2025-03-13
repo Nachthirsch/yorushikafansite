@@ -73,6 +73,49 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
     setShowTextShareModal(true);
   };
 
+  /// Fungsi untuk membuat ID yang konsisten dari judul - sama dengan di ContentOutline
+  const generateSectionId = (title) => {
+    if (!title) return "";
+
+    // Penanganan khusus untuk format tanggal di awal judul (seperti "5/29", "3/21 Deep Indigo")
+    const dateMatch = title.match(/^(\d+)\/(\d+)(\s+.*)?$/);
+    if (dateMatch) {
+      // Format ID untuk judul dengan tanggal: [bulan]-[tanggal]-[teks tambahan jika ada]
+      const month = dateMatch[1];
+      const day = dateMatch[2];
+      const restText = dateMatch[3]
+        ? dateMatch[3]
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+        : "";
+
+      return restText ? `${month}-${day}-${restText}` : `${month}-${day}`;
+    }
+
+    // Untuk judul lain, gunakan metode standar
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  };
+
+  // Debug - log semua judul dan ID yang akan dihasilkan
+  useEffect(() => {
+    if (post?.content && Array.isArray(post.content)) {
+      const sectionsWithTitles = post.content.filter((block) => block.title);
+
+      console.log(
+        "PostContent - Judul dan ID:",
+        sectionsWithTitles.map((section) => ({
+          title: section.title,
+          id: generateSectionId(section.title),
+          element: document.getElementById(generateSectionId(section.title)),
+        }))
+      );
+    }
+  }, [post, contentPage]);
+
   return (
     <>
       <ShareTextAsImage isOpen={showTextShareModal} onClose={() => setShowTextShareModal(false)} selectedText={selectedText} postTitle={post.title} />
@@ -88,6 +131,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
       </AnimatePresence>
 
       <motion.div ref={contentRef} key={`content-page-${contentPage}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md border border-neutral-200 dark:border-neutral-800 p-6 md:p-10 allow-select post-content mb-20" onMouseUp={handleMouseUp}>
+        {/* Cover image section */}
         {post.cover_image && (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }} className="mb-10 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-lg">
             <figure className="overflow-hidden">
@@ -96,7 +140,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
           </motion.div>
         )}
 
-        {/* Highlight mode toggle button - slightly improved styling */}
+        {/* Highlight mode toggle button */}
         <div className="flex justify-end mb-4 items-center">
           <button
             onClick={toggleHighlightMode}
@@ -108,6 +152,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
           </button>
         </div>
 
+        {/* Main content section */}
         <div
           className={`prose prose-neutral dark:prose-invert max-w-none allow-select
             [&_::selection]:bg-blue-500/20 dark:[&_::selection]:bg-blue-500/30
@@ -116,14 +161,24 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
         >
           {Array.isArray(post.content) ? (
             <>
-              {post.content.slice((contentPage - 1) * sectionsPerPage, contentPage * sectionsPerPage).map((block, index) => (
+              {post.content.slice((contentPage - 1) * sectionsPerPage, contentPage * sectionsPerPage).map((block, index) => {
+                const originalIndex = post.content.indexOf(block);
+                
+                return (
                 <motion.div key={index} className="mb-10 allow-select" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }} ref={index === 0 ? sectionTitleRef : null}>
+                  {/* Section title with data attributes for improved targeting */}
                   {block.title && (
-                    <h3 id={block.title.toLowerCase().replace(/\s+/g, "-")} className="text-2xl font-medium text-neutral-900 dark:text-neutral-100 mb-4 allow-select">
+                    <h3 
+                      className="text-2xl font-medium text-neutral-900 dark:text-neutral-100 mb-4 allow-select scroll-mt-24"
+                      data-section-title={block.title}
+                      data-section-index={originalIndex}
+                      id={`section-${originalIndex}`}
+                    >
                       {block.title}
                     </h3>
                   )}
 
+                  {/* Text block */}
                   {block.type === "text" && (
                     <div className="relative group">
                       {/* Share paragraph button visible in all modes */}
@@ -151,6 +206,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                     </div>
                   )}
 
+                  {/* Image block */}
                   {block.type === "image" && (
                     <figure className="my-8 flex flex-col items-center">
                       <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -160,21 +216,25 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                     </figure>
                   )}
                 </motion.div>
-              ))}
+                );
+              })}
 
               {/* Content pagination */}
               {post.content.length > sectionsPerPage && (
                 <div className="flex items-center justify-center space-x-4 mt-12 pt-6 border-t border-neutral-200 dark:border-neutral-800">
-                  <button onClick={() => navigateToContentPage(contentPage - 1)} disabled={contentPage === 1} aria-label="Previous page" className={`flex items-center px-4 py-2 rounded-lg ${contentPage === 1 ? "text-neutral-400 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800" : "text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600"} transition-colors`}>
+                  {/* Tombol Previous dengan styling yang konsisten */}
+                  <button onClick={() => navigateToContentPage(contentPage - 1)} disabled={contentPage === 1} aria-label="Previous page" className={`flex items-center px-4 py-2 rounded-lg ${contentPage === 1 ? "text-neutral-400 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800" : "text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 shadow-sm hover:shadow"} transition-all`}>
                     <ChevronLeftIcon className="w-5 h-5 mr-1" />
                     <span>Previous</span>
                   </button>
 
-                  <span className="text-neutral-600 dark:text-neutral-400">
+                  {/* Indikator halaman saat ini */}
+                  <span className="text-neutral-600 dark:text-neutral-400 px-2">
                     {contentPage} / {Math.ceil(post.content.length / sectionsPerPage)}
                   </span>
 
-                  <button onClick={() => navigateToContentPage(contentPage + 1)} disabled={contentPage === Math.ceil(post.content.length / sectionsPerPage)} aria-label="Next page" className={`flex items-center px-4 py-2 rounded-lg ${contentPage === Math.ceil(post.content.length / sectionsPerPage) ? "text-neutral-400 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800" : "text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600"} transition-colors`}>
+                  {/* Tombol Next dengan styling yang konsisten */}
+                  <button onClick={() => navigateToContentPage(contentPage + 1)} disabled={contentPage === Math.ceil(post.content.length / sectionsPerPage)} aria-label="Next page" className={`flex items-center px-4 py-2 rounded-lg ${contentPage === Math.ceil(post.content.length / sectionsPerPage) ? "text-neutral-400 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800" : "text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 shadow-sm hover:shadow"} transition-all`}>
                     <span>Next</span>
                     <ChevronRightIcon className="w-5 h-5 ml-1" />
                   </button>

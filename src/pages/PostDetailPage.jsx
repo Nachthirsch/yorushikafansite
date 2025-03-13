@@ -12,6 +12,7 @@ import PostRelated from "../components/post/PostRelated";
 import ReadingProgress from "../components/post/ReadingProgress";
 import PostAuthor from "../components/post/PostAuthor";
 import ShareOptions from "../components/post/ShareOptions";
+import ContentOutline from "../components/post/ContentOutline"; // Import komponen baru
 
 export default function PostDetailPage() {
   const { postId } = useParams();
@@ -271,6 +272,9 @@ export default function PostDetailPage() {
       <PostHeader post={post} onShare={handlePostShare} getReadingTime={getReadingTime} />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 allow-select post-content">
+        {/* Menambahkan komponen ContentOutline sebelum konten utama */}
+        <ContentOutline post={post} contentPage={contentPage} sectionsPerPage={sectionsPerPage} navigateToContentPage={navigateToContentPage} />
+
         <PostContent
           post={post}
           contentPage={contentPage}
