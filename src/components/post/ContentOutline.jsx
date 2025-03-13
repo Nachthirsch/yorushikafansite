@@ -130,7 +130,7 @@ export default function ContentOutline({ post, contentPage, sectionsPerPage, nav
         <div className="flex items-center space-x-2">
           {/* Icon Daftar Isi menandakan bahwa ini adalah menu navigasi konten */}
           <ListIcon size={18} className="text-neutral-700 dark:text-neutral-300" />
-          <h3 className="font-medium text-neutral-800 dark:text-neutral-200">Daftar Isi</h3>
+          <h3 className="font-medium text-neutral-800 dark:text-neutral-200">Table of Content</h3>
         </div>
         <button className="p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" aria-label={isExpanded ? "Tutup daftar isi" : "Buka daftar isi"}>
           {/* Icon chevron untuk menandakan kondisi expand/collapse */}
@@ -168,7 +168,7 @@ export default function ContentOutline({ post, contentPage, sectionsPerPage, nav
                       data-section-page={sectionPage}
                     >
                       <span className="line-clamp-1">{section.title}</span>
-                      {contentPage !== sectionPage && <span className="text-xs bg-neutral-200 dark:bg-neutral-700 px-2 py-0.5 rounded-full ml-2 flex-shrink-0">Hal {sectionPage}</span>}
+                      {contentPage !== sectionPage && <span className="text-xs bg-neutral-200 dark:bg-neutral-700 px-2 py-0.5 rounded-full ml-2 flex-shrink-0">Page {sectionPage}</span>}
                     </button>
                   </li>
                 );
