@@ -9,7 +9,7 @@ export default function SongsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("title");
   const [albumFilter, setAlbumFilter] = useState("all");
-  const [isGridView, setIsGridView] = useState(true);
+  const [isGridView, setIsGridView] = useState(false); // Changed from true to false
 
   // Hanya fetch data albums untuk filter
   const { data: albums } = useQuery({

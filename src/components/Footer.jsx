@@ -118,7 +118,7 @@ export default function Footer() {
                   {/* Discord invitation card with improved button design */}
                   <a href="https://discord.gg/wdam3HB" target="_blank" rel="noopener noreferrer" className="flex items-center bg-neutral-900/50 hover:bg-neutral-900/80 border border-neutral-800 hover:border-indigo-700/50 rounded-lg px-4 py-3 transition-all duration-300 group-hover:shadow-md group-hover:shadow-indigo-900/10">
                     <div className="flex-1">
-                      <p className="text-neutral-300 text-sm font-medium">Yorushika Fan Discord</p>
+                      <p className="text-neutral-300 text-sm font-medium">Yorushika Fan Zone</p>
                       <p className="text-neutral-500 text-xs mt-1">Join other Yorushika fans for discussions, updates, and community events.</p>
                     </div>
                     {/* Enhanced button with subtle glow and hover effects */}
