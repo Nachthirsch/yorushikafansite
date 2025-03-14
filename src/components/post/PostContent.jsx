@@ -12,6 +12,9 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const contentRef = useRef(null);
 
+  // State untuk menyimpan judul section saat ini (jika ada)
+  const [currentSectionTitle, setCurrentSectionTitle] = useState("");
+
   /// Deteksi apakah perangkat adalah mobile
   useEffect(() => {
     const checkIfMobile = () => {
@@ -54,6 +57,28 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
 
       if (selectedText) {
         setSelectedText(selectedText);
+
+        // Mencoba mendapatkan judul section tempat teks diseleksi
+        let currentTitle = "";
+        try {
+          const selectionNode = selection?.anchorNode?.parentElement;
+          if (selectionNode) {
+            // Cari elemen heading terdekat di atas seleksi
+            let node = selectionNode;
+            while (node && node !== contentRef.current) {
+              const prevSibling = node.previousElementSibling;
+              if (prevSibling && prevSibling.getAttribute("data-section-title")) {
+                currentTitle = prevSibling.getAttribute("data-section-title");
+                break;
+              }
+              node = node.parentElement;
+            }
+          }
+        } catch (e) {
+          console.error("Error saat mencari judul section:", e);
+        }
+
+        setCurrentSectionTitle(currentTitle || "");
         setShowTextShareModal(true);
 
         // Clear selection after a brief delay
@@ -83,8 +108,9 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
   };
 
   // Share quote button handler untuk tombol berbagi di setiap paragraf
-  const handleShareQuote = (text) => {
+  const handleShareQuote = (text, sectionTitle) => {
     setSelectedText(text);
+    setCurrentSectionTitle(sectionTitle || "");
     setShowTextShareModal(true);
   };
 
@@ -183,7 +209,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                       <div className="relative group">
                         {/* Share paragraph button hanya untuk tombol berbagi paragraf */}
                         <button
-                          onClick={() => handleShareQuote(block.value || "")}
+                          onClick={() => handleShareQuote(block.value || "", block.title)}
                           className={`absolute right-0 top-0 opacity-0 group-hover:opacity-100 
                           ${isMobileDevice ? "p-2" : "p-1.5"} bg-blue-100 dark:bg-blue-900/70 
                           rounded-full transform -translate-y-1/2 translate-x-1/2 transition-opacity`}
@@ -215,6 +241,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                     {/* Image block */}
                     {block.type === "image" && (
                       <figure className="my-8 flex flex-col items-center">
+                        \
                         <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
                           <SecureImage src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down rounded" />
                         </div>

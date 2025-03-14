@@ -21,6 +21,9 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
   const [selectedFont, setSelectedFont] = useState("inter");
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
+  // State untuk judul konten
+  const [contentTitle, setContentTitle] = useState("");
+
   /// Daftar font estetik yang tersedia
   const fontOptions = [
     { id: "inter", name: "Inter", style: "'Inter', system-ui, sans-serif", preview: "Modern", weights: [400, 500, 600] },
@@ -93,6 +96,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
       setIsGenerating(false);
       setShowSocialOptions(false);
       setError(null);
+      // Tidak mereset contentTitle untuk menyimpan judul terakhir yang dimasukkan
     }
   }, [isOpen]);
 
@@ -552,6 +556,15 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
 
         {/* Konten dengan scroll jika terlalu panjang di mobile */}
         <div className="overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6" style={{ maxHeight: "calc(90vh - 60px)" }}>
+          {/* Input untuk judul konten */}
+          <div>
+            <label htmlFor="content-title" className="block text-xs text-neutral-500 dark:text-neutral-400 mb-1 text-center">
+              Judul Konten (opsional):
+            </label>
+            <input type="text" id="content-title" value={contentTitle} onChange={(e) => setContentTitle(e.target.value)} placeholder="Ex: Memory 11 - Elma's Diary" className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-1 text-center">Judul ini akan ditampilkan di samping judul post</p>
+          </div>
+
           {/* Font selector - ditambahkan di awal sebelum theme selector */}
           <div>
             <div className="flex items-center justify-center space-x-2 mb-2">
@@ -784,7 +797,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                     "{selectedText.length > 80 ? `${selectedText.substring(0, 80)}...` : selectedText}"
                   </div>
 
-                  {/* Atribusi sebagai elemen absolut pada posisi yang sama dengan output */}
+                  {/* Atribusi sebagai elemen absolut dengan judul konten */}
                   <div
                     style={{
                       position: "absolute",
@@ -803,6 +816,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                     }}
                     className="font-apply"
                   >
+                    {contentTitle && <span className="font-medium">{contentTitle} - </span>}
                     {postTitle.length > 20 ? `${postTitle.substring(0, 20)}...` : postTitle}
                   </div>
                 </div>
@@ -883,7 +897,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                     "{selectedText}"
                   </div>
 
-                  {/* Atribusi dengan font yang dipilih */}
+                  {/* Atribusi dengan font yang dipilih dan judul konten */}
                   <div
                     style={{
                       position: "absolute",
@@ -905,6 +919,7 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
                     }}
                     className="font-apply"
                   >
+                    {contentTitle && <span className="font-medium">{contentTitle} - </span>}
                     {postTitle}
                   </div>
                 </div>
