@@ -5,7 +5,7 @@ export default function PostAuthor({ post }) {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md border border-neutral-200 dark:border-neutral-800 p-6 md:p-8 mb-10">
       <div className="flex items-center mb-6">
         <div className="w-1 h-6 bg-neutral-500 rounded mr-3"></div>
-        <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">About the Author</h2>
+        <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">Translator</h2>
       </div>
 
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">

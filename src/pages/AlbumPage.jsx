@@ -384,43 +384,60 @@ export default function AlbumPage() {
             <p className="text-sm mt-2 text-neutral-400 dark:text-neutral-500">Try adjusting your search or filters</p>
           </motion.div>
         ) : (
-          <motion.div layout className={`grid ${isGridView ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8" : "grid-cols-1 gap-6"}`}>
+          <motion.div layout className={`grid ${isGridView ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" : "grid-cols-1 gap-4"}`}>
             <AnimatePresence mode="popLayout">
               {filteredAlbums.map((album, index) => (
-                <motion.div key={album.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }} onHoverStart={() => handleAlbumHover(album.id)} onHoverEnd={() => setHoveredAlbum(null)} className={`${isGridView ? "" : ""}`}>
-                  <div className={`group cursor-pointer transition-all duration-300 hover:shadow-lg ${isGridView ? "block bg-white dark:bg-neutral-900 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:-translate-y-1" : "flex items-center gap-6 bg-white dark:bg-neutral-900 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:-translate-y-0.5"}`} onClick={() => setSelectedAlbum(album)}>
-                    <div className={`relative ${isGridView ? "aspect-square" : "flex-shrink-0 w-24 h-24 md:w-32 md:h-32"} overflow-hidden rounded-md ${isGridView ? "rounded-b-none" : ""}`}>
-                      <motion.img src={album.cover_image_url} alt={album.title} className="w-full h-full object-cover" loading="lazy" whileHover={{ scale: 1.05 }} transition={{ duration: 0.4 }} />
-                      <div className={`absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 ${hoveredAlbum === album.id ? "opacity-100" : ""}`}>
-                        <div className="bg-white/90 dark:bg-black/70 p-3 rounded-full backdrop-blur-sm">
-                          <PlayIcon className="w-8 h-8 text-neutral-800 dark:text-white" />
+                <motion.div key={album.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }} onHoverStart={() => handleAlbumHover(album.id)} onHoverEnd={() => setHoveredAlbum(null)}>
+                  {/* Desain kartu album minimalis dengan detail halus */}
+                  <div className={`group cursor-pointer ${isGridView ? "block bg-white/70 dark:bg-neutral-900/80 rounded-lg overflow-hidden border border-neutral-200/60 dark:border-neutral-800/60 hover:shadow-[0_0_25px_-5px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.05)] transition-all duration-500" : "flex items-center gap-5 bg-white/80 dark:bg-neutral-900/80 p-4 rounded-lg border-l-2 border-neutral-200/80 dark:border-neutral-800/80 hover:border-l-neutral-400 dark:hover:border-l-neutral-600 transition-all duration-300"}`} onClick={() => setSelectedAlbum(album)}>
+                    {/* Desain cover album dengan efek hover yang elegan */}
+                    <div className={`relative ${isGridView ? "aspect-square overflow-hidden" : "flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 overflow-hidden rounded-md"}`}>
+                      {/* Bayangan tipis di bagian atas cover untuk menambah dimensi */}
+                      {isGridView && <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/20 to-transparent z-10 opacity-60"></div>}
+
+                      <motion.img src={album.cover_image_url} alt={album.title} className={`w-full h-full object-cover ${isGridView ? "" : "rounded-md"}`} loading="lazy" whileHover={{ scale: 1.05 }} transition={{ duration: 0.5 }} />
+
+                      {/* Overlay pada hover dengan animasi gradient */}
+                      <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-500 ease-out`}>
+                        <motion.div className="bg-white/80 dark:bg-black/70 p-2.5 rounded-full backdrop-blur-sm border border-white/20 dark:border-neutral-700/30 shadow-lg" whileHover={{ scale: 1.1 }} transition={{ type: "spring", stiffness: 300 }}>
+                          <PlayIcon className="w-7 h-7 text-neutral-800 dark:text-white" />
+                        </motion.div>
+                      </div>
+                    </div>
+
+                    {/* Konten album dengan tipografi yang elegan */}
+                    <div className={`${isGridView ? "p-4 pb-5" : "ml-3 flex-1"}`}>
+                      <div className="flex flex-col">
+                        <h2 className="text-base font-medium tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors">{album.title}</h2>
+
+                        <div className="flex items-center mt-1.5 space-x-2">
+                          <span className="text-xs text-neutral-500 dark:text-neutral-400 font-light">{new Date(album.release_date).getFullYear()}</span>
+                          <span className="text-xs text-neutral-300 dark:text-neutral-600">•</span>
+                          <span className="text-xs text-neutral-500 dark:text-neutral-400 font-light flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-0.5 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                            </svg>
+                            {album.songs?.length || 0}
+                          </span>
                         </div>
                       </div>
 
-                      {isGridView && <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>}
-                    </div>
-                    <div className={`${isGridView ? "p-4" : "ml-4 flex-1"}`}>
-                      <h2 className="text-base font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">{album.title}</h2>
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1 space-x-2">
-                        <span>{new Date(album.release_date).getFullYear()}</span>
-                        <span>•</span>
-                        <span>{album.songs?.length || 0} tracks</span>
-                      </p>
-
+                      {/* Detail tambahan untuk view grid dengan desain minimalis */}
                       {isGridView && (
-                        <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800 flex justify-between items-center">
-                          <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <div className="mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800/70 flex justify-between items-center">
+                          <span className="text-[11px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 font-light letter-spacing-wider">View Details</span>
+                          <motion.div className="h-6 w-6 flex items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-800 group-hover:border-neutral-300 dark:group-hover:border-neutral-700 transition-colors" whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.02)" }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
                             </svg>
-                            View Album
-                          </span>
-                          <div className="h-5 w-5 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-neutral-500 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </div>
+                          </motion.div>
+                        </div>
+                      )}
+
+                      {/* Badge untuk list view */}
+                      {!isGridView && (
+                        <div className="mt-1 flex items-center">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-light bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700">View</span>
                         </div>
                       )}
                     </div>
@@ -431,10 +448,12 @@ export default function AlbumPage() {
           </motion.div>
         )}
 
-        {/* Decorative Footer Element */}
+        {/* Elemen dekoratif footer dengan desain minimalis */}
         {filteredAlbums.length > 0 && (
-          <div className="mt-16 flex justify-center">
-            <div className="h-px w-32 bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+          <div className="mt-20 flex justify-center">
+            <div className="h-[1px] w-20 bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+            <div className="h-1 w-1 rounded-full bg-neutral-300 dark:bg-neutral-700 mx-2"></div>
+            <div className="h-[1px] w-20 bg-gradient-to-r from-neutral-300 dark:from-neutral-700 via-neutral-300 dark:via-neutral-700 to-transparent"></div>
           </div>
         )}
       </div>

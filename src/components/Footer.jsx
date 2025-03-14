@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaTwitter, FaYoutube, FaInstagram } from "react-icons/fa";
+import { FaTwitter, FaYoutube, FaInstagram, FaDiscord } from "react-icons/fa";
 import { IoArrowUpOutline } from "react-icons/io5";
 import { motion } from "framer-motion";
 import yorushikaLogo from "../assets/yorushika.png";
@@ -8,6 +8,7 @@ const socialLinks = [
   { name: "Twitter", url: "https://twitter.com/yorushika_", icon: <FaTwitter /> },
   { name: "YouTube", url: "https://www.youtube.com/channel/UCRIgIJQWuBJ0Cv_VlU3USNA", icon: <FaYoutube /> },
   { name: "Instagram", url: "https://www.instagram.com/yorushika_official/", icon: <FaInstagram /> },
+  { name: "Discord", url: "https://discord.gg/wdam3HB", icon: <FaDiscord /> },
 ];
 
 const navigationLinks = [
@@ -107,23 +108,34 @@ export default function Footer() {
                 <div className="absolute -bottom-1 left-0 w-8 h-[1px] bg-gradient-to-r from-neutral-500 to-transparent"></div>
               </h3>
               <p className="text-neutral-400 text-sm leading-relaxed">This fan site is dedicated to celebrating Yorushika's art and music. All official content belongs to their rightful owners.</p>
-
+              {/* Discord Community Section */}
+              <div className="mt-6 pt-6 border-t border-neutral-800/30">
+                <div className="group">
+                  <h4 className="text-neutral-300 font-medium mb-3 flex items-center">
+                    <FaDiscord className="mr-2 text-indigo-400" />
+                    <span>Join Our Community</span>
+                  </h4>
+                  {/* Discord invitation card with improved button design */}
+                  <a href="https://discord.gg/wdam3HB" target="_blank" rel="noopener noreferrer" className="flex items-center bg-neutral-900/50 hover:bg-neutral-900/80 border border-neutral-800 hover:border-indigo-700/50 rounded-lg px-4 py-3 transition-all duration-300 group-hover:shadow-md group-hover:shadow-indigo-900/10">
+                    <div className="flex-1">
+                      <p className="text-neutral-300 text-sm font-medium">Yorushika Fan Discord</p>
+                      <p className="text-neutral-500 text-xs mt-1">Join other Yorushika fans for discussions, updates, and community events.</p>
+                    </div>
+                    {/* Enhanced button with subtle glow and hover effects */}
+                    <div className="ml-4 flex-shrink-0 relative overflow-hidden">
+                      <span className="inline-flex items-center justify-center px-4 py-1.5 bg-gradient-to-r from-indigo-600/80 to-indigo-800/80 hover:from-indigo-500/90 hover:to-indigo-700/90 rounded-md text-xs text-white font-medium tracking-wide transition-all duration-300 shadow-sm shadow-indigo-900/30 group-hover:shadow-indigo-900/50 border border-indigo-600/20">
+                        Join Now
+                        <span className="ml-1.5 opacity-70">→</span>
+                      </span>
+                      <div className="absolute -inset-1 bg-indigo-600/10 blur-lg opacity-0 group-hover:opacity-30 transition-opacity duration-300 rounded-full"></div>
+                    </div>
+                  </a>
+                </div>
+              </div>
               {/* Visual decorative element */}
-              <div className="relative">
+              <div className="relative mt-4">
                 <div className="h-px w-24 bg-gradient-to-r from-neutral-500 via-slate-400 to-neutral-800"></div>
                 <div className="absolute top-3 left-0 h-px w-16 bg-gradient-to-r from-neutral-500/50 via-slate-400/50 to-neutral-800/0"></div>
-              </div>
-
-              {/* Added quote section */}
-              <div className="pt-4 mt-2 border-t border-neutral-800/30">
-                <blockquote className="text-neutral-400 text-sm italic pl-3 border-l-2 border-neutral-800/30">
-                  "Life is just one compromise after another, I learned that pretty fast. <span className="font-bold text-green-600">Elma</span>, it’s you, You alone are my music"
-                </blockquote>
-              </div>
-              <div className="pt-4 mt-2 border-t border-neutral-800/30">
-                <blockquote className="text-neutral-400 text-sm italic pl-3 border-l-2 border-neutral-800/30">
-                  "A hole opened up in my heart, Your words opened a hole in my heart. I understand now, “You alone are my music,” <span className="text-orange-800 font-bold"> Amy</span>"
-                </blockquote>
               </div>
             </div>
           </div>

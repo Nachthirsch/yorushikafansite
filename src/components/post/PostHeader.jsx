@@ -116,7 +116,7 @@ export default function PostHeader({ post, getReadingTime }) {
             {(post.author || post.author_name) && (
               <div className="flex items-center space-x-2">
                 <UserIcon className="w-5 h-5 text-neutral-500 dark:text-neutral-500" />
-                <span className="font-medium text-neutral-700 dark:text-neutral-300">{post.author || post.author_name}</span>
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">TL: {post.author || post.author_name}</span>
               </div>
             )}
           </motion.div>

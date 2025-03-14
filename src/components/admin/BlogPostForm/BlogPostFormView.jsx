@@ -218,7 +218,7 @@ export default function BlogPostFormView({ localPost, currentImageUrl, showImage
 
         <div className="grid md:grid-cols-2 gap-6">
           <div className="group">
-            <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">Author Name</label>
+            <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">Translator Name</label>
             <input type="text" value={localPost.author_name} onChange={(e) => handleChange("author_name", e.target.value)} className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-gray-400 dark:group-hover:border-gray-500" placeholder="Your name" />
           </div>
           <div className="group">
