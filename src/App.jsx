@@ -17,6 +17,7 @@ import HomePage from "./pages/HomePage"; // Import HomePage
 import ScrollToTop from "./components/ScrollToTop";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import SongsPage from "./pages/SongsPage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/albums" element={<AlbumPage />} />
+                <Route path="/songs" element={<SongsPage />} />
                 <Route path="/lyrics/:songId" element={<LyricsPage />} />
                 <Route
                   path="/news"
