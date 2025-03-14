@@ -5,9 +5,9 @@ import { motion } from "framer-motion";
 import yorushikaLogo from "../assets/yorushika.png";
 
 const socialLinks = [
-  { name: "Twitter", url: "https://twitter.com/yorushika_", icon: <FaTwitter /> },
-  { name: "YouTube", url: "https://www.youtube.com/channel/UCRIgIJQWuBJ0Cv_VlU3USNA", icon: <FaYoutube /> },
-  { name: "Instagram", url: "https://www.instagram.com/yorushika_official/", icon: <FaInstagram /> },
+  { name: "Twitter", url: "https://x.com/nbuna_staff", icon: <FaTwitter /> },
+  { name: "YouTube", url: "https://www.youtube.com/@nbuna", icon: <FaYoutube /> },
+  { name: "Instagram", url: "https://www.instagram.com/yorushika_official_/", icon: <FaInstagram /> },
   { name: "Discord", url: "https://discord.gg/wdam3HB", icon: <FaDiscord /> },
 ];
 
