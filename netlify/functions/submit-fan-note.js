@@ -26,18 +26,19 @@ const hashIp = (ip) => {
 };
 
 // Verify reCAPTCHA token with improved error handling
+// Only update the verifyRecaptcha function - rest remains the same
 const verifyRecaptcha = async (token) => {
-  if (!RECAPTCHA_SECRET_KEY) {
-    console.error("RECAPTCHA_SECRET_KEY is not set");
-    return false;
-  }
-
-  if (!token) {
-    console.error("No reCAPTCHA token provided");
-    return false;
-  }
-
   try {
+    if (!RECAPTCHA_SECRET_KEY) {
+      console.error("RECAPTCHA_SECRET_KEY is not set in environment variables");
+      return false;
+    }
+
+    if (!token) {
+      console.error("No reCAPTCHA token provided");
+      return false;
+    }
+
     console.log("Verifying reCAPTCHA token...");
     const response = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
       params: {
@@ -46,12 +47,25 @@ const verifyRecaptcha = async (token) => {
       },
     });
 
-    const success = response.data.success && response.data.score >= 0.5;
-    console.log("reCAPTCHA verification result:", success, "Score:", response.data.score || "N/A");
+    const success = response.data.success;
+    const score = response.data.score;
+
+    console.log("reCAPTCHA verification result:", {
+      success,
+      score: score || "N/A",
+      hostname: response.data.hostname || "N/A",
+      action: response.data.action || "N/A",
+      challengeTs: response.data.challenge_ts || "N/A",
+    });
+
+    // For reCAPTCHA v3, check the score (if available)
+    if (success && score !== undefined) {
+      return score >= 0.5; // Threshold for bot detection
+    }
 
     return success;
   } catch (error) {
-    console.error("reCAPTCHA verification error:", error.message);
+    console.error("reCAPTCHA verification error:", error);
     return false;
   }
 };
