@@ -124,16 +124,21 @@ const HomePage = () => {
                 <div className="absolute bottom-0 left-0 w-1 h-1 bg-neutral-200 dark:bg-neutral-600"></div>
 
                 {/* Added pulsing corner dot */}
-                <motion.div className="absolute -top-2 -right-2 w-1 h-1 rounded-full bg-neutral-400/30 dark:bg-neutral-600/30" animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
+                <motion.div className="absolute -top-2 -right-2 w-1 h-1 rounded-full bg-neutral-400/30 dark:bg-neutral-600/30 shadow-glow" animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.5, 0.3], boxShadow: ["0 0 0px rgba(255,255,255,0)", "0 0 8px rgba(255,255,255,0.5)", "0 0 0px rgba(255,255,255,0)"] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} />
               </span>
             </h1>
           </motion.div>
           <div className="mt-4 mb-6">
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 1 }} className="text-sm text-neutral-500 dark:text-neutral-500 italic">
-              "The unerring, faultless light that can only illuminate the night. Unimaginably soft, dazzling beyond my wildest dreams, pale moonlight"
+              "The unerring, faultless light that can only illuminate the night. Unimaginably soft, dazzling beyond my wildest dreams, pale{" "}
+              <span className="relative inline-block">
+                <span className="relative z-10">moonlight</span>
+                <span className="absolute inset-0 bg-neutral-100/20 blur-sm rounded-full animate-pulse-slow"></span>
+              </span>
+              "
             </motion.p>
           </div>
-          {/* Added decorative divider with animation */}
+          {/* Added decorative divider with animation and glow effect */}
           <motion.div className="w-32 h-px mx-auto bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent" initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: "8rem" }} transition={{ duration: 1.5, delay: 0.3 }} />
           {/* Eluveitie album reference - subtle moon symbol */}
           <div className="mt-6 mb-8 flex justify-center">
