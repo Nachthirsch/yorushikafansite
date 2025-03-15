@@ -1,3 +1,25 @@
+[build]
+  command = "pnpm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# Function configuration
+[functions]
+  node_bundler = "esbuild"
+  
+# Environment variables used during build
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--version"
+
+# Redirect API requests to functions
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
+
+# Handle SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"

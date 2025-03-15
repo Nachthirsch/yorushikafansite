@@ -7,13 +7,27 @@ import yorushikaLogo from "../assets/yorushika.png";
 import { IoLeafOutline } from "react-icons/io5";
 import { BsMusicNoteBeamed, BsMoonStarsFill } from "react-icons/bs";
 import yorushikaLogo2 from "../assets/yorushika.svg";
+import FanNotesForm from "../components/FanNotesForm";
+import FanNotes from "../components/FanNotes";
 
 const AboutPage = () => {
+  // Existing code remains unchanged
   const [activeTab, setActiveTab] = useState("about");
   const [currentPage, setCurrentPage] = useState(1);
   const contributorsPerPage = 8;
   const tableRef = useRef(null);
   const isInView = useInView(tableRef, { once: true, amount: 0.2 });
+  const fanNotesRef = useRef(null);
+
+  // Add a reference to the FanNotes component
+  const fanNotesComponentRef = useRef(null);
+
+  // Function to refresh notes after a new submission
+  const handleNoteSubmitted = () => {
+    if (fanNotesComponentRef.current && fanNotesComponentRef.current.loadNotes) {
+      fanNotesComponentRef.current.loadNotes();
+    }
+  };
 
   // Add contributors data
   const contributors = [
@@ -600,6 +614,28 @@ const AboutPage = () => {
                   <div className="w-1 h-1 bg-neutral-300 dark:bg-neutral-700 rounded-full mx-2"></div>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <section ref={fanNotesRef} className="py-24 relative bg-neutral-100/50 dark:bg-neutral-900/50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl font-extralight tracking-wide text-neutral-900 dark:text-neutral-100 inline-block relative">
+                <span className="relative z-10">Fan Community</span>
+                <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-neutral-400 dark:via-neutral-600 to-transparent"></div>
+              </h2>
+              <div className="mt-3">
+                <IoLeafOutline className="inline-block text-neutral-400 dark:text-neutral-600" />
+              </div>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-4 max-w-md mx-auto">Connect with fellow Yorushika fans by sharing your thoughts and messages</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <FanNotesForm onNoteSubmitted={handleNoteSubmitted} />
+              <FanNotes ref={fanNotesComponentRef} />
             </div>
           </motion.div>
         </div>
