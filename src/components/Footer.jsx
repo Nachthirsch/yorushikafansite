@@ -14,7 +14,7 @@ const socialLinks = [
 const navigationLinks = [
   { name: "Home", path: "/" },
   { name: "Albums", path: "/albums" },
-  { name: "Lore", path: "/news" },
+  { name: "Lore", path: "/lore" },
   { name: "About", path: "/about" },
 ];
 
