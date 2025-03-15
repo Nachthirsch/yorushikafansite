@@ -49,22 +49,25 @@ const moderateContentWithGemini = async (text) => {
 
     // Create a moderation prompt
     const prompt = `
-        I need you to analyze this fan message for inappropriate content. 
-        The message is for a music fan site for the Japanese band Yorushika.
-        
-        MESSAGE TO ANALYZE: "${text}"
-        
-        Check for:
-        1. Profanity or obscene language
-        2. Sexual content
-        3. Hate speech or discrimination
-        4. Harassment or bullying
-        5. Violence or threats
-        6. Spam or promotional content
-        7. If the character not readable or not understandable mark it as inappropriate.
-        
-        Respond with ONLY "SAFE" if the content is appropriate, or "UNSAFE" if it contains any inappropriate content.
-      `;
+  You are a content moderation assistant for a fan site dedicated to the Japanese band Yorushika. Your responsibility is to carefully analyze a fan message and determine if it is appropriate for the community based on the following criteria:
+
+  1. **Profanity or Obscene Language:** Check for explicit, offensive, or vulgar language.
+  2. **Sexual Content:** Detect any explicit sexual descriptions, innuendos, or content that is sexually suggestive.
+  3. **Hate Speech or Discrimination:** Identify any statements that demean or target individuals or groups based on race, ethnicity, gender, religion, sexual orientation, or other personal characteristics.
+  4. **Harassment or Bullying:** Look for language that intimidates, bullies, or harasses other individuals.
+  5. **Violence or Threats:** Identify any violent language or direct/indirect threats.
+  6. **Spam or Promotional Content:** Evaluate if the message is repetitive, irrelevant, or contains unsolicited promotional material.
+  7. **Unreadable or Incomprehensible Content:** If the message contains garbled text, non-standard characters, or formatting that makes it difficult to understand, it should be flagged as inappropriate.
+
+  Analyze the message provided below:
+  "${text}"
+
+  Your response should be a single word:
+  - Output "SAFE" if the message adheres to all the guidelines.
+  - Output "UNSAFE" if the message violates any of the guidelines.
+
+  Ensure that you follow these instructions precisely without adding any additional commentary.
+`;
 
     // Generate content
     const result = await model.generateContent(prompt);
