@@ -61,6 +61,7 @@ const moderateContentWithGemini = async (text) => {
         4. Harassment or bullying
         5. Violence or threats
         6. Spam or promotional content
+        7. If the character not readable or not understandable mark it as inappropriate.
         
         Respond with ONLY "SAFE" if the content is appropriate, or "UNSAFE" if it contains any inappropriate content.
       `;
