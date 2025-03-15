@@ -10,7 +10,7 @@ const {
   PERSPECTIVE_API_KEY,
   RATE_LIMIT_WINDOW = "300", // 5 minutes in seconds
   RATE_LIMIT_MAX_REQUESTS = "3", // Max 3 submissions in the window
-  IP_SALT,
+  IP_SALT = "default-random-salt-12345",
 } = process.env;
 
 // Initialize Supabase client with service role key for admin operations
@@ -18,12 +18,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // Helper to hash IP addresses for privacy
 const hashIp = (ip) => {
-  if (!IP_SALT) {
-    throw new Error("IP_SALT environment variable is required");
-  }
-  return crypto.createHash("sha256").update(`${ip}:${IP_SALT}`).digest("hex");
+  // Use a default salt if environment variable is missing
+  const salt = process.env.IP_SALT || "yorushika-fan-default-salt";
+  return crypto.createHash("sha256").update(`${ip}:${salt}`).digest("hex");
 };
-
 // Verify reCAPTCHA token
 const verifyRecaptcha = async (token) => {
   try {
