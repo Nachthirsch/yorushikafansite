@@ -53,7 +53,7 @@ export default function Navbar() {
     { name: "Home", path: "/" },
     { name: "Albums", path: "/albums" },
     { name: "Songs", path: "/songs" }, // Add this line
-    { name: "Lore", path: "/news" },
+    { name: "Lore", path: "/lore" },
     { name: "About", path: "/about" },
   ];
 
