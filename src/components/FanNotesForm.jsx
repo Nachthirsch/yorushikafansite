@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import ReCAPTCHA from "react-google-recaptcha";
+// We'll handle reCAPTCHA manually instead of using the React component
 
 const FanNotesForm = ({ onNoteSubmitted }) => {
   const [name, setName] = useState("");
@@ -9,24 +9,67 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
-  const recaptchaRef = useRef(null);
+  const [recaptchaToken, setRecaptchaToken] = useState("");
 
   // Check if the reCAPTCHA site key exists
   const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
+  // Load reCAPTCHA script manually
   useEffect(() => {
-    // Log reCAPTCHA configuration status
+    // If site key doesn't exist, show error
     if (!recaptchaSiteKey) {
       console.error("Missing VITE_RECAPTCHA_SITE_KEY environment variable");
       setError("reCAPTCHA configuration issue. Please contact the site administrator.");
+      return;
     }
+
+    // Define callback for when grecaptcha is ready
+    window.onRecaptchaLoaded = () => {
+      console.log("reCAPTCHA script loaded successfully");
+      setRecaptchaLoaded(true);
+    };
+
+    // Load the script if it's not already loaded
+    if (!document.querySelector("script#google-recaptcha")) {
+      const script = document.createElement("script");
+      script.id = "google-recaptcha";
+      script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}&onload=onRecaptchaLoaded`;
+      script.async = true;
+      script.defer = true;
+
+      script.onerror = () => {
+        console.error("Failed to load reCAPTCHA script");
+        setError("Failed to load reCAPTCHA. Please refresh the page or disable ad blockers.");
+      };
+
+      document.head.appendChild(script);
+    }
+
+    // Clean up
+    return () => {
+      delete window.onRecaptchaLoaded;
+    };
   }, [recaptchaSiteKey]);
 
   const resetForm = () => {
     setName("");
     setContent("");
-    if (recaptchaRef.current) {
-      recaptchaRef.current.reset();
+    setRecaptchaToken("");
+  };
+
+  const executeRecaptcha = async () => {
+    if (!window.grecaptcha || !recaptchaLoaded) {
+      throw new Error("reCAPTCHA not loaded");
+    }
+
+    console.log("Executing reCAPTCHA verification...");
+    try {
+      const token = await window.grecaptcha.execute(recaptchaSiteKey, { action: "submit_fan_note" });
+      console.log("reCAPTCHA token obtained:", !!token);
+      return token;
+    } catch (error) {
+      console.error("Error executing reCAPTCHA:", error);
+      throw new Error("Failed to verify you are human. Please refresh and try again.");
     }
   };
 
@@ -37,20 +80,14 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
     setSuccess("");
 
     try {
-      // Verify recaptchaRef is available
-      if (!recaptchaRef.current) {
-        throw new Error("reCAPTCHA not initialized properly");
-      }
-
-      console.log("Executing reCAPTCHA...");
-      const recaptchaToken = await recaptchaRef.current.executeAsync();
-      console.log("reCAPTCHA token obtained:", !!recaptchaToken);
+      // Execute reCAPTCHA verification
+      const token = await executeRecaptcha();
 
       // Make the API call to your Netlify function
       const response = await fetch("/.netlify/functions/submit-fan-note", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, content, recaptchaToken }),
+        body: JSON.stringify({ name, content, recaptchaToken: token }),
       });
 
       const data = await response.json();
@@ -71,7 +108,7 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
       console.error("Error submitting note:", err);
 
       if (err.message.includes("reCAPTCHA")) {
-        setError("reCAPTCHA verification failed. Please refresh the page and try again.");
+        setError(err.message);
       } else {
         setError("An unexpected error occurred. Please try again later.");
       }
@@ -107,21 +144,19 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
           </div>
         </div>
 
-        {/* reCAPTCHA component - NOT HIDDEN */}
-        <div>
-          <ReCAPTCHA
-            ref={recaptchaRef}
-            size="invisible"
-            sitekey={recaptchaSiteKey}
-            onLoad={() => {
-              console.log("reCAPTCHA loaded successfully");
-              setRecaptchaLoaded(true);
-            }}
-            onError={() => {
-              console.error("reCAPTCHA failed to load");
-              setError("reCAPTCHA failed to load. Please refresh the page.");
-            }}
-          />
+        {/* reCAPTCHA badge notice */}
+        <div className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
+          This site is protected by reCAPTCHA and the Google
+          <a href="https://policies.google.com/privacy" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+            {" "}
+            Privacy Policy
+          </a>{" "}
+          and
+          <a href="https://policies.google.com/terms" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+            {" "}
+            Terms of Service
+          </a>{" "}
+          apply.
         </div>
 
         <div className="pt-2">
@@ -129,7 +164,16 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
             {isSubmitting ? "Submitting..." : "Submit Note"}
           </button>
 
-          {!recaptchaLoaded && <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 text-center">Waiting for reCAPTCHA to load...</p>}
+          {!recaptchaLoaded && (
+            <div className="mt-2 flex justify-center items-center">
+              <div className="animate-pulse flex space-x-1">
+                <div className="h-1.5 w-1.5 bg-amber-400 dark:bg-amber-500 rounded-full"></div>
+                <div className="h-1.5 w-1.5 bg-amber-400 dark:bg-amber-500 rounded-full"></div>
+                <div className="h-1.5 w-1.5 bg-amber-400 dark:bg-amber-500 rounded-full"></div>
+              </div>
+              <p className="text-xs text-amber-600 dark:text-amber-400 ml-2">Loading reCAPTCHA verification...</p>
+            </div>
+          )}
         </div>
 
         <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center mt-2">
