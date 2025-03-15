@@ -152,7 +152,7 @@ export default function NewsCard({ post, viewMode, index }) {
         {/* Button Container - Always positioned at the bottom */}
         <div className={`${viewMode === "grid" ? "pt-3 border-t border-neutral-200 dark:border-neutral-800" : ""} mt-auto relative flex justify-between items-center`}>
           {/* Precise button with consistent height and padding */}
-          <Link to={`/news/${post.id}`} className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700/50 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200/70 dark:hover:bg-neutral-700/70 transition-all duration-200 group/link relative h-9 min-w-[110px]" aria-label={`Read more about ${post.title}`}>
+          <Link to={`/lore/${post.id}`} className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700/50 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200/70 dark:hover:bg-neutral-700/70 transition-all duration-200 group/link relative h-9 min-w-[110px]" aria-label={`Read more about ${post.title}`}>
             <span>Read article</span>
             {/* Chevron icon with consistent positioning */}
             <ChevronRight className="w-4 h-4 ml-1.5 transform group-hover/link:translate-x-1 transition-transform" aria-hidden="true" />
