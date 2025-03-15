@@ -20,7 +20,8 @@ const {
   IP_SALT = "default-random-salt-12345",
 } = process.env;
 
-// Initialize content filter with additional words
+// Create a proper instance of the filter
+// Note: Make sure this is instantiated correctly
 const filter = new Filter();
 
 // Add additional offensive words, including Indonesian profanity
@@ -58,7 +59,7 @@ const hashIp = (ip) => {
   return crypto.createHash("sha256").update(`${ip}:${IP_SALT}`).digest("hex");
 };
 
-// New function: Moderate content using bad-words library
+// Moderate content using bad-words library
 const moderateContent = (text) => {
   if (!text) {
     console.error("No text provided for content moderation");
@@ -73,12 +74,10 @@ const moderateContent = (text) => {
 
     if (containsProfanity) {
       console.log("Content flagged as inappropriate (contains profanity)");
-      // Optionally log the cleaned version to see what was flagged
+      // Log the cleaned version with asterisks to see what was flagged
       console.log("Cleaned version would be:", filter.clean(text));
       return false;
     }
-
-    // Additional check for suspicious patterns (URLs, emails, etc. if needed)
 
     console.log("Content passed moderation check");
     return true;
@@ -272,7 +271,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Step 3: Content moderation (now using bad-words instead of Perspective API)
+    // Step 3: Content moderation (using bad-words)
     const isContentAppropriate = moderateContent(content);
     if (!isContentAppropriate) {
       return {
