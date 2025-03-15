@@ -1,6 +1,7 @@
 const { createClient } = require("@supabase/supabase-js");
 const axios = require("axios");
 const crypto = require("crypto");
+const Filter = require("bad-words");
 
 // Set headers for CORS and content type
 const headers = {
@@ -14,19 +15,80 @@ const {
   SUPABASE_URL,
   SUPABASE_SERVICE_KEY,
   RECAPTCHA_SECRET_KEY,
-  PERSPECTIVE_API_KEY,
   RATE_LIMIT_WINDOW = "300", // 5 minutes in seconds
   RATE_LIMIT_MAX_REQUESTS = "3", // Max 3 submissions in the window
   IP_SALT = "default-random-salt-12345",
 } = process.env;
+
+// Initialize content filter with additional words
+const filter = new Filter();
+
+// Add additional offensive words, including Indonesian profanity
+filter.addWords([
+  // Indonesian profanity
+  "anjing",
+  "babi",
+  "bangsat",
+  "kontol",
+  "memek",
+  "ngentot",
+  "perek",
+  "jancuk",
+  "cuk",
+  "asu",
+  "togel",
+  "tocil",
+  "tempik",
+  "ngewe",
+  "tolol",
+  "goblok",
+  "goblog",
+  "idiot",
+  "keparat",
+  "bego",
+  "bodoh",
+  // English additions
+  "stfu",
+  "kys",
+  "gtfo",
+]);
 
 // Helper to hash IP addresses for privacy
 const hashIp = (ip) => {
   return crypto.createHash("sha256").update(`${ip}:${IP_SALT}`).digest("hex");
 };
 
+// New function: Moderate content using bad-words library
+const moderateContent = (text) => {
+  if (!text) {
+    console.error("No text provided for content moderation");
+    return false;
+  }
+
+  try {
+    console.log("Checking content with bad-words filter...");
+
+    // Check if text contains profanity
+    const containsProfanity = filter.isProfane(text);
+
+    if (containsProfanity) {
+      console.log("Content flagged as inappropriate (contains profanity)");
+      // Optionally log the cleaned version to see what was flagged
+      console.log("Cleaned version would be:", filter.clean(text));
+      return false;
+    }
+
+    // Additional check for suspicious patterns (URLs, emails, etc. if needed)
+
+    console.log("Content passed moderation check");
+    return true;
+  } catch (error) {
+    console.error("Content moderation error:", error.message);
+    return false; // Block content when moderation fails
+  }
+};
+
 // Verify reCAPTCHA token with improved error handling
-// Only update the verifyRecaptcha function - rest remains the same
 const verifyRecaptcha = async (token) => {
   try {
     if (!RECAPTCHA_SECRET_KEY) {
@@ -66,75 +128,6 @@ const verifyRecaptcha = async (token) => {
     return success;
   } catch (error) {
     console.error("reCAPTCHA verification error:", error);
-    return false;
-  }
-};
-
-// Check content using Perspective API with better validation
-const checkContentWithPerspective = async (text) => {
-  if (!PERSPECTIVE_API_KEY) {
-    console.log("Skipping content moderation - PERSPECTIVE_API_KEY not set");
-    console.log("IMPORTANT: Set the PERSPECTIVE_API_KEY environment variable to enable content moderation");
-    return true; // Let's content through without moderation
-  }
-
-  if (!text || text.trim().length === 0) {
-    console.error("No text provided for content moderation");
-    return false;
-  }
-
-  try {
-    console.log("Checking content with Perspective API...");
-    const response = await axios.post(`https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${PERSPECTIVE_API_KEY}`, {
-      comment: { text },
-      languages: ["en"],
-      requestedAttributes: {
-        TOXICITY: {},
-        SEVERE_TOXICITY: {},
-        IDENTITY_ATTACK: {},
-        INSULT: {},
-        PROFANITY: {},
-        THREAT: {},
-        SEXUALLY_EXPLICIT: {},
-        SPAM: {},
-      },
-    });
-
-    const scores = response.data.attributeScores;
-
-    // Log scores for debugging
-    console.log("Content moderation scores:", {
-      TOXICITY: scores.TOXICITY?.summaryScore?.value || "N/A",
-      SEVERE_TOXICITY: scores.SEVERE_TOXICITY?.summaryScore?.value || "N/A",
-      IDENTITY_ATTACK: scores.IDENTITY_ATTACK?.summaryScore?.value || "N/A",
-      INSULT: scores.INSULT?.summaryScore?.value || "N/A",
-      PROFANITY: scores.PROFANITY?.summaryScore?.value || "N/A",
-      THREAT: scores.THREAT?.summaryScore?.value || "N/A",
-      SEXUALLY_EXPLICIT: scores.SEXUALLY_EXPLICIT?.summaryScore?.value || "N/A",
-      SPAM: scores.SPAM?.summaryScore?.value || "N/A",
-    });
-
-    // FIXED COMPLETE CONDITION: Check for problematic content
-    // Values range from 0 to 1 where higher values indicate higher likelihood of the attribute
-    if (scores.TOXICITY?.summaryScore?.value > 0.8 || scores.SEVERE_TOXICITY?.summaryScore?.value > 0.7 || scores.IDENTITY_ATTACK?.summaryScore?.value > 0.8 || scores.INSULT?.summaryScore?.value > 0.8 || scores.PROFANITY?.summaryScore?.value > 0.8 || scores.THREAT?.summaryScore?.value > 0.8 || scores.SEXUALLY_EXPLICIT?.summaryScore?.value > 0.8 || scores.SPAM?.summaryScore?.value > 0.8) {
-      console.log("Content flagged as inappropriate");
-      return false; // Content is inappropriate
-    }
-
-    console.log("Content passed moderation check");
-    return true; // Content is appropriate
-  } catch (error) {
-    console.error("Perspective API error:", error.message);
-    if (error.response) {
-      console.error("API response data:", error.response.data);
-      console.error("API response status:", error.response.status);
-    }
-
-    // If the API fails, we can either:
-    // 1. Block the content (safer) - return false
-    // 2. Allow the content through (current implementation) - return true
-
-    // For safety, let's change to block content when API fails:
     return false;
   }
 };
@@ -279,8 +272,8 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Step 3: Content moderation
-    const isContentAppropriate = await checkContentWithPerspective(content);
+    // Step 3: Content moderation (now using bad-words instead of Perspective API)
+    const isContentAppropriate = moderateContent(content);
     if (!isContentAppropriate) {
       return {
         statusCode: 400,
