@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import ReCAPTCHA from "react-google-recaptcha";
 
@@ -8,7 +8,19 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const recaptchaRef = useRef();
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const recaptchaRef = useRef(null);
+
+  // Check if reCAPTCHA site key is available
+  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+  const [recaptchaError, setRecaptchaError] = useState(!recaptchaSiteKey ? "reCAPTCHA site key is missing" : "");
+
+  useEffect(() => {
+    // Log reCAPTCHA configuration status
+    if (!recaptchaSiteKey) {
+      console.error("VITE_RECAPTCHA_SITE_KEY environment variable is not set");
+    }
+  }, [recaptchaSiteKey]);
 
   const resetForm = () => {
     setName("");
@@ -25,9 +37,22 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
     setSuccess("");
 
     try {
+      // Check if reCAPTCHA is properly loaded
+      if (!recaptchaRef.current) {
+        throw new Error("reCAPTCHA not initialized. Please refresh the page.");
+      }
+
+      console.log("Executing reCAPTCHA verification...");
       const recaptchaToken = await recaptchaRef.current.executeAsync();
 
+      if (!recaptchaToken) {
+        throw new Error("Failed to get reCAPTCHA token. Please try again.");
+      }
+
+      console.log("reCAPTCHA verification complete");
+
       // Make the API call to your Netlify function
+      console.log("Submitting note to API...");
       const response = await fetch("/.netlify/functions/submit-fan-note", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -37,10 +62,12 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
       const data = await response.json();
 
       if (!response.ok) {
+        console.error("API error response:", data);
         setError(data.message || "Failed to submit your note");
         return;
       }
 
+      console.log("Note submitted successfully");
       setSuccess("Your note has been submitted for review!");
       resetForm();
 
@@ -49,8 +76,13 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
         onNoteSubmitted();
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again later.");
       console.error("Error submitting note:", err);
+
+      if (err.message.includes("reCAPTCHA")) {
+        setError(`reCAPTCHA error: ${err.message}`);
+      } else {
+        setError("An unexpected error occurred. Please try again later.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -83,12 +115,29 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
           </div>
         </div>
 
-        <div className="hidden">
-          <ReCAPTCHA ref={recaptchaRef} size="invisible" sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY} />
+        {/* reCAPTCHA - Not hidden anymore */}
+        <div>
+          {recaptchaSiteKey ? (
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              size="invisible"
+              sitekey={recaptchaSiteKey}
+              onLoad={() => {
+                console.log("reCAPTCHA loaded successfully");
+                setRecaptchaLoaded(true);
+              }}
+              onError={() => {
+                console.error("reCAPTCHA failed to load");
+                setRecaptchaError("reCAPTCHA failed to load. Please refresh the page.");
+              }}
+            />
+          ) : (
+            <div className="text-xs text-amber-600 dark:text-amber-400">reCAPTCHA configuration issue. Admin needs to check environment variables.</div>
+          )}
         </div>
 
         <div className="pt-2">
-          <button type="submit" disabled={isSubmitting || !content.trim()} className="w-full bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-900 py-2 px-4 rounded-md transition-colors hover:bg-neutral-700 dark:hover:bg-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="submit" disabled={isSubmitting || !content.trim() || !recaptchaLoaded || !!recaptchaError} className="w-full bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-900 py-2 px-4 rounded-md transition-colors hover:bg-neutral-700 dark:hover:bg-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500 disabled:opacity-50 disabled:cursor-not-allowed">
             {isSubmitting ? "Submitting..." : "Submit Note"}
           </button>
         </div>
