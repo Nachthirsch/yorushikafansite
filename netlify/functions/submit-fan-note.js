@@ -74,7 +74,8 @@ const verifyRecaptcha = async (token) => {
 const checkContentWithPerspective = async (text) => {
   if (!PERSPECTIVE_API_KEY) {
     console.log("Skipping content moderation - PERSPECTIVE_API_KEY not set");
-    return true;
+    console.log("IMPORTANT: Set the PERSPECTIVE_API_KEY environment variable to enable content moderation");
+    return true; // Let's content through without moderation
   }
 
   if (!text || text.trim().length === 0) {
@@ -103,27 +104,38 @@ const checkContentWithPerspective = async (text) => {
 
     // Log scores for debugging
     console.log("Content moderation scores:", {
-      TOXICITY: scores.TOXICITY.summaryScore.value,
-      SEVERE_TOXICITY: scores.SEVERE_TOXICITY.summaryScore.value,
-      IDENTITY_ATTACK: scores.IDENTITY_ATTACK.summaryScore.value,
-      INSULT: scores.INSULT.summaryScore.value,
-      PROFANITY: scores.PROFANITY.summaryScore.value,
-      THREAT: scores.THREAT.summaryScore.value,
-      SEXUALLY_EXPLICIT: scores.SEXUALLY_EXPLICIT.summaryScore.value,
-      SPAM: scores.SPAM.summaryScore.value,
+      TOXICITY: scores.TOXICITY?.summaryScore?.value || "N/A",
+      SEVERE_TOXICITY: scores.SEVERE_TOXICITY?.summaryScore?.value || "N/A",
+      IDENTITY_ATTACK: scores.IDENTITY_ATTACK?.summaryScore?.value || "N/A",
+      INSULT: scores.INSULT?.summaryScore?.value || "N/A",
+      PROFANITY: scores.PROFANITY?.summaryScore?.value || "N/A",
+      THREAT: scores.THREAT?.summaryScore?.value || "N/A",
+      SEXUALLY_EXPLICIT: scores.SEXUALLY_EXPLICIT?.summaryScore?.value || "N/A",
+      SPAM: scores.SPAM?.summaryScore?.value || "N/A",
     });
 
-    // Check for problematic content - adjust thresholds as needed
-    if (scores.TOXICITY.summaryScore.value > 0.8 || scores.SEVERE_TOXICITY.summaryScore.value > 0.7 || scores.IDENTITY_ATTACK.summaryScore.value > 0.8 || scores.INSULT.summaryScore.value > 0.8 || scores.THREAT.summaryScore.value > 0.8 || scores.SEXUALLY_EXPLICIT.summaryScore.value > 0.8 || scores.SPAM.summaryScore.value > 0.8) {
+    // FIXED COMPLETE CONDITION: Check for problematic content
+    // Values range from 0 to 1 where higher values indicate higher likelihood of the attribute
+    if (scores.TOXICITY?.summaryScore?.value > 0.8 || scores.SEVERE_TOXICITY?.summaryScore?.value > 0.7 || scores.IDENTITY_ATTACK?.summaryScore?.value > 0.8 || scores.INSULT?.summaryScore?.value > 0.8 || scores.PROFANITY?.summaryScore?.value > 0.8 || scores.THREAT?.summaryScore?.value > 0.8 || scores.SEXUALLY_EXPLICIT?.summaryScore?.value > 0.8 || scores.SPAM?.summaryScore?.value > 0.8) {
       console.log("Content flagged as inappropriate");
-      return false;
+      return false; // Content is inappropriate
     }
 
-    return true;
+    console.log("Content passed moderation check");
+    return true; // Content is appropriate
   } catch (error) {
     console.error("Perspective API error:", error.message);
-    // If the API fails, we'll let the content through but flag it for review
-    return true;
+    if (error.response) {
+      console.error("API response data:", error.response.data);
+      console.error("API response status:", error.response.status);
+    }
+
+    // If the API fails, we can either:
+    // 1. Block the content (safer) - return false
+    // 2. Allow the content through (current implementation) - return true
+
+    // For safety, let's change to block content when API fails:
+    return false;
   }
 };
 
