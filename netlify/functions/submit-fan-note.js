@@ -45,25 +45,25 @@ const moderateContentWithGemini = async (text) => {
     console.log("Checking content with Gemini AI...");
 
     // Get the generative model
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     // Create a moderation prompt
     const prompt = `
-      I need you to analyze this fan message for inappropriate content. 
-      The message is for a music fan site for the Japanese band Yorushika.
-      
-      MESSAGE TO ANALYZE: "${text}"
-      
-      Check for:
-      1. Profanity or obscene language
-      2. Sexual content
-      3. Hate speech or discrimination
-      4. Harassment or bullying
-      5. Violence or threats
-      6. Spam or promotional content
-      
-      Respond with ONLY "SAFE" if the content is appropriate, or "UNSAFE" if it contains any inappropriate content.
-    `;
+        I need you to analyze this fan message for inappropriate content. 
+        The message is for a music fan site for the Japanese band Yorushika.
+        
+        MESSAGE TO ANALYZE: "${text}"
+        
+        Check for:
+        1. Profanity or obscene language
+        2. Sexual content
+        3. Hate speech or discrimination
+        4. Harassment or bullying
+        5. Violence or threats
+        6. Spam or promotional content
+        
+        Respond with ONLY "SAFE" if the content is appropriate, or "UNSAFE" if it contains any inappropriate content.
+      `;
 
     // Generate content
     const result = await model.generateContent(prompt);
@@ -73,8 +73,8 @@ const moderateContentWithGemini = async (text) => {
     // Log the result
     console.log("Gemini AI moderation result:", responseText);
 
-    // Check if content is safe
-    if (responseText.includes("SAFE")) {
+    // Check if content is safe - FIX THE LOGIC HERE
+    if (responseText === "SAFE") {
       console.log("Content passed Gemini AI moderation check");
       return true;
     } else {
