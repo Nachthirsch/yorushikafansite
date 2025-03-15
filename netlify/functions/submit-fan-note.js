@@ -45,7 +45,7 @@ const moderateContentWithGemini = async (text) => {
     console.log("Checking content with Gemini AI...");
 
     // Get the generative model
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     // Create a moderation prompt
     const prompt = `
