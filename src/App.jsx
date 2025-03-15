@@ -39,14 +39,14 @@ function App() {
                 <Route path="/songs" element={<SongsPage />} />
                 <Route path="/lyrics/:songId" element={<LyricsPage />} />
                 <Route
-                  path="/news"
+                  path="/lore"
                   element={
                     <ErrorBoundary>
                       <NewsPage />
                     </ErrorBoundary>
                   }
                 />
-                <Route path="/news/:postId" element={<PostDetailPage />} />
+                <Route path="/lore/:postId" element={<PostDetailPage />} />
                 <Route
                   path="/admin/*"
                   element={
