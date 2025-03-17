@@ -1,7 +1,11 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { ChevronDownIcon, ChevronUpIcon, ListIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, List } from "lucide-react"; // Menggunakan Lucide React icons
 
+/**
+ * Komponen untuk menampilkan daftar isi artikel blog
+ * Didesain dengan pendekatan minimalis artistik dan elemen dekoratif
+ */
 export default function ContentOutline({ post, contentPage, sectionsPerPage, navigateToContentPage }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
@@ -144,24 +148,37 @@ export default function ContentOutline({ post, contentPage, sectionsPerPage, nav
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-white dark:bg-neutral-900 rounded-xl shadow-md border border-neutral-200 dark:border-neutral-800 mb-8">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="bg-white dark:bg-neutral-900 shadow-md border border-neutral-200 
+               dark:border-neutral-800 mb-8 relative"
+    >
+      {/* Elemen dekoratif di pojok kiri atas */}
+      <div className="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-neutral-300 dark:border-neutral-700"></div>
+
+      {/* Elemen dekoratif di pojok kanan bawah */}
+      <div className="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-neutral-300 dark:border-neutral-700"></div>
+
       {/* Header daftar konten dengan tombol toggle */}
-      <div className="flex items-center justify-between p-4 cursor-pointer" onClick={toggleExpand} aria-expanded={isExpanded}>
+      <div className="flex items-center justify-between p-4 cursor-pointer relative" onClick={toggleExpand} aria-expanded={isExpanded}>
         <div className="flex items-center space-x-2">
-          {/* Icon Daftar Isi menandakan bahwa ini adalah menu navigasi konten */}
-          <ListIcon size={18} className="text-neutral-700 dark:text-neutral-300" />
+          {/* Icon List dari Lucide React untuk menandakan daftar isi */}
+          <List size={18} className="text-neutral-700 dark:text-neutral-300" />
           <h3 className="font-medium text-neutral-800 dark:text-neutral-200">Table of Content</h3>
         </div>
-        <button className="p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" aria-label={isExpanded ? "Tutup daftar isi" : "Buka daftar isi"}>
-          {/* Icon chevron untuk menandakan kondisi expand/collapse */}
-          {isExpanded ? <ChevronUpIcon size={18} className="text-neutral-600 dark:text-neutral-400" /> : <ChevronDownIcon size={18} className="text-neutral-600 dark:text-neutral-400" />}
+        <button className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700" aria-label={isExpanded ? "Tutup daftar isi" : "Buka daftar isi"}>
+          {/* Icon Chevron dari Lucide React untuk menandakan expand/collapse */}
+          {isExpanded ? <ChevronUp size={18} className="text-neutral-600 dark:text-neutral-400" /> : <ChevronDown size={18} className="text-neutral-600 dark:text-neutral-400" />}
         </button>
       </div>
 
       {/* Daftar konten - hanya ditampilkan saat expanded */}
       {isExpanded && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="px-4 pb-4 relative">
-          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-2">
+          {/* Elemen dekoratif garis di atas konten */}
+          <div className="border-t border-dashed border-neutral-200 dark:border-neutral-800 pt-2">
             {/* Container dengan scroll untuk daftar konten */}
             <div ref={listRef} className="space-y-1 mt-2 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 scrollbar-track-transparent pr-1" style={{ maxHeight: getMaxHeight() }}>
               <ul className="space-y-1">
@@ -182,15 +199,16 @@ export default function ContentOutline({ post, contentPage, sectionsPerPage, nav
                           e.stopPropagation(); // Mencegah bubbling event
                           scrollToSection(originalIndex);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between
-                          ${isActive ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium" : "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300"}`}
+                        className={`w-full text-left px-3 py-2 transition-colors flex items-center 
+                                  justify-between relative
+                                  ${isActive ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium border-l-2 border-neutral-400 dark:border-neutral-500" : "hover:bg-neutral-50 dark:hover:bg-neutral-800/50 text-neutral-700 dark:text-neutral-300 border-l border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"}`}
                         aria-current={isActive ? "location" : undefined}
                         data-section-index={originalIndex}
                         data-section-title={section.title}
                         data-section-page={sectionPage}
                       >
                         <span className="line-clamp-1">{section.title}</span>
-                        {contentPage !== sectionPage && <span className="text-xs bg-neutral-200 dark:bg-neutral-700 px-2 py-0.5 rounded-full ml-2 flex-shrink-0">Page {sectionPage}</span>}
+                        {contentPage !== sectionPage && <span className="text-xs bg-neutral-200 dark:bg-neutral-700 px-2 py-0.5 ml-2 flex-shrink-0 border-l border-neutral-300 dark:border-neutral-600">Page {sectionPage}</span>}
                       </button>
                     </li>
                   );
@@ -201,7 +219,7 @@ export default function ContentOutline({ post, contentPage, sectionsPerPage, nav
             {/* Indikator scroll jika daftar memiliki overflow */}
             {hasOverflow && (
               <div className="flex justify-center mt-2">
-                <div className="w-10 h-1 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
+                <div className="w-10 h-[2px] bg-gradient-to-r from-transparent via-neutral-400 dark:via-neutral-600 to-transparent"></div>
               </div>
             )}
           </div>

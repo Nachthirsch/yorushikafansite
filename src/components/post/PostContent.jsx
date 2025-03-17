@@ -1,10 +1,15 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeftIcon, ChevronRightIcon, ShareIcon } from "@heroicons/react/24/solid";
+import { ChevronLeft, ChevronRight, Share, Edit, X } from "lucide-react"; // Menggunakan Lucide React icons
 import SecureImage from "../SecureImage";
 import { useRef, useState, useEffect } from "react";
 import ShareTextAsImage from "./ShareTextAsImage";
 import { setHighlightMode } from "../../utils/eventBus";
 
+/**
+ * Komponen untuk menampilkan konten posting blog
+ * Didesain dengan pendekatan minimalis artistik dengan elemen dekoratif
+ * Mendukung mode highlight untuk berbagi kutipan teks
+ */
 export default function PostContent({ post, contentPage, sectionsPerPage, navigateToContentPage, renderFormattedText, sectionTitleRef, onShare }) {
   const [showTextShareModal, setShowTextShareModal] = useState(false);
   const [selectedText, setSelectedText] = useState("");
@@ -145,35 +150,79 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
     <>
       <ShareTextAsImage isOpen={showTextShareModal} onClose={() => setShowTextShareModal(false)} selectedText={selectedText} postTitle={post.title} />
 
-      {/* Floating indicator that Quote Mode is active - lebih jelas di mobile */}
+      {/* Floating indicator that Quote Mode is active - dengan desain artistik */}
       <AnimatePresence>
         {isHighlightMode && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className={`fixed left-0 right-0 mx-auto bottom-5 bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg z-30 flex items-center justify-center space-x-2 max-w-xs ${isMobileDevice ? "text-sm" : ""}`} style={{ width: isMobileDevice ? "calc(100% - 32px)" : "auto" }}>
-            <span>✒️</span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className={`fixed left-0 right-0 mx-auto bottom-5 bg-neutral-800 dark:bg-neutral-700 
+                      text-white py-2 px-4 shadow-lg z-30 flex items-center justify-center 
+                      space-x-2 max-w-xs ${isMobileDevice ? "text-sm" : ""}`}
+            style={{ width: isMobileDevice ? "calc(100% - 32px)" : "auto" }}
+          >
+            {/* Elemen dekoratif di sudut kiri atas */}
+            <div className="absolute top-0 left-0 w-3 h-3 border-l border-t border-neutral-500"></div>
+
+            {/* Elemen dekoratif di sudut kanan bawah */}
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-r border-b border-neutral-500"></div>
+
+            {/* Icon Edit dari Lucide React untuk menunjukkan mode kutipan */}
+            <Edit className="w-4 h-4" />
             <span>{isMobileDevice ? "Quote Mode - Select text to share" : "Quote Mode Active - Select text to share"}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <motion.div ref={contentRef} key={`content-page-${contentPage}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-white dark:bg-neutral-900 rounded-2xl shadow-md border border-neutral-200 dark:border-neutral-800 p-6 md:p-10 post-content mb-20" onMouseUp={handleMouseUp} onTouchEnd={handleTouchEnd}>
-        {/* Cover image section */}
+      <motion.div
+        ref={contentRef}
+        key={`content-page-${contentPage}`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white dark:bg-neutral-900 shadow-md border border-neutral-200 
+                  dark:border-neutral-800 p-6 md:p-10 post-content mb-20 relative"
+        onMouseUp={handleMouseUp}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Elemen dekoratif di pojok kiri atas */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-l-2 border-t-2 border-neutral-300 dark:border-neutral-700"></div>
+
+        {/* Elemen dekoratif di pojok kanan bawah */}
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-neutral-300 dark:border-neutral-700"></div>
+
+        {/* Cover image section dengan desain kotak */}
         {post.cover_image && (
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }} className="mb-10 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-lg">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }} className="mb-10 overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-lg relative">
+            {/* Elemen dekoratif di pojok kiri atas gambar */}
+            <div className="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-neutral-400/30 dark:border-neutral-600/30 z-10"></div>
+
+            {/* Elemen dekoratif di pojok kanan bawah gambar */}
+            <div className="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-neutral-400/30 dark:border-neutral-600/30 z-10"></div>
+
             <figure className="overflow-hidden">
               <SecureImage src={post.cover_image} alt={post.title} className="w-full h-auto max-h-[500px] object-contain hover:scale-[1.02] transition-transform duration-500 ease-out" />
             </figure>
           </motion.div>
         )}
 
-        {/* Highlight mode toggle button - lebih besar di mobile */}
-        <div className="flex justify-end mb-4 items-center">
+        {/* Highlight mode toggle button - dengan desain artistik */}
+        <div className="flex justify-end mb-6 items-center">
           <button
             onClick={toggleHighlightMode}
-            className={`flex items-center px-3 py-1.5 ${isMobileDevice ? "py-2 px-4" : ""} text-sm rounded-full transition-colors
-              ${isHighlightMode ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500" : "bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300"}`}
+            className={`flex items-center px-3 py-1.5 ${isMobileDevice ? "py-2 px-4" : ""} text-sm
+              relative overflow-hidden transition-colors border
+              ${isHighlightMode ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border-neutral-400 dark:border-neutral-600" : "bg-neutral-50 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-300 dark:border-neutral-700"}`}
             style={{ minHeight: isMobileDevice ? "40px" : "auto" }}
+            aria-pressed={isHighlightMode}
+            aria-label={isHighlightMode ? "Exit quote mode" : "Enter quote mode"}
           >
-            <span className="mr-2">✒️</span>
+            {/* Elemen dekoratif di pojok kiri atas tombol */}
+            <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-neutral-400 dark:border-neutral-500"></div>
+
+            {/* Icon Edit dari Lucide React untuk tombol mode kutipan */}
+            <Edit className="w-4 h-4 mr-2" />
             {isHighlightMode ? "Exit Quote Mode" : "Enter Quote Mode"}
           </button>
         </div>
@@ -181,9 +230,9 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
         {/* Main content section dengan perbaikan CSS untuk seleksi teks */}
         <div
           className={`prose prose-neutral dark:prose-invert max-w-none
-            [&_::selection]:bg-blue-500/20 dark:[&_::selection]:bg-blue-500/30
-            [&_::selection]:text-neutral-900 dark:[&_::selection]:text-neutral-100
-            ${isHighlightMode ? "quote-mode" : ""}`}
+                     [&_::selection]:bg-neutral-200 dark:[&_::selection]:bg-neutral-700
+                     [&_::selection]:text-neutral-900 dark:[&_::selection]:text-neutral-100
+                     ${isHighlightMode ? "quote-mode" : ""}`}
           style={{
             touchAction: "manipulation",
             WebkitUserSelect: isHighlightMode ? "text" : "auto",
@@ -197,9 +246,17 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
 
                 return (
                   <motion.div key={index} className="mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.1 }} ref={index === 0 ? sectionTitleRef : null}>
-                    {/* Section title with data attributes for improved targeting */}
+                    {/* Section title with data attributes and artistic design */}
                     {block.title && (
-                      <h3 className="text-2xl font-medium text-neutral-900 dark:text-neutral-100 mb-4 scroll-mt-24" data-section-title={block.title} data-section-index={originalIndex} id={`section-${originalIndex}`}>
+                      <h3
+                        className="text-2xl font-medium text-neutral-900 dark:text-neutral-100 mb-4 
+                                 scroll-mt-24 pb-2 relative"
+                        data-section-title={block.title}
+                        data-section-index={originalIndex}
+                        id={`section-${originalIndex}`}
+                      >
+                        {/* Garis dekoratif di bawah judul section */}
+                        <div className="absolute bottom-0 left-0 w-16 h-px bg-gradient-to-r from-neutral-400 to-transparent dark:from-neutral-600 dark:to-transparent"></div>
                         {block.title}
                       </h3>
                     )}
@@ -207,27 +264,29 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                     {/* Text block */}
                     {block.type === "text" && (
                       <div className="relative group">
-                        {/* Share paragraph button hanya untuk tombol berbagi paragraf */}
+                        {/* Share paragraph button dengan desain baru */}
                         <button
                           onClick={() => handleShareQuote(block.value || "", block.title)}
                           className={`absolute right-0 top-0 opacity-0 group-hover:opacity-100 
-                          ${isMobileDevice ? "p-2" : "p-1.5"} bg-blue-100 dark:bg-blue-900/70 
-                          rounded-full transform -translate-y-1/2 translate-x-1/2 transition-opacity`}
+                                    ${isMobileDevice ? "p-2" : "p-1.5"} bg-neutral-100 dark:bg-neutral-800 
+                                    border border-neutral-300 dark:border-neutral-700
+                                    transform -translate-y-1/2 translate-x-1/2 transition-opacity`}
                           aria-label="Share this paragraph"
                           style={{ minWidth: isMobileDevice ? "32px" : "24px", minHeight: isMobileDevice ? "32px" : "24px" }}
                         >
-                          <ShareIcon className={`${isMobileDevice ? "w-5 h-5" : "w-4 h-4"} text-blue-600 dark:text-blue-300`} />
+                          {/* Icon Share dari Lucide React untuk berbagi paragraf */}
+                          <Share className={`${isMobileDevice ? "w-5 h-5" : "w-4 h-4"} text-neutral-700 dark:text-neutral-300`} />
                         </button>
 
-                        {/* The paragraph itself - tanpa event handler onClick */}
+                        {/* The paragraph itself dengan styling yang lebih baik */}
                         <div
                           className={`leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre-line
-                          ${isHighlightMode ? "cursor-text bg-transparent hover:bg-transparent" : ""}
-                          ${block.format?.bold ? "font-bold" : ""}
-                          ${block.format?.italic ? "italic" : ""}
-                          ${block.format?.underline ? "underline" : ""}
-                          ${block.format?.lineThrough ? "line-through" : ""}
-                          ${block.format?.fontSize === "large" ? "text-lg" : block.format?.fontSize === "larger" ? "text-xl" : block.format?.fontSize === "largest" ? "text-2xl" : ""}`}
+                                     ${isHighlightMode ? "cursor-text bg-transparent hover:bg-transparent" : ""}
+                                     ${block.format?.bold ? "font-bold" : ""}
+                                     ${block.format?.italic ? "italic" : ""}
+                                     ${block.format?.underline ? "underline" : ""}
+                                     ${block.format?.lineThrough ? "line-through" : ""}
+                                     ${block.format?.fontSize === "large" ? "text-lg" : block.format?.fontSize === "larger" ? "text-xl" : block.format?.fontSize === "largest" ? "text-2xl" : ""}`}
                           style={{
                             WebkitUserSelect: isHighlightMode ? "text" : "auto",
                             userSelect: isHighlightMode ? "text" : "auto",
@@ -238,12 +297,17 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                       </div>
                     )}
 
-                    {/* Image block */}
+                    {/* Image block dengan desain kotak */}
                     {block.type === "image" && (
                       <figure className="my-8 flex flex-col items-center">
-                        \
-                        <div className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                          <SecureImage src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down rounded" />
+                        <div className="bg-neutral-100 dark:bg-neutral-800 p-2 shadow-sm hover:shadow-md transition-shadow duration-300 relative">
+                          {/* Elemen dekoratif di pojok kiri atas */}
+                          <div className="absolute top-0 left-0 w-4 h-4 border-l border-t border-neutral-400/30 dark:border-neutral-600/30"></div>
+
+                          {/* Elemen dekoratif di pojok kanan bawah */}
+                          <div className="absolute bottom-0 right-0 w-4 h-4 border-r border-b border-neutral-400/30 dark:border-neutral-600/30"></div>
+
+                          <SecureImage src={block.url} alt={block.title || block.caption || ""} className="max-w-full h-auto max-h-96 object-scale-down" />
                         </div>
                         {block.caption && <figcaption className="text-center text-neutral-600 dark:text-neutral-400 mt-3 text-sm italic">{block.caption}</figcaption>}
                       </figure>
@@ -252,44 +316,54 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                 );
               })}
 
-              {/* Content pagination dengan tombol yang lebih besar di mobile */}
+              {/* Content pagination dengan desain yang lebih artistik */}
               {post.content.length > sectionsPerPage && (
                 <div className="flex items-center justify-center space-x-4 mt-12 pt-6 border-t border-neutral-200 dark:border-neutral-800">
-                  {/* Tombol Previous dengan ukuran lebih besar untuk mobile */}
+                  {/* Tombol Previous dengan desain artistik minimalis */}
                   <button
                     onClick={() => navigateToContentPage(contentPage - 1)}
                     disabled={contentPage === 1}
                     aria-label="Previous page"
-                    className={`flex items-center px-4 py-2 rounded-lg
-                      ${isMobileDevice ? "min-h-[44px] min-w-[100px]" : ""} 
-                      ${contentPage === 1 ? "text-neutral-400 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800" : "text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 shadow-sm hover:shadow"} transition-all`}
+                    className={`flex items-center px-4 py-2 border
+                              ${isMobileDevice ? "min-h-[44px] min-w-[100px]" : ""} 
+                              ${contentPage === 1 ? "text-neutral-400 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700" : "text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 shadow-sm hover:shadow border-neutral-300 dark:border-neutral-600"} 
+                              transition-all relative`}
                   >
-                    <ChevronLeftIcon className="w-5 h-5 mr-1" />
+                    {/* Elemen dekoratif di pojok kiri atas */}
+                    {contentPage !== 1 && <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-neutral-400 dark:border-neutral-500"></div>}
+
+                    {/* Icon ChevronLeft dari Lucide React untuk navigasi halaman */}
+                    <ChevronLeft className="w-5 h-5 mr-1" />
                     <span>Previous</span>
                   </button>
 
-                  {/* Indikator halaman saat ini */}
-                  <span className="text-neutral-600 dark:text-neutral-400 px-2">
+                  {/* Indikator halaman saat ini dengan desain artistik */}
+                  <span className="text-neutral-600 dark:text-neutral-400 px-2 border-b border-dashed border-neutral-300 dark:border-neutral-600">
                     {contentPage} / {Math.ceil(post.content.length / sectionsPerPage)}
                   </span>
 
-                  {/* Tombol Next dengan ukuran lebih besar untuk mobile */}
+                  {/* Tombol Next dengan desain artistik minimalis */}
                   <button
                     onClick={() => navigateToContentPage(contentPage + 1)}
                     disabled={contentPage === Math.ceil(post.content.length / sectionsPerPage)}
                     aria-label="Next page"
-                    className={`flex items-center px-4 py-2 rounded-lg
-                      ${isMobileDevice ? "min-h-[44px] min-w-[100px]" : ""} 
-                      ${contentPage === Math.ceil(post.content.length / sectionsPerPage) ? "text-neutral-400 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800" : "text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 shadow-sm hover:shadow"} transition-all`}
+                    className={`flex items-center px-4 py-2 border
+                              ${isMobileDevice ? "min-h-[44px] min-w-[100px]" : ""} 
+                              ${contentPage === Math.ceil(post.content.length / sectionsPerPage) ? "text-neutral-400 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700" : "text-neutral-700 dark:text-neutral-300 bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 shadow-sm hover:shadow border-neutral-300 dark:border-neutral-600"} 
+                              transition-all relative`}
                   >
+                    {/* Elemen dekoratif di pojok kanan bawah */}
+                    {contentPage !== Math.ceil(post.content.length / sectionsPerPage) && <div className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-neutral-400 dark:border-neutral-500"></div>}
+
                     <span>Next</span>
-                    <ChevronRightIcon className="w-5 h-5 ml-1" />
+                    {/* Icon ChevronRight dari Lucide React untuk navigasi halaman */}
+                    <ChevronRight className="w-5 h-5 ml-1" />
                   </button>
                 </div>
               )}
             </>
           ) : (
-            // Konten non-array, tanpa event handler onClick
+            // Konten non-array, dengan styling yang konsisten
             <div
               className="leading-relaxed text-neutral-900 dark:text-neutral-100 whitespace-pre-line"
               style={{

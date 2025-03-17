@@ -10,6 +10,8 @@ import SongForm from "../admin/SongForm/index";
 import AlbumForm from "../admin/AlbumForm/index";
 import { ChartBarIcon, BookOpenIcon, ArchiveBoxIcon, MusicalNoteIcon } from "@heroicons/react/24/outline";
 import { AdminProvider, useAdmin } from "../../contexts/AdminContext";
+// Import React Query hooks
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Import our new components
 import LoginScreen from "./auth/LoginScreen";
@@ -27,72 +29,116 @@ const AdminContent = React.memo(function AdminContent() {
   const isPageVisible = usePageVisibility();
   const navigate = useNavigate();
   const { session } = useAuth(); // Move auth check here
+  const queryClient = useQueryClient(); // Inisialisasi queryClient
 
-  // Define all hooks and callbacks first
+  // Fungsi fetch dengan React Query
   const fetchPosts = useCallback(async () => {
-    if (!isPageVisible) return;
-    try {
-      const { data, error } = await supabase.from("blog_posts").select("*, author_name, author_social_link").order("created_at", { ascending: false });
-      if (error) throw error;
-      console.log("Fetched posts:", data); // Debug log
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      toast.error("Failed to load posts");
-      return [];
-    }
-  }, [isPageVisible]);
+    const { data, error } = await supabase.from("blog_posts").select("*, author_name, author_social_link").order("created_at", { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }, []);
 
   const fetchAlbums = useCallback(async () => {
-    if (!isPageVisible) return;
-    try {
-      const { data, error } = await supabase.from("albums").select(`*, songs(*)`).order("release_date", { ascending: false });
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching albums:", error);
-      toast.error("Failed to load albums");
-      return [];
-    }
-  }, [isPageVisible]);
+    const { data, error } = await supabase.from("albums").select(`*, songs(*)`).order("release_date", { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }, []);
 
   const fetchSongs = useCallback(async () => {
-    if (!isPageVisible) return;
-    try {
-      const { data, error } = await supabase.from("songs").select(`*, albums(title)`).order("track_number");
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching songs:", error);
-      toast.error("Failed to load songs");
-      return [];
-    }
-  }, [isPageVisible]);
+    const { data, error } = await supabase.from("songs").select(`*, albums(title)`).order("track_number");
+    if (error) throw error;
+    return data || [];
+  }, []);
 
-  const fetchData = useCallback(async () => {
-    if (!isPageVisible) return;
-    dispatch({ type: "SET_LOADING", payload: true });
-    try {
-      const [albumsData, postsData, songsData] = await Promise.all([fetchAlbums(), fetchPosts(), fetchSongs()]);
+  // Menggunakan useQuery untuk fetching dan caching data
+  const {
+    data: postsData,
+    isLoading: postsLoading,
+    refetch: refetchPosts,
+  } = useQuery({
+    queryKey: ["admin-posts"],
+    queryFn: fetchPosts,
+    enabled: !!session && isPageVisible,
+    staleTime: 1000 * 60 * 5, // Data dianggap fresh selama 5 menit
+    cacheTime: 1000 * 60 * 30, // Cache bertahan selama 30 menit
+  });
 
-      dispatch({ type: "SET_ALBUMS", payload: albumsData });
+  const {
+    data: albumsData,
+    isLoading: albumsLoading,
+    refetch: refetchAlbums,
+  } = useQuery({
+    queryKey: ["admin-albums"],
+    queryFn: fetchAlbums,
+    enabled: !!session && isPageVisible,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+  });
+
+  const {
+    data: songsData,
+    isLoading: songsLoading,
+    refetch: refetchSongs,
+  } = useQuery({
+    queryKey: ["admin-songs"],
+    queryFn: fetchSongs,
+    enabled: !!session && isPageVisible,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+  });
+
+  // Effect untuk memperbarui state setelah data di-fetch
+  useEffect(() => {
+    if (!session) return;
+
+    // Update posts data ke state
+    if (postsData) {
       dispatch({ type: "SET_POSTS", payload: postsData });
-      dispatch({ type: "SET_SONGS", payload: songsData });
+    }
 
-      // Update stats after data is loaded
+    // Update albums data ke state
+    if (albumsData) {
+      dispatch({ type: "SET_ALBUMS", payload: albumsData });
+    }
+
+    // Update songs data ke state
+    if (songsData) {
+      dispatch({ type: "SET_SONGS", payload: songsData });
+    }
+
+    // Update stats setelah semua data di-load
+    if (postsData && albumsData && songsData) {
       const stats = {
         totalPosts: postsData.length,
         totalAlbums: albumsData.length,
         totalSongs: albumsData.reduce((acc, album) => acc + (album.songs?.length || 0), 0),
       };
       dispatch({ type: "UPDATE_STATS", payload: stats });
+    }
+  }, [session, postsData, albumsData, songsData, dispatch]);
+
+  // Loading state
+  useEffect(() => {
+    dispatch({
+      type: "SET_LOADING",
+      payload: postsLoading || albumsLoading || songsLoading,
+    });
+  }, [postsLoading, albumsLoading, songsLoading, dispatch]);
+
+  // Refresh semua data
+  const fetchData = useCallback(async () => {
+    if (!isPageVisible || !session) return;
+
+    dispatch({ type: "SET_LOADING", payload: true });
+    try {
+      await Promise.all([refetchPosts(), refetchAlbums(), refetchSongs()]);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to load data");
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
     }
-  }, [isPageVisible, dispatch, fetchAlbums, fetchPosts, fetchSongs]);
+  }, [isPageVisible, session, refetchPosts, refetchAlbums, refetchSongs, dispatch]);
 
   // All other callback definitions
   const handleSubmit = useCallback(
@@ -130,6 +176,8 @@ const AdminContent = React.memo(function AdminContent() {
 
         if (error) throw error;
 
+        // Invalidate dan refresh cache setelah perubahan
+        queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
         await fetchData();
         dispatch({ type: "RESET_CURRENT_POST" });
         dispatch({ type: "SET_IS_EDITING", payload: false });
@@ -139,7 +187,7 @@ const AdminContent = React.memo(function AdminContent() {
         toast.error(`Failed to save post: ${error.message || "Unknown error"}`, { id: toastId });
       }
     },
-    [state.isEditing, state.currentPost, dispatch, fetchData]
+    [state.isEditing, state.currentPost, dispatch, fetchData, queryClient]
   );
 
   const handleDelete = useCallback(
@@ -153,6 +201,17 @@ const AdminContent = React.memo(function AdminContent() {
           .eq("id", id);
 
         if (error) throw error;
+
+        // Invalidate cache berdasarkan tipe yang dihapus
+        if (type === "post") {
+          queryClient.invalidateQueries({ queryKey: ["admin-posts"] });
+        } else if (type === "album") {
+          queryClient.invalidateQueries({ queryKey: ["admin-albums"] });
+          queryClient.invalidateQueries({ queryKey: ["admin-songs"] });
+        } else if (type === "song") {
+          queryClient.invalidateQueries({ queryKey: ["admin-songs"] });
+        }
+
         await fetchData();
         toast.success(`${type} deleted successfully!`, { id: toastId });
       } catch (error) {
@@ -160,7 +219,7 @@ const AdminContent = React.memo(function AdminContent() {
         toast.error(`Failed to delete ${type}`, { id: toastId });
       }
     },
-    [dispatch, fetchData]
+    [dispatch, fetchData, queryClient]
   );
 
   const handleAddSong = useCallback(
@@ -191,6 +250,10 @@ const AdminContent = React.memo(function AdminContent() {
 
         if (error) throw error;
 
+        // Invalidate cache setelah menambah lagu baru
+        queryClient.invalidateQueries({ queryKey: ["admin-songs"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-albums"] });
+
         await fetchData();
         toast.success("Song added successfully!", { id: toastId });
 
@@ -201,7 +264,7 @@ const AdminContent = React.memo(function AdminContent() {
         toast.error(error.message || "Failed to add song", { id: toastId });
       }
     },
-    [fetchData, dispatch]
+    [fetchData, dispatch, queryClient]
   );
 
   const handleEditPost = useCallback(
@@ -273,8 +336,10 @@ const AdminContent = React.memo(function AdminContent() {
 
   // Add onAlbumAdded callback
   const handleAlbumAdded = useCallback(async () => {
+    // Invalidate cache setelah menambah album baru
+    queryClient.invalidateQueries({ queryKey: ["admin-albums"] });
     await fetchData();
-  }, [fetchData]);
+  }, [fetchData, queryClient]);
 
   // Effect hook
   useEffect(() => {
@@ -363,7 +428,7 @@ const AdminContent = React.memo(function AdminContent() {
 
               {/* Blog Posts Panel */}
               <Tab.Panel>
-                <BlogPostsPanel posts={state.posts} postSort={state.postSort} setPostSort={(sort) => dispatch({ type: "SET_POST_SORT", payload: sort })} postFilter={state.postFilter} setPostFilter={(filter) => dispatch({ type: "SET_POST_FILTER", payload: filter })} onEdit={handleEditPost} onDelete={handleDeletePost} onRefresh={fetchPosts}>
+                <BlogPostsPanel posts={state.posts} postSort={state.postSort} setPostSort={(sort) => dispatch({ type: "SET_POST_SORT", payload: sort })} postFilter={state.postFilter} setPostFilter={(filter) => dispatch({ type: "SET_POST_FILTER", payload: filter })} onEdit={handleEditPost} onDelete={handleDeletePost} onRefresh={refetchPosts}>
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white mb-6">
                     <BookOpenIcon className="w-5 h-5 text-blue-500" />
                     {state.isEditing ? "Edit Post" : "Create New Post"}
@@ -383,7 +448,7 @@ const AdminContent = React.memo(function AdminContent() {
 
               {/* Albums Panel */}
               <Tab.Panel>
-                <AlbumsPanel albums={state.albums} albumSort={state.albumSort} setAlbumSort={(sort) => dispatch({ type: "SET_ALBUM_SORT", payload: sort })} albumFilter={state.albumFilter} setAlbumFilter={(filter) => dispatch({ type: "SET_ALBUM_FILTER", payload: filter })} onDelete={handleDeleteAlbum} onRefresh={fetchAlbums}>
+                <AlbumsPanel albums={state.albums} albumSort={state.albumSort} setAlbumSort={(sort) => dispatch({ type: "SET_ALBUM_SORT", payload: sort })} albumFilter={state.albumFilter} setAlbumFilter={(filter) => dispatch({ type: "SET_ALBUM_FILTER", payload: filter })} onDelete={handleDeleteAlbum} onRefresh={refetchAlbums}>
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white mb-6">
                     <ArchiveBoxIcon className="w-5 h-5 text-blue-500" />
                     Add New Album
@@ -394,7 +459,7 @@ const AdminContent = React.memo(function AdminContent() {
 
               {/* Songs Panel */}
               <Tab.Panel>
-                <SongsPanel songs={state.songs} selectedAlbum={state.selectedAlbum} albums={state.albums} onAlbumChange={(album) => dispatch({ type: "SET_SELECTED_ALBUM", payload: album })} onDelete={handleDeleteSong} onRefresh={fetchAlbums}>
+                <SongsPanel songs={state.songs} selectedAlbum={state.selectedAlbum} albums={state.albums} onAlbumChange={(album) => dispatch({ type: "SET_SELECTED_ALBUM", payload: album })} onDelete={handleDeleteSong} onRefresh={refetchAlbums}>
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white mb-6">
                     <MusicalNoteIcon className="w-5 h-5 text-blue-500" />
                     Add New Song
@@ -405,7 +470,7 @@ const AdminContent = React.memo(function AdminContent() {
 
               {/* Songs Management Panel */}
               <Tab.Panel>
-                <SongsManagementPanel songs={state.songs} onRefresh={fetchSongs} onDelete={handleDeleteSong} onEdit={handleEditSong} onViewLyrics={handleViewLyrics} />
+                <SongsManagementPanel songs={state.songs} onRefresh={refetchSongs} onDelete={handleDeleteSong} onEdit={handleEditSong} onViewLyrics={handleViewLyrics} />
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>

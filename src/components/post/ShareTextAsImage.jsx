@@ -559,10 +559,9 @@ export default function ShareTextAsImage({ isOpen, onClose, selectedText, postTi
           {/* Input untuk judul konten */}
           <div>
             <label htmlFor="content-title" className="block text-xs text-neutral-500 dark:text-neutral-400 mb-1 text-center">
-              Judul Konten (opsional):
+              Title Section (optional):
             </label>
             <input type="text" id="content-title" value={contentTitle} onChange={(e) => setContentTitle(e.target.value)} placeholder="Ex: Memory 11 - Elma's Diary" className="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-1 text-center">Judul ini akan ditampilkan di samping judul post</p>
           </div>
 
           {/* Font selector - ditambahkan di awal sebelum theme selector */}
