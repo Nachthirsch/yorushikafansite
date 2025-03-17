@@ -27,7 +27,6 @@ export default function ContentOutline({ post, contentPage, sectionsPerPage, nav
     });
 
     setSectionIDs(idMap);
-    console.log("Peta ID bagian:", idMap);
   }, [post]);
 
   /// Efek untuk melacak bagian konten yang sedang aktif berdasarkan posisi scroll
