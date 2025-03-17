@@ -97,7 +97,7 @@ const FanNotesForm = ({ onNoteSubmitted }) => {
         return;
       }
 
-      setSuccess("Your note has been submitted for review!");
+      setSuccess("Your note has been submitted!");
       resetForm();
 
       // Optional: Call the callback to refresh note list

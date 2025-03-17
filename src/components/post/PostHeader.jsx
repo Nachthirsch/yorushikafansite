@@ -49,7 +49,7 @@ export default function PostHeader({ post, getReadingTime }) {
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex justify-between items-center mb-8">
           <Link
-            to="/news"
+            to="/lore"
             className="inline-flex items-center text-neutral-600 hover:text-neutral-800 
         dark:text-neutral-400 dark:hover:text-neutral-200 text-base font-medium py-2 
         px-3 rounded-full bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm
