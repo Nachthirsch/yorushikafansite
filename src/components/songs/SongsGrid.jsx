@@ -79,7 +79,7 @@ export default function SongsGrid({ searchTerm, sortBy, albumFilter, isGridView 
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
       <motion.div layout className={`grid ${isGridView ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" : "grid-cols-1 gap-4"}`}>
         <AnimatePresence mode="popLayout">
           {allSongs.map((song) => (
