@@ -229,7 +229,8 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
 
         {/* Main content section dengan perbaikan CSS untuk seleksi teks */}
         <div
-          className={`prose prose-neutral dark:prose-invert max-w-none
+          className={`prose prose-neutral dark:prose-invert max-w-none text-justify leading-loose
+                     [&_p]:leading-loose [&_li]:leading-loose
                      [&_::selection]:bg-neutral-200 dark:[&_::selection]:bg-neutral-700
                      [&_::selection]:text-neutral-900 dark:[&_::selection]:text-neutral-100
                      ${isHighlightMode ? "quote-mode" : ""}`}
@@ -237,6 +238,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
             touchAction: "manipulation",
             WebkitUserSelect: isHighlightMode ? "text" : "auto",
             userSelect: isHighlightMode ? "text" : "auto",
+            lineHeight: "1.8",
           }}
         >
           {Array.isArray(post.content) ? (
@@ -280,7 +282,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
 
                         {/* The paragraph itself dengan styling yang lebih baik */}
                         <div
-                          className={`leading-relaxed text-neutral-800 dark:text-neutral-200 whitespace-pre-line
+                          className={`leading-loose text-neutral-800 dark:text-neutral-200 whitespace-pre-line text-justify
                                      ${isHighlightMode ? "cursor-text bg-transparent hover:bg-transparent" : ""}
                                      ${block.format?.bold ? "font-bold" : ""}
                                      ${block.format?.italic ? "italic" : ""}
@@ -290,6 +292,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                           style={{
                             WebkitUserSelect: isHighlightMode ? "text" : "auto",
                             userSelect: isHighlightMode ? "text" : "auto",
+                            lineHeight: "1.8",
                           }}
                         >
                           {block.format?.selections && block.format.selections.length > 0 ? renderFormattedText(block.value || "", block.format.selections) : block.value || ""}
@@ -365,10 +368,11 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
           ) : (
             // Konten non-array, dengan styling yang konsisten
             <div
-              className="leading-relaxed text-neutral-900 dark:text-neutral-100 whitespace-pre-line"
+              className="leading-loose text-neutral-900 dark:text-neutral-100 whitespace-pre-line text-justify"
               style={{
                 WebkitUserSelect: isHighlightMode ? "text" : "auto",
                 userSelect: isHighlightMode ? "text" : "auto",
+                lineHeight: "1.8",
               }}
             >
               {String(post.content)}
