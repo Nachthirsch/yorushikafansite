@@ -9,6 +9,7 @@ import { setHighlightMode } from "../../utils/eventBus";
  * Komponen untuk menampilkan konten posting blog
  * Didesain dengan pendekatan minimalis artistik dengan elemen dekoratif
  * Mendukung mode highlight untuk berbagi kutipan teks
+ * Mendukung konten HTML dari TipTap editor
  */
 export default function PostContent({ post, contentPage, sectionsPerPage, navigateToContentPage, renderFormattedText, sectionTitleRef, onShare }) {
   const [showTextShareModal, setShowTextShareModal] = useState(false);
@@ -51,7 +52,15 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
     }
   };
 
-  /// Penanganan seleksi teks yang disederhanakan
+  /// Fungsi untuk ekstrak teks murni dari HTML untuk berbagi kutipan
+  const getTextFromHtml = (html) => {
+    if (!html) return "";
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || "";
+  };
+
+  /// Penanganan seleksi teks yang disederhanakan, sekarang mendukung konten HTML
   const handleTextSelection = () => {
     if (!isHighlightMode) return;
 
@@ -114,7 +123,9 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
 
   // Share quote button handler untuk tombol berbagi di setiap paragraf
   const handleShareQuote = (text, sectionTitle) => {
-    setSelectedText(text);
+    // Ekstrak teks dari HTML jika konten adalah HTML
+    const plainText = getTextFromHtml(text);
+    setSelectedText(plainText);
     setCurrentSectionTitle(sectionTitle || "");
     setShowTextShareModal(true);
   };
@@ -227,12 +238,17 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
           </button>
         </div>
 
-        {/* Main content section dengan perbaikan CSS untuk seleksi teks */}
+        {/* Main content section dengan perbaikan CSS untuk seleksi teks dan dukungan untuk konten HTML dari TipTap */}
         <div
           className={`prose prose-neutral dark:prose-invert max-w-none text-justify leading-loose
                      [&_p]:leading-loose [&_li]:leading-loose
                      [&_::selection]:bg-neutral-200 dark:[&_::selection]:bg-neutral-700
                      [&_::selection]:text-neutral-900 dark:[&_::selection]:text-neutral-100
+                     [&_h1]:text-2xl [&_h1]:font-medium [&_h1]:mb-4 [&_h1]:mt-6
+                     [&_h2]:text-xl [&_h2]:font-medium [&_h2]:mb-3 [&_h2]:mt-5
+                     [&_blockquote]:border-l-4 [&_blockquote]:border-neutral-300 [&_blockquote]:dark:border-neutral-600 
+                     [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-neutral-700 [&_blockquote]:dark:text-neutral-300
+                     [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5
                      ${isHighlightMode ? "quote-mode" : ""}`}
           style={{
             touchAction: "manipulation",
@@ -263,7 +279,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                       </h3>
                     )}
 
-                    {/* Text block */}
+                    {/* Text block - Sekarang mendukung konten HTML dari TipTap */}
                     {block.type === "text" && (
                       <div className="relative group">
                         {/* Share paragraph button dengan desain baru */}
@@ -280,23 +296,37 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                           <Share className={`${isMobileDevice ? "w-5 h-5" : "w-4 h-4"} text-neutral-700 dark:text-neutral-300`} />
                         </button>
 
-                        {/* The paragraph itself dengan styling yang lebih baik */}
+                        {/* Konten HTML dari TipTap dengan styling yang sesuai */}
                         <div
-                          className={`leading-loose text-neutral-800 dark:text-neutral-200 whitespace-pre-line text-justify
-                                     ${isHighlightMode ? "cursor-text bg-transparent hover:bg-transparent" : ""}
-                                     ${block.format?.bold ? "font-bold" : ""}
-                                     ${block.format?.italic ? "italic" : ""}
-                                     ${block.format?.underline ? "underline" : ""}
-                                     ${block.format?.lineThrough ? "line-through" : ""}
-                                     ${block.format?.fontSize === "large" ? "text-lg" : block.format?.fontSize === "larger" ? "text-xl" : block.format?.fontSize === "largest" ? "text-2xl" : ""}`}
+                          className={`tiptap-content leading-loose text-neutral-800 dark:text-neutral-200 text-justify
+                                 ${isHighlightMode ? "cursor-text bg-transparent hover:bg-transparent" : ""}`}
                           style={{
                             WebkitUserSelect: isHighlightMode ? "text" : "auto",
                             userSelect: isHighlightMode ? "text" : "auto",
                             lineHeight: "1.8",
                           }}
-                        >
-                          {block.format?.selections && block.format.selections.length > 0 ? renderFormattedText(block.value || "", block.format.selections) : block.value || ""}
-                        </div>
+                          dangerouslySetInnerHTML={{ __html: block.value || "" }}
+                        />
+
+                        {/* Fallback untuk backward compatibility dengan format lama */}
+                        {!block.value && block.format?.selections && block.format.selections.length > 0 && (
+                          <div
+                            className={`leading-loose text-neutral-800 dark:text-neutral-200 whitespace-pre-line text-justify
+                                   ${isHighlightMode ? "cursor-text bg-transparent hover:bg-transparent" : ""}
+                                   ${block.format?.bold ? "font-bold" : ""}
+                                   ${block.format?.italic ? "italic" : ""}
+                                   ${block.format?.underline ? "underline" : ""}
+                                   ${block.format?.lineThrough ? "line-through" : ""}
+                                   ${block.format?.fontSize === "large" ? "text-lg" : block.format?.fontSize === "larger" ? "text-xl" : block.format?.fontSize === "largest" ? "text-2xl" : ""}`}
+                            style={{
+                              WebkitUserSelect: isHighlightMode ? "text" : "auto",
+                              userSelect: isHighlightMode ? "text" : "auto",
+                              lineHeight: "1.8",
+                            }}
+                          >
+                            {renderFormattedText(block.value || "", block.format.selections)}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -380,6 +410,68 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
           )}
         </div>
       </motion.div>
+
+      {/* CSS untuk menyesuaikan tampilan konten TipTap */}
+      <style jsx global>{`
+        .tiptap-content h1 {
+          font-size: 1.75rem;
+          font-weight: 600;
+          margin-top: 1.5rem;
+          margin-bottom: 1rem;
+          line-height: 1.3;
+          color: var(--tw-prose-headings);
+        }
+
+        .tiptap-content h2 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin-top: 1.25rem;
+          margin-bottom: 0.75rem;
+          line-height: 1.3;
+          color: var(--tw-prose-headings);
+        }
+
+        .tiptap-content p {
+          margin-bottom: 1rem;
+        }
+
+        .tiptap-content ul {
+          list-style-type: disc;
+          padding-left: 1.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .tiptap-content ol {
+          list-style-type: decimal;
+          padding-left: 1.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .tiptap-content blockquote {
+          border-left: 4px solid #e5e5e5;
+          padding-left: 1rem;
+          font-style: italic;
+          color: #6b7280;
+          margin: 1rem 0;
+        }
+
+        .dark .tiptap-content blockquote {
+          border-left-color: #4b5563;
+          color: #9ca3af;
+        }
+
+        .tiptap-content *[style*="text-align:center"] {
+          text-align: center;
+        }
+
+        .tiptap-content *[style*="text-align:right"] {
+          text-align: right;
+        }
+
+        .tiptap-content *[style*="text-align:left"] {
+          text-align: left;
+        }
+      `}</style>
     </>
   );
 }

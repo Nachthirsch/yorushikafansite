@@ -14,12 +14,32 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
   const [currentImageUrl, setCurrentImageUrl] = useState("");
   const [showImageInput, setShowImageInput] = useState(false);
 
+  /// Memproses konten saat inisialisasi atau saat post berubah
+  /// Sekarang menangani konten HTML dari editor TipTap
   useEffect(() => {
     if (post) {
       let formattedContent;
 
       if (Array.isArray(post.content)) {
-        formattedContent = post.content;
+        // Pastikan setiap blok teks memiliki properti format yang benar
+        // untuk mendukung konten HTML dari TipTap
+        formattedContent = post.content.map((block) => {
+          if (block.type === "text") {
+            return {
+              ...block,
+              // Format struktur tetap ada untuk backward compatibility
+              format: block.format || {
+                bold: false,
+                italic: false,
+                underline: false,
+                lineThrough: false,
+                fontSize: "normal",
+                selections: [],
+              },
+            };
+          }
+          return block;
+        });
       } else if (typeof post.content === "object" && post.content !== null) {
         formattedContent = [{ type: "text", value: JSON.stringify(post.content) }];
       } else if (post.content) {
@@ -64,6 +84,7 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     onChange?.(updatedPost);
   };
 
+  /// Menangani pembaruan blok - sekarang mendukung HTML dari TipTap
   const handleUpdateBlock = (index, field, value, format, selection = null) => {
     if (!Array.isArray(localPost.content)) return;
 
@@ -72,55 +93,21 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     if (field === "title") {
       updatedBlocks[index] = { ...updatedBlocks[index], title: value };
     } else if (updatedBlocks[index].type === "text") {
-      if (format && selection) {
-        // Selection-level formatting
-        const { selectionStart, selectionEnd } = selection;
-
-        // Create a fresh copy to avoid mutation issues
-        const existingSelections = Array.isArray(updatedBlocks[index].format?.selections) ? [...updatedBlocks[index].format.selections] : [];
-
-        // Remove any overlapping selections to avoid conflicts
-        const filteredSelections = existingSelections.filter((sel) => sel.end <= selectionStart || sel.start >= selectionEnd);
-
-        // Add the new selection
-        const newSelections = [
-          ...filteredSelections,
-          {
-            start: selectionStart,
-            end: selectionEnd,
-            ...format,
-          },
-        ];
-
-        updatedBlocks[index] = {
-          ...updatedBlocks[index],
-          value,
-          format: {
-            ...(updatedBlocks[index].format || {}),
-            selections: newSelections,
-          },
-        };
-
-        console.log("Applied format to selection", {
-          selectionStart,
-          selectionEnd,
-          text: value.substring(selectionStart, selectionEnd),
-          format,
-        });
-      } else if (format) {
-        // Block-level formatting
-        updatedBlocks[index] = {
-          ...updatedBlocks[index],
-          value,
-          format: {
-            ...(updatedBlocks[index].format || {}),
-            ...format,
-          },
-        };
-      } else {
-        // Just updating value
-        updatedBlocks[index] = { ...updatedBlocks[index], value };
-      }
+      // Untuk blok teks, simpan nilai HTML langsung dari TipTap
+      // tetapi juga pertahankan objek format untuk backward compatibility
+      updatedBlocks[index] = {
+        ...updatedBlocks[index],
+        value,
+        // Format struktur tetap ada, tapi konten HTML utama ada di value
+        format: updatedBlocks[index].format || {
+          bold: false,
+          italic: false,
+          underline: false,
+          lineThrough: false,
+          fontSize: "normal",
+          selections: [],
+        },
+      };
     } else if (updatedBlocks[index].type === "image") {
       updatedBlocks[index] = { ...updatedBlocks[index], url: value };
     }
@@ -130,12 +117,14 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     onChange?.(updatedPost);
   };
 
+  /// Menambahkan blok teks baru dengan nilai default yang kosong
+  /// Sekarang mendukung HTML dari TipTap
   const handleAddTextBlock = () => {
     const contentBlocks = [
       ...(Array.isArray(localPost.content) ? localPost.content : []),
       {
         type: "text",
-        value: "",
+        value: "", // Akan berisi HTML dari TipTap
         title: "",
         format: {
           bold: false,
@@ -153,6 +142,7 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     onChange?.(updatedPost);
   };
 
+  /// Menambahkan blok teks pada posisi tertentu
   const handleAddTextBlockAt = (index, position = "above") => {
     if (!Array.isArray(localPost.content)) return;
 
@@ -160,7 +150,7 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     const updatedBlocks = [...localPost.content];
     updatedBlocks.splice(insertIndex, 0, {
       type: "text",
-      value: "",
+      value: "", // Akan berisi HTML dari TipTap
       title: "",
       format: {
         bold: false,
@@ -213,6 +203,15 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     if (!show) setCurrentImageUrl("");
   };
 
+  /// Fungsi baru untuk ekstraksi teks murni dari HTML untuk preview atau keperluan lain
+  const getTextFromHtml = (html) => {
+    if (!html) return "";
+    // Membuat element DOM sementara untuk ekstraksi teks dari HTML
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || "";
+  };
+
   return {
     localPost,
     currentImageUrl,
@@ -227,5 +226,6 @@ export default function useBlogPostForm({ post, onChange, onSubmit }) {
     toggleImageInput,
     handleAddTextBlockAt,
     handleAddImageBlockAt,
+    getTextFromHtml, // Fungsi bantuan baru
   };
 }
