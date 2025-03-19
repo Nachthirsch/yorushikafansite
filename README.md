@@ -7,7 +7,7 @@
 
 A modern, interactive fan website dedicated to the Japanese rock duo **Yorushika (ヨルシカ)**, featuring their music, discography, and community interactions.
 
-![Yorushika Banner](https://via.placeholder.com/1200x300?text=Yorushika+Fan+Site](https://upload.wikimedia.org/wikipedia/commons/2/27/Yorushika_Logo.jpg)](https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b3/cc/be/b3ccbe35-f29e-ff30-e845-559ec98c9522/20UMGIM00436.rgb.jpg/1200x630cw.png)
+![Yorushika Banner](https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b3/cc/be/b3ccbe35-f29e-ff30-e845-559ec98c9522/20UMGIM00436.rgb.jpg/1200x630cw.png)
 
 ## ✨ Features
 
