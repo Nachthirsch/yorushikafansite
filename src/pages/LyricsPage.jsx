@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { motion } from "framer-motion";
@@ -17,6 +17,11 @@ export default function LyricsPage() {
   const [favorite, setFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState("sideBySide");
   const pageRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Menentukan halaman asal dari state navigasi
+  const from = location.state?.from || "songs";
 
   // Replace fetchSong with useSong hook
   const { data: song, isLoading: loading } = useSong(songId);
@@ -43,6 +48,15 @@ export default function LyricsPage() {
 
     localStorage.setItem("favoriteSongs", JSON.stringify(newFavorites));
     setFavorite(!favorite);
+  };
+
+  // Fungsi untuk mengarahkan kembali berdasarkan halaman asal
+  const handleBackNavigation = () => {
+    if (from === "album") {
+      navigate("/albums");
+    } else {
+      navigate("/songs");
+    }
   };
 
   const shareSong = () => {
@@ -93,8 +107,8 @@ export default function LyricsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950" ref={pageRef}>
-      {/* Song Header Component */}
-      <SongHeader song={song} favorite={favorite} toggleFavorite={toggleFavorite} shareSong={shareSong} />
+      {/* Song Header Component - Kirim handler dan informasi halaman asal */}
+      <SongHeader song={song} favorite={favorite} toggleFavorite={toggleFavorite} shareSong={shareSong} onBackClick={handleBackNavigation} fromPage={from} />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         {/* Description Section */}

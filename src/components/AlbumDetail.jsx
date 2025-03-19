@@ -7,6 +7,11 @@ const AlbumDetail = ({ album, onClose }) => {
 
   if (!album) return null;
 
+  // Fungsi untuk mengarahkan ke halaman lirik dengan state navigasi
+  const handleSongSelect = (songId) => {
+    navigate(`/lyrics/${songId}`, { state: { from: "album" } });
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center px-2 sm:px-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
@@ -72,7 +77,7 @@ const AlbumDetail = ({ album, onClose }) => {
             {[...(album.songs || [])]
               .sort((a, b) => (a.track_number || 0) - (b.track_number || 0))
               .map((song) => (
-                <div key={song.id} onClick={() => navigate(`/lyrics/${song.id}`)} className="flex items-center p-2 sm:p-3 hover:bg-neutral-700 rounded-lg cursor-pointer group transition-colors">
+                <div key={song.id} onClick={() => handleSongSelect(song.id)} className="flex items-center p-2 sm:p-3 hover:bg-neutral-700 rounded-lg cursor-pointer group transition-colors">
                   {/* Track number */}
                   <div className="w-6 sm:w-8 text-center text-neutral-400 group-hover:text-neutral-100 text-sm sm:text-base flex-shrink-0">{song.track_number}</div>
 

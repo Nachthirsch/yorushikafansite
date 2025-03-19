@@ -55,7 +55,8 @@ export default function SongsGrid({ searchTerm, sortBy, albumFilter, isGridView 
   const allSongs = data?.pages.flatMap((page) => page.songs) || [];
 
   const handleSongSelect = (songId) => {
-    navigate(`/lyrics/${songId}`);
+    // Menambahkan state navigasi untuk melacak halaman asal
+    navigate(`/lyrics/${songId}`, { state: { from: "songs" } });
   };
 
   // Tampilkan loading state saat pertama kali memuat atau saat mencari
