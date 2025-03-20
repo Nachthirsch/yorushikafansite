@@ -4,6 +4,7 @@ import SecureImage from "../SecureImage";
 import { useRef, useState, useEffect } from "react";
 import ShareTextAsImage from "./ShareTextAsImage";
 import { setHighlightMode } from "../../utils/eventBus";
+import "./tiptap-content.css"; // Import file CSS terpisah untuk styling TipTap
 
 /**
  * Komponen untuk menampilkan konten posting blog
@@ -240,8 +241,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
 
         {/* Main content section dengan perbaikan CSS untuk seleksi teks dan dukungan untuk konten HTML dari TipTap */}
         <div
-          className={`prose prose-neutral dark:prose-invert max-w-none text-justify leading-loose
-                     [&_p]:leading-loose [&_li]:leading-loose
+          className={`prose prose-neutral dark:prose-invert max-w-none text-justify
                      [&_::selection]:bg-neutral-200 dark:[&_::selection]:bg-neutral-700
                      [&_::selection]:text-neutral-900 dark:[&_::selection]:text-neutral-100
                      [&_h1]:text-2xl [&_h1]:font-medium [&_h1]:mb-4 [&_h1]:mt-6
@@ -254,7 +254,6 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
             touchAction: "manipulation",
             WebkitUserSelect: isHighlightMode ? "text" : "auto",
             userSelect: isHighlightMode ? "text" : "auto",
-            lineHeight: "1.8",
           }}
         >
           {Array.isArray(post.content) ? (
@@ -298,12 +297,11 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
 
                         {/* Konten HTML dari TipTap dengan styling yang sesuai */}
                         <div
-                          className={`tiptap-content leading-loose text-neutral-800 dark:text-neutral-200 text-justify
+                          className={`tiptap-content text-neutral-800 dark:text-neutral-200 text-justify
                                  ${isHighlightMode ? "cursor-text bg-transparent hover:bg-transparent" : ""}`}
                           style={{
                             WebkitUserSelect: isHighlightMode ? "text" : "auto",
                             userSelect: isHighlightMode ? "text" : "auto",
-                            lineHeight: "1.8",
                           }}
                           dangerouslySetInnerHTML={{ __html: block.value || "" }}
                         />
@@ -311,7 +309,7 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                         {/* Fallback untuk backward compatibility dengan format lama */}
                         {!block.value && block.format?.selections && block.format.selections.length > 0 && (
                           <div
-                            className={`leading-loose text-neutral-800 dark:text-neutral-200 whitespace-pre-line text-justify
+                            className={`whitespace-pre-line text-justify
                                    ${isHighlightMode ? "cursor-text bg-transparent hover:bg-transparent" : ""}
                                    ${block.format?.bold ? "font-bold" : ""}
                                    ${block.format?.italic ? "italic" : ""}
@@ -321,7 +319,6 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
                             style={{
                               WebkitUserSelect: isHighlightMode ? "text" : "auto",
                               userSelect: isHighlightMode ? "text" : "auto",
-                              lineHeight: "1.8",
                             }}
                           >
                             {renderFormattedText(block.value || "", block.format.selections)}
@@ -398,11 +395,10 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
           ) : (
             // Konten non-array, dengan styling yang konsisten
             <div
-              className="leading-loose text-neutral-900 dark:text-neutral-100 whitespace-pre-line text-justify"
+              className="whitespace-pre-line text-justify text-neutral-900 dark:text-neutral-100"
               style={{
                 WebkitUserSelect: isHighlightMode ? "text" : "auto",
                 userSelect: isHighlightMode ? "text" : "auto",
-                lineHeight: "1.8",
               }}
             >
               {String(post.content)}
@@ -410,68 +406,6 @@ export default function PostContent({ post, contentPage, sectionsPerPage, naviga
           )}
         </div>
       </motion.div>
-
-      {/* CSS untuk menyesuaikan tampilan konten TipTap */}
-      <style jsx global>{`
-        .tiptap-content h1 {
-          font-size: 1.75rem;
-          font-weight: 600;
-          margin-top: 1.5rem;
-          margin-bottom: 1rem;
-          line-height: 1.3;
-          color: var(--tw-prose-headings);
-        }
-
-        .tiptap-content h2 {
-          font-size: 1.5rem;
-          font-weight: 600;
-          margin-top: 1.25rem;
-          margin-bottom: 0.75rem;
-          line-height: 1.3;
-          color: var(--tw-prose-headings);
-        }
-
-        .tiptap-content p {
-          margin-bottom: 1rem;
-        }
-
-        .tiptap-content ul {
-          list-style-type: disc;
-          padding-left: 1.5rem;
-          margin-bottom: 1rem;
-        }
-
-        .tiptap-content ol {
-          list-style-type: decimal;
-          padding-left: 1.5rem;
-          margin-bottom: 1rem;
-        }
-
-        .tiptap-content blockquote {
-          border-left: 4px solid #e5e5e5;
-          padding-left: 1rem;
-          font-style: italic;
-          color: #6b7280;
-          margin: 1rem 0;
-        }
-
-        .dark .tiptap-content blockquote {
-          border-left-color: #4b5563;
-          color: #9ca3af;
-        }
-
-        .tiptap-content *[style*="text-align:center"] {
-          text-align: center;
-        }
-
-        .tiptap-content *[style*="text-align:right"] {
-          text-align: right;
-        }
-
-        .tiptap-content *[style*="text-align:left"] {
-          text-align: left;
-        }
-      `}</style>
     </>
   );
 }

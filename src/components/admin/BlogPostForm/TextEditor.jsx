@@ -4,16 +4,49 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
+import HardBreak from "@tiptap/extension-hard-break";
+import { Extension } from "@tiptap/core";
 import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, AlignLeft, AlignCenter, AlignRight, Heading1, Heading2, Quote, ListOrdered, List, Undo, Redo } from "lucide-react";
+
+/**
+ * Extension kustom untuk mengubah perilaku Enter
+ * Dengan ini, ketika menekan Enter, TipTap akan membuat line break daripada paragraf baru
+ */
+const EnterHandler = Extension.create({
+  name: "enterHandler",
+
+  // Menambahkan keymap kustom untuk mengubah perilaku Enter
+  addKeyboardShortcuts() {
+    return {
+      Enter: () => {
+        // Jika dalam list atau blockquote, biarkan perilaku default
+        if (this.editor.isActive("bulletList") || this.editor.isActive("orderedList") || this.editor.isActive("blockquote")) {
+          return false;
+        }
+
+        // Tambahkan hard break (line break) dan return true untuk mencegah perilaku default
+        this.editor.commands.setHardBreak();
+        return true;
+      },
+    };
+  },
+});
 
 /**
  * Text Editor komponen menggunakan TipTap dengan desain minimalis
  * Menyediakan berbagai opsi pemformatan dengan UI yang elegan
+ * Konfigurasi khusus untuk menangani baris baru dengan lebih baik
  */
 export default function TextEditor({ value, onChange, placeholder }) {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        paragraph: {
+          HTMLAttributes: {
+            class: "custom-paragraph",
+          },
+        },
+      }),
       Underline,
       TextAlign.configure({
         types: ["heading", "paragraph"],
@@ -22,6 +55,15 @@ export default function TextEditor({ value, onChange, placeholder }) {
       Placeholder.configure({
         placeholder: placeholder || "Mulai menulis konten Anda di sini...",
       }),
+      // Konfigurasi khusus untuk hard breaks
+      HardBreak.configure({
+        HTMLAttributes: {
+          class: "line-break",
+        },
+        keepMarks: true,
+      }),
+      // Tambahkan extension kustom untuk handling Enter
+      EnterHandler,
     ],
     content: value || "",
     onUpdate: ({ editor }) => {
@@ -56,7 +98,7 @@ export default function TextEditor({ value, onChange, placeholder }) {
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl border border-neutral-300 dark:border-neutral-600 overflow-hidden transition-all duration-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+    <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl border border-neutral-300 dark:border-neutral-600 overflow-hidden transition-all duration-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent relative">
       {/* Menu bar dengan desain artistik minimalis */}
       <div className="border-b border-neutral-200 dark:border-neutral-700 p-2 bg-neutral-50 dark:bg-neutral-900 flex flex-wrap gap-1">
         {/* Grup format teks */}
@@ -115,6 +157,11 @@ export default function TextEditor({ value, onChange, placeholder }) {
 
       {/* Editor content dengan styling khusus */}
       <EditorContent editor={editor} className="prose prose-neutral dark:prose-invert max-w-none p-4 min-h-[200px]" />
+
+      {/* Editor info - menampilkan bantuan untuk baris baru */}
+      <div className="text-xs text-neutral-500 dark:text-neutral-400 p-2 border-t border-neutral-200 dark:border-neutral-700 flex items-center">
+        <span>Tekan Enter untuk baris baru, Shift+Enter untuk paragraf baru</span>
+      </div>
 
       {/* Dekoratif elemen di sudut */}
       <div className="absolute top-0 left-0 w-3 h-3 border-l border-t border-neutral-300 dark:border-neutral-600"></div>

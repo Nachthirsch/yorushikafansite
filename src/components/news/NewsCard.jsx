@@ -30,7 +30,7 @@ export function NewsCardList({ filters, resetFilters, viewMode }) {
             }}
             className="px-4 py-2 bg-neutral-500 text-white rounded-lg hover:bg-neutral-600 transition-colors"
           >
-            Coba Lagi
+            Try Again!
           </button>
         </div>
       </div>
@@ -44,8 +44,8 @@ export function NewsCardList({ filters, resetFilters, viewMode }) {
         <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-neutral-400 dark:text-neutral-600 mb-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <p className="text-lg text-neutral-500 dark:text-neutral-400 italic">{isLoading ? "Memuat berita..." : "Tidak ada berita yang sesuai dengan kriteria pencarian."}</p>
-        <p className="text-sm mt-2 text-neutral-400 dark:text-neutral-500">Coba sesuaikan pencarian atau filter Anda</p>
+        <p className="text-lg text-neutral-500 dark:text-neutral-400 italic">{isLoading ? "Loading Lores" : "TThere's no lore :'( "}</p>
+        <p className="text-sm mt-2 text-neutral-400 dark:text-neutral-500">Adjust tour keyword and filter</p>
         {filters.searchTerm || filters.dateFilter !== "all" || filters.categoryFilter !== "all" ? (
           <button onClick={resetFilters} className="mt-6 px-4 py-2 bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors">
             Reset Filter
