@@ -4,6 +4,7 @@ import { Calendar, ChevronRight, Tag, Loader2 } from "lucide-react";
 import { formatDate } from "../../utils/dateFormat";
 import { useNewsPosts } from "../../hooks/useNewsPosts";
 import { useState } from "react";
+import YorushikaLogo from "../common/YorushikaLogo"; // Import logo Yorushika
 
 // Komponen untuk menampilkan daftar berita dengan fetching data
 export function NewsCardList({ filters, resetFilters, viewMode }) {
@@ -140,12 +141,36 @@ export default function NewsCard({ post, viewMode, index }) {
 
           {/* Post Excerpt with fixed height to ensure button positioning */}
           <div className={`flex-grow ${viewMode === "grid" ? "mb-4" : ""}`}>
-            {viewMode === "grid" && post.content && post.content.length > 0 ? (
-              <div className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2 leading-relaxed">{post.content.find((block) => block.type === "text")?.value.substring(0, 120)}...</div>
-            ) : (
-              // Empty div to maintain space when no excerpt
-              <div className="min-h-[8px]"></div>
-            )}
+            {/* Elemen dekoratif dengan desain yang lebih elegan */}
+            <div className="relative py-4">
+              {/* Garis horizontal dengan efek gradien yang lebih halus */}
+              <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2">
+                <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-600 to-transparent opacity-70"></div>
+              </div>
+
+              {/* Elemen pusat dengan overlay yang lebih menarik */}
+              <div className="flex justify-center items-center relative">
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-neutral-200 dark:from-neutral-800 to-neutral-300 dark:to-neutral-700 opacity-30 blur-sm"></div>
+                <div className="relative w-2 h-2 bg-neutral-400 dark:bg-neutral-600 rounded-full shadow-sm"></div>
+                {/* Logo Yorushika dengan animasi rotasi 360 derajat saat hover */}
+                <div className="relative mx-1.5 text-neutral-400 dark:text-neutral-500 transition-all duration-700 group-hover:scale-110 hover:rotate-[360deg]">
+                  <YorushikaLogo className="w-8 h-8 opacity-80 group-hover:opacity-100 transition-all cursor-pointer" />
+                </div>
+                <div className="relative w-2 h-2 bg-neutral-400 dark:bg-neutral-600 rounded-full shadow-sm"></div>
+              </div>
+
+              {/* Elemen dekoratif tambahan dengan animasi subtle */}
+              <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 w-8 h-8 opacity-10">
+                <div className="absolute inset-0 border-t border-r border-neutral-500 dark:border-neutral-400 rounded-tr-lg"></div>
+                <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-neutral-500 dark:border-neutral-400 rounded-bl-sm"></div>
+              </div>
+
+              {/* Elemen dekoratif tambahan di sisi kiri */}
+              <div className="absolute -left-1 top-1/2 transform -translate-y-1/2 w-8 h-8 opacity-10">
+                <div className="absolute inset-0 border-t border-l border-neutral-500 dark:border-neutral-400 rounded-tl-lg"></div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-neutral-500 dark:border-neutral-400 rounded-br-sm"></div>
+              </div>
+            </div>
           </div>
         </div>
 

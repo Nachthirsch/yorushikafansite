@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Heart, Share, Music, Disc, Clock, Sparkles } from "lucide-react";
+import { ArrowLeft, Heart, Share, Music, Disc, Clock } from "lucide-react";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import YorushikaLogo from "../common/YorushikaLogo";
 
 /**
  * Header lagu dengan desain minimalis dan elemen dekoratif
@@ -102,7 +103,7 @@ export default function SongHeader({ song, favorite, toggleFavorite, shareSong, 
 
           {/* Elemen dekoratif */}
           <div className="absolute bottom-2 right-2 opacity-10">
-            <Sparkles className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+            <YorushikaLogo className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
           </div>
         </div>
       </div>

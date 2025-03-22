@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { LanguageIcon } from "@heroicons/react/24/outline";
-import { Sparkles } from "lucide-react";
+import YorushikaLogo from "../common/YorushikaLogo";
 
 /**
  * Komponen untuk menampilkan konten lirik berdasarkan tab yang dipilih
@@ -37,7 +37,7 @@ const LyricsContent = ({ activeTab, song }) => {
               </div>
               <div className="whitespace-pre-line leading-relaxed text-neutral-800 dark:text-neutral-200 border-l border-dashed border-neutral-300 dark:border-neutral-600 pl-4 font-lyrics relative before:absolute before:left-0 before:top-0 before:w-px before:h-full before:bg-gradient-to-b before:from-transparent before:via-neutral-400 before:to-transparent">{song.lyrics}</div>
               <div className="absolute bottom-3 right-3 opacity-10">
-                <Sparkles className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
+                <YorushikaLogo className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
               </div>
             </div>
 
@@ -60,7 +60,7 @@ const LyricsContent = ({ activeTab, song }) => {
               </div>
               <div className="whitespace-pre-line leading-relaxed text-neutral-800 dark:text-neutral-200 border-l border-dashed border-neutral-300 dark:border-neutral-600 pl-4 font-lyrics relative before:absolute before:left-0 before:top-0 before:w-px before:h-full before:bg-gradient-to-b before:from-transparent before:via-neutral-400 before:to-transparent">{song.lyrics_translation || <p className="text-neutral-400 dark:text-neutral-500 italic">Translation not available</p>}</div>
               <div className="absolute bottom-3 right-3 opacity-10">
-                <Sparkles className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
+                <YorushikaLogo className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
               </div>
             </div>
           </div>
@@ -82,7 +82,7 @@ const LyricsContent = ({ activeTab, song }) => {
             </div>
             <div className="whitespace-pre-line leading-relaxed text-neutral-800 dark:text-neutral-200 border-l border-dashed border-neutral-300 dark:border-neutral-600 pl-4 font-lyrics max-w-2xl mx-auto relative before:absolute before:left-0 before:top-0 before:w-px before:h-full before:bg-gradient-to-b before:from-transparent before:via-neutral-400 before:to-transparent">{song.lyrics}</div>
             <div className="absolute bottom-3 right-3 opacity-10">
-              <Sparkles className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
+              <YorushikaLogo className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
             </div>
           </div>
         </motion.div>
@@ -109,7 +109,7 @@ const LyricsContent = ({ activeTab, song }) => {
             </div>
             <div className="whitespace-pre-line leading-relaxed text-neutral-800 dark:text-neutral-200 border-l border-dashed border-neutral-300 dark:border-neutral-600 pl-4 font-lyrics max-w-2xl mx-auto relative before:absolute before:left-0 before:top-0 before:w-px before:h-full before:bg-gradient-to-b before:from-transparent before:via-neutral-400 before:to-transparent">{song.lyrics_translation || <p className="text-neutral-400 dark:text-neutral-500 italic">Translation not available</p>}</div>
             <div className="absolute bottom-3 right-3 opacity-10">
-              <Sparkles className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
+              <YorushikaLogo className="w-6 h-6 text-neutral-500 dark:text-neutral-400" />
             </div>
           </div>
         </motion.div>
