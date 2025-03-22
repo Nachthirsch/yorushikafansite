@@ -131,7 +131,7 @@ export default function NewsCard({ post, viewMode, index }) {
           </div>
 
           {/* Post Title with enhanced hover effect */}
-          <Link to={`/news/${post.id}`} className="group/title block">
+          <Link to={`/lore/${post.id}`} className="group/title block">
             <h2 id={`post-title-${post.id}`} className="text-xl font-medium text-neutral-900 dark:text-neutral-100 group-hover/title:text-neutral-600 dark:group-hover/title:text-neutral-300 transition-colors mb-3 relative">
               {post.title}
               {/* Decorative underline effect on hover */}
