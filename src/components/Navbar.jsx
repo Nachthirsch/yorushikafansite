@@ -52,7 +52,8 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Albums", path: "/albums" },
-    { name: "Songs", path: "/songs" }, // Add this line
+    { name: "Songs", path: "/songs" },
+    { name: "Yorucast", path: "/yorucast" }, // Menambahkan link Yorucast
     { name: "Lore", path: "/lore" },
     { name: "About", path: "/about" },
   ];

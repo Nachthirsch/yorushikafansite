@@ -18,6 +18,8 @@ import ScrollToTop from "./components/ScrollToTop";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import SongsPage from "./pages/SongsPage";
+import YorucastPage from "./pages/YorucastPage"; // Import halaman Yorucast
+import PodcastDetailPage from "./pages/PodcastDetailPage"; // Import halaman detail podcast
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,9 @@ function App() {
                   }
                 />
                 <Route path="/lore/:postId" element={<PostDetailPage />} />
+                {/* Tambahkan rute untuk Yorucast */}
+                <Route path="/yorucast" element={<YorucastPage />} />
+                <Route path="/yorucast/:episodeId" element={<PodcastDetailPage />} />
                 <Route
                   path="/admin/*"
                   element={
