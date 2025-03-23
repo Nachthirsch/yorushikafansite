@@ -103,19 +103,19 @@ export default function PodcastDetailPage() {
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-neutral-300 dark:border-neutral-700 border-t-neutral-500 dark:border-t-neutral-400 rounded-full animate-spin"></div>
-          <div className="text-neutral-500 dark:text-neutral-400 font-medium">Memuat episode...</div>
+          <div className="text-neutral-500 dark:text-neutral-400 font-medium">Loading episode...</div>
         </div>
       </div>
     );
   }
 
-  // Menampilkan error state
+  // Display error state
   if (isError || !episode) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-4">
         <div className="max-w-4xl mx-auto mt-12 text-center">
-          <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">Episode tidak ditemukan</h2>
-          <p className="mt-2 text-neutral-600 dark:text-neutral-400">Maaf, episode yang Anda cari tidak tersedia</p>
+          <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">Episode Not Found</h2>
+          <p className="mt-2 text-neutral-600 dark:text-neutral-400">Sorry, the episode you're looking for is not available</p>
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -124,7 +124,7 @@ export default function PodcastDetailPage() {
                       hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors
                       text-neutral-800 dark:text-neutral-200"
           >
-            Kembali ke daftar episode
+            Back to episodes
           </motion.button>
         </div>
       </div>
