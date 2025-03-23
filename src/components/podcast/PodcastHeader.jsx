@@ -30,18 +30,18 @@ export default function PodcastHeader() {
       </div>
 
       {/* Content container */}
-      <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+      <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }} transition={{ duration: 0.7, ease: "easeOut" }} className="flex flex-col items-center text-center">
           {/* Title with decorative element */}
-          <div className="inline-flex items-center gap-3 mb-6">
+          <div className="inline-flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
             {/* Radio icon representing podcast - decorative element */}
-            <Radio className="w-6 h-6 text-neutral-700 dark:text-neutral-300" aria-hidden="true" />
+            <Radio className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-700 dark:text-neutral-300" aria-hidden="true" />
 
             <h2 className="text-sm uppercase tracking-[0.2em] text-neutral-600 dark:text-neutral-400 font-medium">Yorucast</h2>
           </div>
 
           {/* Logo Yorucast menggantikan judul teks */}
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6, type: "spring" }} className="mb-8 relative">
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6, type: "spring" }} className="mb-6 sm:mb-8 relative">
             {/* Decorative subtle glow effect behind logo */}
             <div className="absolute -inset-2 bg-neutral-200 dark:bg-neutral-700/30 blur-xl opacity-50 dark:opacity-70 rounded-full"></div>
 
@@ -50,7 +50,7 @@ export default function PodcastHeader() {
               <img
                 src={yorucastLogo}
                 alt="Yorucast"
-                className="h-28 md:h-36 lg:h-40 w-auto object-contain relative z-10 
+                className="h-20 sm:h-28 md:h-36 lg:h-40 w-auto object-contain relative z-10 
                           transition-all duration-500 group-hover:scale-[1.02]
                           drop-shadow-md group-hover:drop-shadow-lg invert"
               />
@@ -62,10 +62,10 @@ export default function PodcastHeader() {
           </motion.div>
 
           {/* Tagline with subtle line decoration */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-px w-10 bg-neutral-300 dark:bg-neutral-700" />
-            <p className="text-neutral-600 dark:text-neutral-400 font-medium">Discussions, Insights & Stories About Yorushika</p>
-            <div className="h-px w-10 bg-neutral-300 dark:bg-neutral-700" />
+          <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div className="h-px w-6 sm:w-10 bg-neutral-300 dark:bg-neutral-700" />
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 font-medium">Discussions, Insights & Stories About Yorushika</p>
+            <div className="h-px w-6 sm:w-10 bg-neutral-300 dark:bg-neutral-700" />
           </div>
 
           {/* Social Media Bar - more prominent under tagline */}
@@ -123,29 +123,6 @@ export default function PodcastHeader() {
               </div>
             </div>
           </motion.div>
-
-          {/* Latest episode snippet */}
-          {latestEpisode && (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.5 }} className="w-full max-w-2xl bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-4 sm:p-5">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                {/* Headphones icon indicating audio content */}
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center">
-                  <Headphones className="w-6 h-6 text-neutral-600 dark:text-neutral-300" aria-hidden="true" />
-                </div>
-
-                <div className="flex-1">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-1 sm:mb-0">
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 px-2 py-0.5 bg-neutral-100 dark:bg-neutral-700 rounded-full">Latest Episode</p>
-                    <h3 className="font-medium text-neutral-900 dark:text-white text-sm sm:text-base line-clamp-1">{latestEpisode.name}</h3>
-                  </div>
-                  <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2">{latestEpisode.description}</p>
-                </div>
-
-                {/* Microphone icon indicating this is a podcast */}
-                <Mic className="hidden sm:block w-5 h-5 text-neutral-400 dark:text-neutral-500 flex-shrink-0" aria-hidden="true" />
-              </div>
-            </motion.div>
-          )}
 
           {/* Loading state */}
           {isLoading && (

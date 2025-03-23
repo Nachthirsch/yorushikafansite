@@ -82,29 +82,28 @@ export default function PodcastGrid({ showId, limit = 12, searchTerm = "" }) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8">
       <AnimatePresence mode="popLayout">
-        {/* Grid layout dengan struktur dinamis */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+        {/* Grid layout untuk episode podcast dengan featured episode */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {episodes.map((episode, index) => (
-            <motion.div key={episode.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.3, delay: index * 0.05 }} className={index === 0 ? "sm:col-span-2 sm:row-span-2" : ""}>
+            <motion.div key={episode.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.3, delay: index * 0.05 }} className={index === 0 ? "sm:col-span-2 lg:col-span-2 lg:row-span-2" : ""}>
               <PodcastCard episode={episode} featured={index === 0} />
             </motion.div>
           ))}
         </div>
       </AnimatePresence>
 
-      {/* Infinite scroll trigger and loading indicator */}
+      {/* Infinite scroll trigger */}
       {hasNextPage && (
         <div ref={ref} className="flex justify-center items-center py-10">
           {isFetchingNextPage ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
-              {/* Loader icon showing loading state */}
               <Loader className="w-5 h-5 text-neutral-500 animate-spin" aria-hidden="true" />
               <span className="text-neutral-600 dark:text-neutral-400">Loading more episodes...</span>
             </motion.div>
           ) : (
-            <div className="h-8" /> /* Spacer for scroll trigger */
+            <div className="h-8" />
           )}
         </div>
       )}

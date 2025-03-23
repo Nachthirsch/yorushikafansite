@@ -35,6 +35,7 @@ export default function PodcastCard({ episode, featured = false }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`block rounded-xl overflow-hidden transition-all duration-300 h-full
+                touch-manipulation
                 ${featured ? "bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-900" : "bg-white dark:bg-neutral-800"}
                 border border-neutral-200 dark:border-neutral-700
                 hover:shadow-md dark:hover:shadow-neutral-900/30
@@ -44,7 +45,7 @@ export default function PodcastCard({ episode, featured = false }) {
       {/* Card content container */}
       <div className="h-full flex flex-col">
         {/* Image section */}
-        <div className={`relative ${featured ? "aspect-[16/9]" : "aspect-[16/10]"} overflow-hidden bg-neutral-200 dark:bg-neutral-700`}>
+        <div className={`relative ${featured ? "aspect-[16/9]" : "aspect-square sm:aspect-[16/10]"} overflow-hidden bg-neutral-200 dark:bg-neutral-700`}>
           {/* Episode image */}
           {episode.images && episode.images.length > 0 ? (
             <img src={featured ? episode.images[0].url : episode.images[1]?.url || episode.images[0].url} alt={episode.name} className="w-full h-full object-cover transition-transform duration-700" />
@@ -70,24 +71,24 @@ export default function PodcastCard({ episode, featured = false }) {
           </div>
 
           {/* Episode date - bottom left */}
-          <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-xs text-white/90 bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
-            <Calendar className="w-3 h-3" aria-hidden="true" />
+          <div className="absolute bottom-2.5 sm:bottom-3 left-2.5 sm:left-3 flex items-center gap-1.5 text-[10px] sm:text-xs text-white/90 bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
+            <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" aria-hidden="true" />
             <span>{formatDate(episode.release_date)}</span>
           </div>
 
           {/* Episode duration - bottom right */}
-          <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-xs text-white/90 bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
-            <Clock className="w-3 h-3" aria-hidden="true" />
+          <div className="absolute bottom-2.5 sm:bottom-3 right-2.5 sm:right-3 flex items-center gap-1.5 text-[10px] sm:text-xs text-white/90 bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
+            <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" aria-hidden="true" />
             <span>{formatDuration(episode.duration_ms)}</span>
           </div>
         </div>
 
         {/* Text content */}
-        <div className={`p-4 flex-grow flex flex-col ${featured ? "gap-3" : "gap-2"}`}>
+        <div className={`p-3 sm:p-4 flex-grow flex flex-col ${featured ? "gap-2 sm:gap-3" : "gap-1.5 sm:gap-2"}`}>
           {/* Title */}
           <h3
             className={`font-medium text-neutral-900 dark:text-white line-clamp-2
-                        ${featured ? "text-xl leading-tight" : "text-base"}`}
+                        ${featured ? "text-base sm:text-xl leading-tight" : "text-sm sm:text-base"}`}
           >
             {episode.name}
           </h3>
@@ -95,7 +96,7 @@ export default function PodcastCard({ episode, featured = false }) {
           {/* Description */}
           <p
             className={`text-neutral-600 dark:text-neutral-400 line-clamp-2
-                      ${featured ? "text-sm" : "text-xs"}`}
+                      ${featured ? "text-xs sm:text-sm" : "text-[11px] sm:text-xs"}`}
           >
             {episode.description}
           </p>

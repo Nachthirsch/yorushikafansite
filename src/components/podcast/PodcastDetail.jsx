@@ -114,45 +114,45 @@ export default function PodcastDetail({ episodeId, onBackClick }) {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div className="max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-6 lg:py-8">
       {/* Navigation and action buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <button onClick={onBackClick} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors group" aria-label="Kembali ke daftar episode">
+      <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <button onClick={onBackClick} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors group py-1" aria-label="Kembali ke daftar episode">
           {/* ArrowLeftCircle icon indicating navigation back */}
           <ArrowLeftCircle className="w-5 h-5 group-hover:transform group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
           <span>Kembali ke daftar episode</span>
         </button>
 
-        <div className="flex items-center gap-3">
-          <button onClick={toggleFavorite} className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors" aria-label={isFavorite ? "Hapus dari favorit" : "Tambahkan ke favorit"}>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button onClick={toggleFavorite} className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors" aria-label={isFavorite ? "Hapus dari favorit" : "Tambahkan ke favorit"}>
             {isFavorite ? (
               <>
                 {/* BookmarkCheck icon indicating saved/favorited state */}
                 <BookmarkCheck className="w-4 h-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
-                <span className="text-sm text-amber-600 dark:text-amber-400">Favorit</span>
+                <span className="text-xs sm:text-sm text-amber-600 dark:text-amber-400">Favorit</span>
               </>
             ) : (
               <>
                 {/* Bookmark icon for saving/favoriting */}
                 <Bookmark className="w-4 h-4 text-neutral-600 dark:text-neutral-400" aria-hidden="true" />
-                <span className="text-sm text-neutral-700 dark:text-neutral-300">Favorit</span>
+                <span className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300">Favorit</span>
               </>
             )}
           </button>
 
-          <button onClick={shareEpisode} className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors" aria-label="Bagikan episode ini">
+          <button onClick={shareEpisode} className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg transition-colors" aria-label="Bagikan episode ini">
             {/* Share2 icon for share functionality */}
             <Share2 className="w-4 h-4 text-neutral-600 dark:text-neutral-400" aria-hidden="true" />
-            <span className="text-sm text-neutral-700 dark:text-neutral-300">Bagikan</span>
+            <span className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300">Bagikan</span>
           </button>
         </div>
       </div>
 
       {/* Main content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {/* Episode art and info - Left column on desktop */}
         <div className="lg:col-span-1">
-          <div className="sticky top-24">
+          <div className="lg:sticky lg:top-24">
             <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm overflow-hidden border border-neutral-200 dark:border-neutral-700">
               {/* Episode artwork with decorative corners */}
               <div className="relative aspect-square overflow-hidden">

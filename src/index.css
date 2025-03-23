@@ -236,6 +236,51 @@ body {
   .scrollable-content::-webkit-scrollbar {
     display: none !important;
   }
+
+  /* Tambahkan ukuran viewport xs */
+  @variants responsive {
+    .xs\:flex-row {
+      flex-direction: row;
+    }
+    .xs\:items-center {
+      align-items: center;
+    }
+    .xs\:col-span-2 {
+      grid-column: span 2 / span 2;
+    }
+    .xs\:row-span-2 {
+      grid-row: span 2 / span 2;
+    }
+    .xs\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+/* Penyesuaian untuk tampilan layar kecil */
+@media (min-width: 475px) {
+  .xs\:flex-row {
+    flex-direction: row;
+  }
+  .xs\:items-center {
+    align-items: center;
+  }
+  .xs\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+  .xs\:row-span-2 {
+    grid-row: span 2 / span 2;
+  }
+  .xs\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Optimasi sentuhan di perangkat mobile */
+@media (hover: none) {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
 }
 
 /* Protect images from being copied */

@@ -38,72 +38,54 @@ export default function YorucastPage() {
       <PodcastHeader />
 
       {/* Controls Section */}
-      <section className="relative z-10 -mt-6 sm:-mt-8">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      <section className="relative z-10 -mt-4 sm:-mt-6 lg:-mt-8">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="bg-white dark:bg-neutral-800 rounded-xl shadow-md border border-neutral-200 
-                      dark:border-neutral-700 p-4 sm:p-6 flex flex-col sm:flex-row 
-                      items-stretch sm:items-center gap-4 sm:gap-6"
+                      dark:border-neutral-700 p-3 sm:p-4 md:p-6 flex flex-col sm:flex-row 
+                      items-stretch sm:items-center gap-3 sm:gap-4 md:gap-6"
           >
             {/* Search Input */}
             <div className="flex-1 relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 {/* Search icon indicating search functionality */}
-                <Search className="h-5 w-5 text-neutral-400 dark:text-neutral-500" aria-hidden="true" />
+                <Search className="h-4 w-4 sm:h-5 sm:w-5 text-neutral-400 dark:text-neutral-500" aria-hidden="true" />
               </div>
               <input
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
                 placeholder="Search podcast episodes..."
-                className="block w-full pl-10 pr-4 py-2.5 bg-neutral-100 dark:bg-neutral-900 
+                className="block w-full pl-9 sm:pl-10 pr-4 py-2.5 bg-neutral-100 dark:bg-neutral-900 
                           border border-neutral-200 dark:border-neutral-700 rounded-lg
                           focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-600
                           focus:border-neutral-300 dark:focus:border-neutral-600 
-                          text-neutral-900 dark:text-neutral-100 transition-colors"
+                          text-neutral-900 dark:text-neutral-100 text-sm sm:text-base transition-colors"
               />
             </div>
 
             {/* View Toggle and Podcast Info */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              {/* View toggle button */}
-              <button
-                onClick={toggleViewMode}
-                className="p-2.5 bg-neutral-100 dark:bg-neutral-900 rounded-lg 
-                        border border-neutral-200 dark:border-neutral-700
-                        text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 
-                        dark:hover:bg-neutral-800 transition-colors"
-                aria-label={isGridView ? "Switch to list view" : "Switch to grid view"}
-              >
-                {isGridView ? (
-                  // List icon for switching to list view
-                  <List className="w-5 h-5" aria-hidden="true" />
-                ) : (
-                  // Grid icon for switching to grid view
-                  <Grid className="w-5 h-5" aria-hidden="true" />
-                )}
-              </button>
-
+            <div className="flex items-center justify-between sm:justify-normal gap-3 sm:gap-4">
               {/* Podcast info with episode count */}
               {podcast && (
                 <div
-                  className="flex items-center gap-2 px-3 py-1.5 bg-neutral-100 dark:bg-neutral-900 
+                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-neutral-100 dark:bg-neutral-900 
                             rounded-lg border border-neutral-200 dark:border-neutral-700"
                 >
                   {/* Radio icon representing podcast */}
-                  <Radio className="w-4 h-4 text-neutral-600 dark:text-neutral-400" aria-hidden="true" />
-                  <span className="text-sm text-neutral-700 dark:text-neutral-300 hidden sm:inline">{podcast.total_episodes} Episodes</span>
-                  <span className="text-sm text-neutral-700 dark:text-neutral-300 sm:hidden">{podcast.total_episodes}</span>
+                  <Radio className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-neutral-600 dark:text-neutral-400" aria-hidden="true" />
+                  <span className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 hidden sm:inline">{podcast.total_episodes} Episodes</span>
+                  <span className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 sm:hidden">{podcast.total_episodes}</span>
                 </div>
               )}
 
               {/* About button - could link to podcast info page */}
               <button
                 onClick={() => navigate("/about")}
-                className="p-2.5 bg-neutral-100 dark:bg-neutral-900 rounded-lg 
+                className="p-2 sm:p-2.5 bg-neutral-100 dark:bg-neutral-900 rounded-lg 
                         border border-neutral-200 dark:border-neutral-700
                         text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 
                         dark:hover:bg-neutral-800 transition-colors 
@@ -111,7 +93,7 @@ export default function YorucastPage() {
                 aria-label="About the podcast"
               >
                 {/* Info icon for more information */}
-                <Info className="w-5 h-5" aria-hidden="true" />
+                <Info className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
               </button>
             </div>
           </motion.div>

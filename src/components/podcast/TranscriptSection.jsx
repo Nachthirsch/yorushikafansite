@@ -175,10 +175,10 @@ export default function TranscriptSection({ episodeId, episodeTitle }) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-4 py-2 border border-neutral-200 dark:border-neutral-700 
+            className="block w-full pl-10 pr-4 py-3 sm:py-2 border border-neutral-200 dark:border-neutral-700 
                       rounded-lg bg-neutral-50 dark:bg-neutral-800 focus:ring-2 focus:ring-neutral-300
                       dark:focus:ring-neutral-600 focus:border-neutral-300 dark:focus:border-neutral-600
-                      text-neutral-900 dark:text-neutral-100 text-sm transition-colors"
+                      text-neutral-900 dark:text-neutral-100 text-base sm:text-sm transition-colors"
             placeholder="Cari dalam transkrip..."
             aria-label="Cari dalam transkrip"
           />
@@ -188,7 +188,7 @@ export default function TranscriptSection({ episodeId, episodeTitle }) {
       {/* Transcript content */}
       <div
         ref={transcriptRef}
-        className="p-4 sm:p-6 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 
+        className="p-4 sm:p-6 max-h-[400px] sm:max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 
                   dark:scrollbar-thumb-neutral-700 scrollbar-track-neutral-100 dark:scrollbar-track-neutral-800"
         aria-label={`Transkrip untuk episode ${episodeTitle}`}
       >
