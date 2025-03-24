@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Headphones, Mic, Radio, Volume2, Twitter, Instagram, Share2, ExternalLink } from "lucide-react";
+import { Headphones, Mic, Radio, Volume2, Share2 } from "lucide-react";
+import { FaTwitter, FaInstagram, FaDiscord } from "react-icons/fa";
 import { useLatestEpisode } from "../../hooks/usePodcasts";
-import yorucastLogo from "../../assets/YORUCAST.png"; // Import logo Yorucast
+import yorucastLogo from "../../assets/YORUCAST.png";
 
 /**
  * Komponen header untuk halaman podcast (Yorucast)
@@ -70,73 +71,158 @@ export default function PodcastHeader() {
 
           {/* Social Media Bar - more prominent under tagline */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.5 }} className="flex items-center justify-center gap-3 mb-8">
-            {/* Container untuk social media links dengan efek bayangan yang lebih halus dan depth */}
+            {/* Enhanced social media links container with improved depth and subtle decorative elements */}
             <div
-              className="px-6 py-3 bg-white dark:bg-neutral-800/90 rounded-xl border border-neutral-200 
-                        dark:border-neutral-700/80 shadow-md hover:shadow-lg transition-shadow duration-300
-                        backdrop-blur-sm relative overflow-hidden group"
+              className="px-6 py-3 bg-white/90 dark:bg-neutral-800/80 rounded-xl border border-neutral-200/80
+              dark:border-neutral-700/60 shadow-md hover:shadow-lg transition-all duration-500
+              backdrop-blur-sm relative overflow-hidden group"
             >
-              {/* Elemen dekoratif subtle di background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-neutral-100/10 to-neutral-50/5 dark:from-neutral-700/10 dark:to-neutral-800/5 opacity-70"></div>
-              <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-neutral-300/70 dark:via-neutral-500/30 to-transparent"></div>
-              <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-neutral-300/70 dark:via-neutral-500/30 to-transparent"></div>
+              {/* Decorative background elements with improved visual depth */}
+              <div
+                className="absolute inset-0 bg-gradient-to-br from-neutral-50/40 to-neutral-100/20 
+                  dark:from-neutral-800/40 dark:to-neutral-900/20 opacity-80"
+              ></div>
 
-              {/* Content wrapper dengan spacing yang lebih baik */}
-              <div className="flex items-center gap-5 relative z-10">
-                {/* Label dengan styling yang ditingkatkan */}
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 tracking-wide">Follow us:</span>
+              {/* Enhanced top light effect */}
+              <div
+                className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r 
+                  from-transparent via-white/70 dark:via-neutral-400/30 to-transparent"
+              ></div>
 
-                {/* Social media links dengan efek hover yang ditingkatkan */}
+              {/* Enhanced bottom shadow effect */}
+              <div
+                className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r 
+                  from-transparent via-neutral-300/70 dark:via-neutral-600/30 to-transparent"
+              ></div>
+
+              {/* Subtle decorative corner accents */}
+              <div
+                className="absolute top-0 left-0 w-6 h-6 border-t border-l border-neutral-200 dark:border-neutral-700/50 
+                  rounded-tl-lg opacity-50"
+              ></div>
+              <div
+                className="absolute top-0 right-0 w-6 h-6 border-t border-r border-neutral-200 dark:border-neutral-700/50 
+                  rounded-tr-lg opacity-50"
+              ></div>
+              <div
+                className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-neutral-200 dark:border-neutral-700/50 
+                  rounded-bl-lg opacity-50"
+              ></div>
+              <div
+                className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-neutral-200 dark:border-neutral-700/50 
+                  rounded-br-lg opacity-50"
+              ></div>
+
+              {/* Content wrapper with improved spacing */}
+              <div className="flex flex-wrap items-center gap-5 relative z-10 sm:flex-nowrap">
+                {/* Label with enhanced typography */}
+                <span
+                  className="text-xs font-medium text-neutral-600 dark:text-neutral-400 tracking-wide 
+                    relative after:content-[''] after:absolute after:-bottom-1 after:left-0 
+                    after:w-full after:h-px after:bg-neutral-300/50 dark:after:bg-neutral-600/30"
+                >
+                  Follow us:
+                </span>
+
+                {/* Social media links with enhanced hover effects */}
                 <div className="flex items-center gap-4">
-                  {/* Twitter link dengan efek hover yang lebih menarik */}
+                  {/* Twitter link with improved hover animation */}
                   <a
                     href="https://x.com/yorucast"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 
-                              dark:hover:text-white transition-all duration-300 px-2 py-1 rounded-md
-                              hover:bg-neutral-100/80 dark:hover:bg-neutral-700/50 group/link"
+                  dark:hover:text-white transition-all duration-300 px-2.5 py-1.5 rounded-lg
+                  hover:bg-neutral-100/90 dark:hover:bg-neutral-700/70 group/link relative
+                  hover:shadow-sm"
                     aria-label="Twitter profile"
                   >
-                    {/* Twitter icon dengan animasi hover */}
-                    <Twitter className="w-3.5 h-3.5 group-hover/link:scale-110 transition-transform duration-300" aria-hidden="true" />
-                    <span className="text-xs font-medium">Twitter</span>
+                    {/* Twitter icon with enhanced hover animation */}
+                    <span className="relative overflow-hidden inline-block w-4 h-4">
+                      <FaTwitter
+                        className="w-3.5 h-3.5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                              group-hover/link:scale-0 transition-all duration-300"
+                        aria-hidden="true"
+                      />
+                      <FaTwitter
+                        className="w-4 h-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0
+                              text-blue-400 dark:text-blue-300 group-hover/link:scale-100 
+                              transition-all duration-300 group-hover/link:rotate-12"
+                        aria-hidden="true"
+                      />
+                    </span>
+                    <span className="text-xs font-medium relative overflow-hidden">
+                      <span className="block transition-transform duration-300 group-hover/link:-translate-y-full">Twitter</span>
+                      <span className="block absolute top-0 left-0 translate-y-full transition-transform duration-300 group-hover/link:-translate-y-0">Twitter</span>
+                    </span>
                   </a>
 
-                  {/* Divider dengan desain yang ditingkatkan */}
-                  <div className="h-3.5 w-px bg-gradient-to-b from-transparent via-neutral-300 dark:via-neutral-600 to-transparent opacity-70"></div>
+                  {/* Enhanced divider with subtle gradient */}
+                  <div className="h-4 w-[1px] bg-gradient-to-b from-transparent via-neutral-300 dark:via-neutral-600 to-transparent opacity-60"></div>
 
-                  {/* Instagram link dengan efek hover yang konsisten */}
+                  {/* Instagram link with consistent enhanced hover animation */}
                   <a
                     href="https://www.instagram.com/yorucast/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 
-                              dark:hover:text-white transition-all duration-300 px-2 py-1 rounded-md
-                              hover:bg-neutral-100/80 dark:hover:bg-neutral-700/50 group/link"
+                  dark:hover:text-white transition-all duration-300 px-2.5 py-1.5 rounded-lg
+                  hover:bg-neutral-100/90 dark:hover:bg-neutral-700/70 group/link relative
+                  hover:shadow-sm"
                     aria-label="Instagram profile"
                   >
-                    {/* Instagram icon dengan animasi hover */}
-                    <Instagram className="w-3.5 h-3.5 group-hover/link:scale-110 transition-transform duration-300" aria-hidden="true" />
-                    <span className="text-xs font-medium">Instagram</span>
+                    {/* Instagram icon with enhanced hover animation */}
+                    <span className="relative overflow-hidden inline-block w-4 h-4">
+                      <FaInstagram
+                        className="w-3.5 h-3.5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                                group-hover/link:scale-0 transition-all duration-300"
+                        aria-hidden="true"
+                      />
+                      <FaInstagram
+                        className="w-4 h-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0
+                                text-pink-500 dark:text-pink-400 group-hover/link:scale-100 
+                                transition-all duration-300 group-hover/link:rotate-12"
+                        aria-hidden="true"
+                      />
+                    </span>
+                    <span className="text-xs font-medium relative overflow-hidden">
+                      <span className="block transition-transform duration-300 group-hover/link:-translate-y-full">Instagram</span>
+                      <span className="block absolute top-0 left-0 translate-y-full transition-transform duration-300 group-hover/link:-translate-y-0">Instagram</span>
+                    </span>
                   </a>
 
-                  {/* Divider dengan desain yang ditingkatkan */}
-                  <div className="h-3.5 w-px bg-gradient-to-b from-transparent via-neutral-300 dark:via-neutral-600 to-transparent opacity-70"></div>
+                  {/* Enhanced divider with subtle gradient */}
+                  <div className="h-4 w-[1px] bg-gradient-to-b from-transparent via-neutral-300 dark:via-neutral-600 to-transparent opacity-60"></div>
 
-                  {/* Discord link dengan efek hover yang konsisten */}
+                  {/* Discord link with consistent enhanced hover animation */}
                   <a
                     href="https://discord.gg/va7A8vBAKF"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 
-                              dark:hover:text-white transition-all duration-300 px-2 py-1 rounded-md
-                              hover:bg-neutral-100/80 dark:hover:bg-neutral-700/50 group/link"
+                  dark:hover:text-white transition-all duration-300 px-2.5 py-1.5 rounded-lg
+                  hover:bg-neutral-100/90 dark:hover:bg-neutral-700/70 group/link relative
+                  hover:shadow-sm"
                     aria-label="Discord server"
                   >
-                    {/* External link icon dengan animasi hover yang ditingkatkan */}
-                    <ExternalLink className="w-3.5 h-3.5 group-hover/link:rotate-12 group-hover/link:scale-110 transition-all duration-300" aria-hidden="true" />
-                    <span className="text-xs font-medium">Discord</span>
+                    {/* Discord icon with enhanced hover animation */}
+                    <span className="relative overflow-hidden inline-block w-4 h-4">
+                      <FaDiscord
+                        className="w-3.5 h-3.5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                              group-hover/link:scale-0 transition-all duration-300"
+                        aria-hidden="true"
+                      />
+                      <FaDiscord
+                        className="w-4 h-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0
+                              text-indigo-400 dark:text-indigo-300 group-hover/link:scale-100 
+                              transition-all duration-300 group-hover/link:rotate-12"
+                        aria-hidden="true"
+                      />
+                    </span>
+                    <span className="text-xs font-medium relative overflow-hidden">
+                      <span className="block transition-transform duration-300 group-hover/link:-translate-y-full">Discord</span>
+                      <span className="block absolute top-0 left-0 translate-y-full transition-transform duration-300 group-hover/link:-translate-y-0">Discord</span>
+                    </span>
                   </a>
                 </div>
               </div>
