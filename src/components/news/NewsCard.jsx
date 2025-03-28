@@ -109,7 +109,7 @@ export default function NewsCard({ post, viewMode, index }) {
       )}
 
       {/* Using flex-col and flex-grow to create consistent card layouts */}
-      <div className={`${viewMode === "grid" ? "p-6 relative" : "relative"} flex flex-col flex-grow`}>
+      <div className={`${viewMode === "grid" ? "p-6 relative" : "relative"} flex flex-col flex-grow group/rotate`}>
         {/* Card Content Container - Using flex-grow to push button to bottom */}
         <div className="flex-grow flex flex-col">
           {/* Post Metadata with enhanced styling */}
@@ -152,9 +152,9 @@ export default function NewsCard({ post, viewMode, index }) {
               <div className="flex justify-center items-center relative">
                 <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-neutral-200 dark:from-neutral-800 to-neutral-300 dark:to-neutral-700 opacity-30 blur-sm"></div>
                 <div className="relative w-2 h-2 bg-neutral-400 dark:bg-neutral-600 rounded-full shadow-sm"></div>
-                {/* Logo Yorushika dengan animasi rotasi 360 derajat saat hover */}
-                <div className="relative mx-1.5 text-neutral-400 dark:text-neutral-500 transition-all duration-700 group-hover:scale-110 hover:rotate-[360deg]">
-                  <YorushikaLogo className="w-8 h-8 opacity-80 group-hover:opacity-100 transition-all cursor-pointer" />
+                {/* Logo Yorushika dengan animasi rotasi 360 derajat saat hover pada card atau tombol */}
+                <div className="relative mx-1.5 text-neutral-400 dark:text-neutral-500 transition-all duration-700 group-hover:scale-110 group-hover/rotate:rotate-[360deg] hover:rotate-[360deg]">
+                  <YorushikaLogo className="w-8 h-8 opacity-100 group-hover:opacity-100 transition-all cursor-pointer" />
                 </div>
                 <div className="relative w-2 h-2 bg-neutral-400 dark:bg-neutral-600 rounded-full shadow-sm"></div>
               </div>
@@ -178,7 +178,7 @@ export default function NewsCard({ post, viewMode, index }) {
         <div className={`${viewMode === "grid" ? "pt-3 border-t border-neutral-200 dark:border-neutral-800" : ""} mt-auto relative flex justify-between items-center`}>
           {/* Precise button with consistent height and padding */}
           <Link to={`/lore/${post.id}`} className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700/50 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200/70 dark:hover:bg-neutral-700/70 transition-all duration-200 group/link relative h-9 min-w-[110px]" aria-label={`Read more about ${post.title}`}>
-            <span>Read article</span>
+            <span>Read lore</span>
             {/* Chevron icon with consistent positioning */}
             <ChevronRight className="w-4 h-4 ml-1.5 transform group-hover/link:translate-x-1 transition-transform" aria-hidden="true" />
 
