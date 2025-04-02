@@ -1,7 +1,14 @@
 import { motion } from "framer-motion";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { RefreshCw } from "lucide-react";
 
-export default function AlbumControls({ searchTerm, setSearchTerm, sortBy, setSortBy, yearFilter, setYearFilter, isGridView, setIsGridView, years }) {
+export default function AlbumControls({ searchTerm, setSearchTerm, sortBy, setSortBy, yearFilter, setYearFilter, isGridView, setIsGridView, years, onRefresh }) {
+  const handleRefresh = () => {
+    if (onRefresh) {
+      onRefresh();
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-8 items-start md:items-center relative bg-neutral-100/50 dark:bg-neutral-900/50 rounded-xl p-4 backdrop-blur-sm border border-neutral-200/50 dark:border-neutral-800/50 shadow-sm">
@@ -44,6 +51,10 @@ export default function AlbumControls({ searchTerm, setSearchTerm, sortBy, setSo
             </select>
             <ChevronDownIcon className="absolute right-2 top-2.5 w-4 h-4 pointer-events-none text-neutral-400" />
           </div>
+
+          <motion.button onClick={handleRefresh} className="p-2 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus:outline-none transition-colors hover:bg-neutral-200/30 dark:hover:bg-neutral-800/30" whileHover={{ scale: 1.05 }} whileTap={{ rotate: 360, transition: { duration: 0.5 } }} aria-label="Refresh album list" title="Refresh albums">
+            <RefreshCw className="h-5 w-5" />
+          </motion.button>
 
           <button onClick={() => setIsGridView(!isGridView)} className="p-2 border border-neutral-300 dark:border-neutral-700 rounded-md text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus:outline-none transition-colors hover:bg-neutral-200/30 dark:hover:bg-neutral-800/30" aria-label={isGridView ? "Switch to list view" : "Switch to grid view"}>
             {isGridView ? (
