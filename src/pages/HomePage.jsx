@@ -421,7 +421,7 @@ const HomePage = () => {
                   role: "Drums",
                   image: "https://media.vgm.io/artists/61/39816/39816-1614202935.jpg",
                   socialUrl: "https://x.com/kojimasa",
-                  socialType: "Instagram",
+                  socialType: "Twitter",
                 },
                 {
                   name: "Tetsuya Hirahata",

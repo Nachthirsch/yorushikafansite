@@ -4,7 +4,8 @@ import { Calendar, ChevronRight, Tag, Loader2 } from "lucide-react";
 import { formatDate } from "../../utils/dateFormat";
 import { useNewsPosts } from "../../hooks/useNewsPosts";
 import { useState } from "react";
-import YorushikaLogo from "../common/YorushikaLogo"; // Import logo Yorushika
+import YorushikaLogo from "../common/YorushikaLogo";
+import { NewsCardSkeletonList } from "./NewsCardSkeleton"; // Import komponen skeleton
 
 // Komponen untuk menampilkan daftar berita dengan fetching data
 export function NewsCardList({ filters, resetFilters, viewMode }) {
@@ -38,6 +39,25 @@ export function NewsCardList({ filters, resetFilters, viewMode }) {
     );
   }
 
+  // Tampilkan skeleton loading saat data sedang dimuat untuk halaman pertama
+  if (isLoading && page === 1) {
+    return (
+      <>
+        {/* Tampilkan skeleton cards dengan animasi pulse */}
+        <NewsCardSkeletonList viewMode={viewMode} count={6} />
+
+        {/* Dekorasi elemen footer untuk loading state */}
+        <div className="mt-16 flex justify-center items-center">
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+          <div className="mx-4">
+            <Loader2 className="animate-spin h-6 w-6 text-neutral-400 dark:text-neutral-600" />
+          </div>
+          <div className="h-px w-24 bg-gradient-to-r from-neutral-300 dark:from-neutral-700 via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+        </div>
+      </>
+    );
+  }
+
   // Tampilkan pesan jika tidak ada berita yang ditemukan
   if (data?.posts?.length === 0 || !data?.posts) {
     return (
@@ -45,8 +65,8 @@ export function NewsCardList({ filters, resetFilters, viewMode }) {
         <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-neutral-400 dark:text-neutral-600 mb-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <p className="text-lg text-neutral-500 dark:text-neutral-400 italic">{isLoading ? "Loading Lores" : "TThere's no lore :'( "}</p>
-        <p className="text-sm mt-2 text-neutral-400 dark:text-neutral-500">Adjust tour keyword and filter</p>
+        <p className="text-lg text-neutral-500 dark:text-neutral-400 italic">{isLoading ? "Loading Lores" : "There's no lore :'( "}</p>
+        <p className="text-sm mt-2 text-neutral-400 dark:text-neutral-500">Adjust your keyword and filter</p>
         {filters.searchTerm || filters.dateFilter !== "all" || filters.categoryFilter !== "all" ? (
           <button onClick={resetFilters} className="mt-6 px-4 py-2 bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors">
             Reset Filter
@@ -59,9 +79,19 @@ export function NewsCardList({ filters, resetFilters, viewMode }) {
   return (
     <>
       <motion.div layout className={`grid ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8" : "grid-cols-1 gap-6"}`}>
+        {/* Render berita yang sudah dimuat */}
         {data?.posts?.map((post, index) => (
           <NewsCard key={post.id} post={post} viewMode={viewMode} index={index} />
         ))}
+
+        {/* Menampilkan skeleton cards saat memuat lebih banyak data */}
+        {isLoading && page > 1 && (
+          <>
+            {[...Array(3)].map((_, index) => (
+              <NewsCardSkeleton key={`loading-more-${index}`} viewMode={viewMode} index={index} />
+            ))}
+          </>
+        )}
       </motion.div>
 
       {/* Tombol Load More */}

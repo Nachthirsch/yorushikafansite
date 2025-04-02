@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { useAlbums } from "../../hooks/useAlbums";
 import AlbumCard from "./AlbumCard";
+import AlbumCardSkeleton from "./AlbumCardSkeleton";
 import LoadingSpinner from "../LoadingSpinner";
 
 export default function AlbumGrid({ searchTerm, sortBy, yearFilter, isGridView, onAlbumSelect, onAlbumHover, setAvailableYears }) {
@@ -44,11 +45,23 @@ export default function AlbumGrid({ searchTerm, sortBy, yearFilter, isGridView, 
     }
   }, [years, setAvailableYears]);
 
-  // Tampilan loading
+  // Tampilan loading dengan skeleton cards
   if (isLoading) {
     return (
-      <div className="flex justify-center py-20">
-        <LoadingSpinner />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <motion.div layout className={`grid ${isGridView ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" : "grid-cols-1 gap-4"}`}>
+          {/* Menampilkan 6 skeleton cards saat loading */}
+          {[...Array(6)].map((_, index) => (
+            <AlbumCardSkeleton key={`skeleton-${index}`} isGridView={isGridView} />
+          ))}
+        </motion.div>
+
+        {/* Decorative footer untuk loading state */}
+        <div className="mt-20 flex justify-center items-center">
+          <div className="h-[1px] w-16 bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+          <LoadingSpinner size="small" className="mx-4" />
+          <div className="h-[1px] w-16 bg-gradient-to-r from-neutral-300 dark:from-neutral-700 via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+        </div>
       </div>
     );
   }

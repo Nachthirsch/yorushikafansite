@@ -4,6 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "../../lib/supabase";
 import { useNavigate } from "react-router-dom";
 import SongCard from "./SongCard";
+import { SongCardSkeletonList } from "./SongCardSkeleton"; // Import komponen skeleton
 
 const PAGE_SIZE = 12;
 
@@ -59,12 +60,21 @@ export default function SongsGrid({ searchTerm, sortBy, albumFilter, isGridView 
     navigate(`/lyrics/${songId}`, { state: { from: "songs" } });
   };
 
-  // Tampilkan loading state saat pertama kali memuat atau saat mencari
+  // Tampilkan skeleton loading state saat pertama kali memuat atau saat mencari
   if (isLoading && !allSongs.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-24">
-        <Loader className="w-8 h-8 animate-spin text-neutral-400 mb-4" />
-        <p className="text-neutral-500 dark:text-neutral-400">Loading songs...</p>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        {/* Tampilkan skeleton cards dengan animasi pulse */}
+        <SongCardSkeletonList isGridView={isGridView} count={PAGE_SIZE} />
+
+        {/* Elemen dekoratif footer untuk loading state */}
+        <div className="mt-12 flex justify-center items-center">
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+          <div className="mx-4">
+            <Loader className="animate-spin h-6 w-6 text-neutral-400 dark:text-neutral-600" />
+          </div>
+          <div className="h-px w-24 bg-gradient-to-r from-neutral-300 dark:from-neutral-700 via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+        </div>
       </div>
     );
   }
@@ -104,6 +114,15 @@ export default function SongsGrid({ searchTerm, sortBy, albumFilter, isGridView 
             {/* Decorative elements */}
             <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
+        </div>
+      )}
+
+      {/* Elemen dekoratif footer */}
+      {allSongs.length > 0 && !hasNextPage && (
+        <div className="mt-16 flex justify-center">
+          <div className="h-px w-20 bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent"></div>
+          <div className="h-1 w-1 rounded-full bg-neutral-300 dark:bg-neutral-700 mx-2"></div>
+          <div className="h-px w-20 bg-gradient-to-r from-neutral-300 dark:from-neutral-700 via-neutral-300 dark:via-neutral-700 to-transparent"></div>
         </div>
       )}
     </div>
