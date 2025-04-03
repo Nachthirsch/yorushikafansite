@@ -1,6 +1,5 @@
 # 🎵 Yorushika Fan Site
 
-![License](https://img.shields.io/badge/license-MIT-blue)
 ![React](https://img.shields.io/badge/React-19.0.0-61DAFB?logo=react)
 ![Vite](https://img.shields.io/badge/Vite-6.2.0-646CFF?logo=vite)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-4.0.9-38B2AC?logo=tailwindcss)
@@ -87,10 +86,6 @@ yorushikafansite/
 ├── .env.example       # Example environment variables
 └── vite.config.js     # Vite configuration
 ```
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🤝 Contributing
 
